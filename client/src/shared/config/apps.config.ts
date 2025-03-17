@@ -9,6 +9,7 @@ export interface App {
   platform: 'ios' | 'android' | 'windows';
   urlScheme: string;
   badges?: AppBadge[];
+  priority?: number; // Добавляем атрибут для приоритета
 }
 
 export const apps: App[] = [
@@ -18,25 +19,22 @@ export const apps: App[] = [
     name: 'Happ',
     platform: 'ios',
     urlScheme: 'happ://',
-    badges: [{ type: 'top', label: 'TOP' }]
+    badges: [{ type: 'top', label: 'TOP' }],
+    priority: 1 // Пример приоритета
   },
   {
     id: 'v2raytun-ios',
     name: 'v2rayTun',
     platform: 'ios',
-    urlScheme: 'v2raytun://'
+    urlScheme: 'v2raytun://',
+    priority: 2
   },
   {
-    id: 'streisand-ios',
-    name: 'Streisand',
+    id: 'shadowsocks-ios',
+    name: 'Shadowsocks',
     platform: 'ios',
-    urlScheme: 'streisand://'
-  },
-  {
-    id: 'shadowrocket-ios',
-    name: 'ShadowRocket',
-    platform: 'ios',
-    urlScheme: 'shadowrocket://'
+    urlScheme: 'shadowsocks://',
+    priority: 3
   },
 
   // Android Apps
@@ -45,35 +43,22 @@ export const apps: App[] = [
     name: 'Happ',
     platform: 'android',
     urlScheme: 'happ://',
-    badges: [{ type: 'top', label: 'TOP' }]
+    badges: [{ type: 'top', label: 'TOP' }],
+    priority: 1
+  },
+  {
+    id: 'v2raytun-android',
+    name: 'v2rayTun',
+    platform: 'android',
+    urlScheme: 'v2raytun://',
+    priority: 2
   },
   {
     id: 'hiddify-android',
     name: 'Hiddify',
     platform: 'android',
     urlScheme: 'hiddify://',
-    badges: [{ type: 'beta', label: 'BETA' }]
-  },
-  {
-    id: 'v2raytun-android',
-    name: 'v2rayTun',
-    platform: 'android',
-    urlScheme: 'v2raytun://'
-  },
-
-  // Windows Apps
-  {
-    id: 'hiddify-windows',
-    name: 'Hiddify',
-    platform: 'windows',
-    urlScheme: 'hiddify://',
-    badges: [{ type: 'top', label: 'TOP' }]
-  },
-  {
-    id: 'flclash-windows',
-    name: 'FlClash',
-    platform: 'windows',
-    urlScheme: 'flclash://',
-    badges: [{ type: 'beta', label: 'BETA' }]
+    badges: [{ type: 'beta', label: 'BETA' }],
+    priority: 3
   }
 ];
