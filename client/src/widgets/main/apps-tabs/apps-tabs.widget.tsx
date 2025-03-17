@@ -43,8 +43,8 @@ export const AppsTabsWidget = () => {
     return (
       <Stack gap="md">
         {platformApps.map(app => (
-          <Group key={app.id} position="apart">
-            <Group spacing="xs">
+          <Group key={app.id} justify="space-between">
+            <Group gap="xs">
               <Text>{app.name}</Text>
               {renderAppBadges(app)}
             </Group>
@@ -65,19 +65,19 @@ export const AppsTabsWidget = () => {
       <Tabs.List>
         <Tabs.Tab
           value="ios"
-          icon={<IconBrandApple size="1rem" />}
+          leftSection={<IconBrandApple size="1rem" />}
         >
           iOS
         </Tabs.Tab>
         <Tabs.Tab
           value="android"
-          icon={<IconBrandAndroid size="1rem" />}
+          leftSection={<IconBrandAndroid size="1rem" />}
         >
           Android
         </Tabs.Tab>
         <Tabs.Tab
           value="windows"
-          icon={<IconBrandWindows size="1rem" />}
+          leftSection={<IconBrandWindows size="1rem" />}
         >
           Windows
         </Tabs.Tab>
