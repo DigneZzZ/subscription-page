@@ -6,6 +6,13 @@
             }
         }
     },
+    "apps": {
+        "widget": {
+          "link-copied": "Link Copied",
+          "link-copied-to-clipboard": "Application link has been copied to clipboard",
+          "copy-link": "Copy Link"
+        }
+      },
     "installation-guide": {
         "widget": {
             "instrukciya": "Instructions",

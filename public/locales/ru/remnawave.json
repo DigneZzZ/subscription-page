@@ -6,6 +6,13 @@
             }
         }
     },
+    "apps": {
+        "widget": {
+            "link-copied": "Ссылка скопирована",
+            "link-copied-to-clipboard": "Ссылка для приложения скопирована в буфер обмена",
+            "copy-link": "Скопировать ссылку"
+        }
+      },
     "installation-guide": {
         "widget": {
             "instrukciya": "Инструкция",
