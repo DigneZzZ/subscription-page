@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Tabs, Group, Text, Timeline, ThemeIcon, Button } from '@mantine/core';
 import { IconBrandAndroid, IconBrandApple, IconDeviceDesktop, IconDownload, IconCheck, IconStar } from '@tabler/icons-react';
-import { apps } from '@/shared/config/apps.config';
-import { AppConfig } from '@/shared/types/app.types';
+// Изменим пути импорта на относительные
+import { apps } from '../../../shared/config/apps.config';
+import { AppConfig } from '../../../shared/types/app.types';
 import { useTranslation } from 'react-i18next';
 
 interface InstallationGuideWidgetProps {
