@@ -1,34 +1,30 @@
-import { useEffect, useState } from 'react';
-import { InstallationGuideWidget } from '../../../../widgets/main/installation-guide/installation-guide.widget';
-import { useParams } from 'react-router-dom';
-import { Subscription } from '../../../../shared/types/subscription.types';
+import { Container, Group, Stack, Title } from '@mantine/core'
+import { useTranslation } from 'react-i18next'
 
-export const MainPageComponent: React.FC = () => {
-    const [subscription, setSubscription] = useState<Subscription | null>(null);
-    const { id } = useParams();
+import { LanguagePicker } from '@shared/ui/language-picker/language-picker.shared'
 
-    useEffect(() => {
-        const getSubscriptionData = async () => {
-            try {
-                const subscriptionData: Subscription = {
-                    subscriptionUrl: window.location.href // или ваша логика получения URL
-                };
-                setSubscription(subscriptionData);
-            } catch (error) {
-                console.error('Failed to fetch subscription data:', error);
-            }
-        };
+import { InstallationGuideWidget } from '../../../../widgets/main/installation-guide/installation-guide.widget'
+import { SubscriptionLinkWidget } from '../../../../widgets/main/subscription-link/subscription-link.widget'
+import { SubscriptionInfoWidget } from '../../../../widgets/main/subscription-info/subscription-info.widget'
 
-        getSubscriptionData();
-    }, [id]);
-
-    if (!subscription) {
-        return <div>Loading...</div>;
-    }
+export const MainPageComponent = () => {
+    const { t } = useTranslation()
 
     return (
-        <div>
-            <InstallationGuideWidget subscription={subscription} />
-        </div>
-    );
-};
+        <Container my="xl" size="xl">
+            <Stack gap="xl">
+                <Group justify="space-between">
+                    <Group gap="xs">
+                        <Title order={4}>{t('main.page.component.podpiska')}</Title>
+                    </Group>
+                    <Group gap="xs">
+                        <SubscriptionLinkWidget />
+                        <LanguagePicker />
+                    </Group>
+                </Group>
+                <SubscriptionInfoWidget />
+                <InstallationGuideWidget />
+            </Stack>
+        </Container>
+    )
+}
