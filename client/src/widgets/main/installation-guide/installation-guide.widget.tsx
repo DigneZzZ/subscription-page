@@ -1,9 +1,18 @@
 import { useState } from 'react';
-import { Tabs, Group, Text, Timeline, ThemeIcon, Button, Badge } from '@mantine/core';
+import { Tabs, Group, Text, Timeline, ThemeIcon, Button } from '@mantine/core';
 import { IconBrandAndroid, IconBrandApple, IconDeviceDesktop, IconDownload, IconCheck, IconStar } from '@tabler/icons-react';
 import { apps } from '@/shared/config/apps.config';
+import { AppConfig } from '@/shared/types/app.types';
+import { useTranslation } from 'react-i18next';
 
-export const InstallationGuideWidget = ({ subscription }) => {
+interface InstallationGuideWidgetProps {
+    subscription: {
+        subscriptionUrl: string;
+    };
+}
+
+export const InstallationGuideWidget: React.FC<InstallationGuideWidgetProps> = ({ subscription }) => {
+    const { t } = useTranslation();
     const [defaultTab] = useState(() => {
         const userAgent = window?.navigator?.userAgent?.toLowerCase() || '';
         if (userAgent.includes('android')) return 'android';
@@ -31,9 +40,8 @@ export const InstallationGuideWidget = ({ subscription }) => {
 
         return (
             <div>
-                {/* Подвкладки приложений */}
                 <Group mb="md">
-                    {platformApps.map((app) => (
+                    {platformApps.map((app: AppConfig) => (
                         <Button
                             key={app.id}
                             variant={activeSubTab[platform] === app.id ? 'filled' : 'light'}
@@ -45,8 +53,7 @@ export const InstallationGuideWidget = ({ subscription }) => {
                     ))}
                 </Group>
 
-                {/* Инструкция для выбранного приложения */}
-                {platformApps.map((app) => (
+                {platformApps.map((app: AppConfig) => (
                     activeSubTab[platform] === app.id && (
                         <Timeline key={app.id} active={1} bulletSize={32} color="teal" lineWidth={2}>
                             <Timeline.Item
@@ -126,7 +133,8 @@ export const InstallationGuideWidget = ({ subscription }) => {
             </Tabs.Panel>
 
             <Tabs.Panel value="desktop">
-                {/* Desktop content remains the same */}
+                {/* Desktop content */}
+                <Text>Desktop content</Text>
             </Tabs.Panel>
         </Tabs>
     );
