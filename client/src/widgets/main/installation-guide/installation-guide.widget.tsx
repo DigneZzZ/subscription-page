@@ -36,8 +36,8 @@ export const InstallationGuideWidget: React.FC<InstallationGuideWidgetProps> = (
 
     const renderApps = (platform: 'ios' | 'android') => {
         const platformApps = apps
-            .filter(app => app.platform === platform)
-            .sort((a, b) => a.priority - b.priority);
+            .filter((app: AppConfig) => app.platform === platform)
+            .sort((a: AppConfig, b: AppConfig) => a.priority - b.priority);
 
         return (
             <div>
