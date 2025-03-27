@@ -135,7 +135,7 @@ export const InstallationGuideWidget = () => {
                     </Text>
                     <Button
                         component="a"
-                        href="#" // Здесь нужно вставить вашу ссылку на Google Play
+                        href="https://play.google.com/store/apps/details?id=com.v2raytun.android" 
                         leftSection={<IconExternalLink size={16} />}
                         target="_blank"
                         variant="light"
@@ -157,7 +157,7 @@ export const InstallationGuideWidget = () => {
                     </Text>
                     <Button 
                         onClick={() => {
-                            window.open(`v2ray://${subscriptionUrl}`, '_blank')
+                            window.open(`v2raytun://import/${subscriptionUrl}`, '_blank')
                         }} 
                         variant="filled"
                     >
@@ -379,7 +379,7 @@ export const InstallationGuideWidget = () => {
                     </Text>
                     <Button
                         component="a"
-                        href="#" // Здесь нужно вставить вашу ссылку на App Store
+                        href="https://apps.apple.com/ru/app/shadowrocket/id932747118" 
                         leftSection={<IconExternalLink size={16} />}
                         target="_blank"
                         variant="light"
@@ -401,7 +401,7 @@ export const InstallationGuideWidget = () => {
                     </Text>
                     <Button 
                         onClick={() => {
-                            window.open(`ss://${subscriptionUrl}`, '_blank')
+                            window.open(`sub://${subscriptionUrl}#@VsemVPN_bot`, '_blank')
                         }} 
                         variant="filled"
                     >
