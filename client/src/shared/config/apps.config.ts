@@ -1,3 +1,5 @@
+import { AppConfig } from '../types/app.types';
+
 export const apps: AppConfig[] = [
     {
         id: 'happ',
