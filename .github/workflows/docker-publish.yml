@@ -1,0 +1,47 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CR_PAT }}
+
+      # Добавляем шаг для преобразования имени репозитория в нижний регистр
+      - name: Prepare
+        id: prep
+        run: |
+          REPO=${GITHUB_REPOSITORY,,}
+          echo "repository=${REPO}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ steps.prep.outputs.repository }}:latest
+            ghcr.io/${{ steps.prep.outputs.repository }}:${{ github.sha }}
+            ghcr.io/${{ steps.prep.outputs.repository }}:main
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
