@@ -27,7 +27,7 @@ export function App() {
     return (
         <I18nextProvider defaultNS={''} i18n={i18n}>
             <DirectionProvider>
-                <MantineProvider defaultColorScheme="dark" theme={theme}>
+                <MantineProvider defaultColorScheme="light" theme={theme}>
                     <ModalsProvider>
                         <Notifications position={mq ? 'top-right' : 'bottom-right'} />
                         <NavigationProgress />
