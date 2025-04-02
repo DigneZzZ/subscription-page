@@ -3,19 +3,68 @@
 html,
 body {
     min-height: 100vh;
+    background-color: var(--mantine-color-gray-0);
+    color: var(--mantine-color-dark-6);
 }
 
 #root {
     height: 100vh;
+}
 
-    @mixin dark {
-        .mrt-table-head-sort-button {
-            border-radius: 0;
-            border: none;
-        }
-        .mrt-table-head-cell-filter-label-icon {
-            border-radius: 0;
-            border: none;
-        }
-    }
+/* Стили для аккордеона */
+.subscription-accordion {
+    background-color: var(--mantine-color-white);
+    border: 1px solid var(--mantine-color-gray-2);
+}
+
+.subscription-accordion-item {
+    background-color: var(--mantine-color-white);
+    box-shadow: 0 4px 12px var(--mantine-color-gray-2);
+}
+
+.subscription-accordion-control {
+    background-color: var(--mantine-color-white);
+}
+
+.subscription-accordion-control:hover {
+    background-color: var(--mantine-color-gray-0);
+}
+
+.subscription-accordion-panel {
+    background-color: var(--mantine-color-gray-0);
+    color: var(--mantine-color-dark-6);
+}
+
+.subscription-accordion-label {
+    color: var(--mantine-color-dark-7);
+}
+
+/* Стили для селекта операционной системы */
+.os-select {
+    background-color: var(--mantine-color-white);
+    border-color: var(--mantine-color-gray-3);
+    color: var(--mantine-color-dark-7);
+}
+
+.os-select-item {
+    background-color: var(--mantine-color-white);
+    color: var(--mantine-color-dark-7);
+}
+
+.os-select-item[data-selected] {
+    background-color: var(--mantine-color-blue-1);
+    color: var(--mantine-color-blue-7);
+}
+
+.os-select-item[data-hovered] {
+    background-color: var(--mantine-color-gray-0);
+}
+
+/* Улучшение читаемости текста */
+.text-dimmed {
+    color: var(--mantine-color-dark-4);
+}
+
+.text-primary {
+    color: var(--mantine-color-dark-7);
 }
