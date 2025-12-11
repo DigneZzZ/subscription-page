@@ -25,6 +25,12 @@ export function getExpirationTextUtil(
         return t('get-expiration-text.util.indefinitely')
     }
 
+    // Если срок больше 10 лет — показываем "бессрочно"
+    const yearsUntilExpiration = expiration.diff(now, 'year')
+    if (yearsUntilExpiration >= 10) {
+        return t('get-expiration-text.util.indefinitely')
+    }
+
     return t('get-expiration-text.util.expires-in', {
         expiration: expiration.fromNow(false)
     })
