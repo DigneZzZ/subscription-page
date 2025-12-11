@@ -1,41 +1,37 @@
-FROM oven/bun:latest AS frontend-builder
+FROM node:24.11-alpine AS backend-build
+WORKDIR /opt/app
 
-WORKDIR /app
+COPY backend/package*.json ./
+COPY backend/tsconfig.json ./
+COPY backend/tsconfig.build.json ./
 
-COPY package.json .
-COPY index.html .
-COPY .npmrc .
+RUN npm ci
 
-RUN bun install
+COPY backend/ .
 
-COPY . .
+RUN npm run build
 
-RUN bun run start:build
+RUN npm cache clean --force 
 
+RUN npm prune --omit=dev
 
-FROM golang:1.24-alpine AS builder
+FROM node:24.11-alpine
+WORKDIR /opt/app
 
-WORKDIR /app
+COPY --from=backend-build /opt/app/dist ./dist
+COPY --from=backend-build /opt/app/node_modules ./node_modules
 
-COPY server ./
+COPY frontend/dist/ ./frontend/
 
-RUN apk update && apk add --no-cache ca-certificates
-RUN update-ca-certificates
-
-RUN go mod download
-
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/app .
+COPY backend/package*.json ./
 
 
-FROM scratch
+COPY backend/ecosystem.config.js ./
+COPY backend/docker-entrypoint.sh ./
 
-COPY --from=builder /bin/app /app/app
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+ENV PM2_DISABLE_VERSION_CHECK=true
+ENV NODE_OPTIONS="--max-old-space-size=16384"
 
-COPY --from=frontend-builder /app/dist ./app/dist
+RUN npm install pm2 -g
 
-USER 1000
-
-WORKDIR /app
-
-CMD ["./app"]
+CMD [ "pm2-runtime", "start", "ecosystem.config.js", "--env", "production" ]
