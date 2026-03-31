@@ -24,6 +24,16 @@ export const configSchema = z
 
         PAYMENT_URL: z.optional(z.string()),
 
+        WATA_API_KEY: z.optional(z.string()),
+        WATA_AMOUNT: z
+            .string()
+            .transform((v) => parseFloat(v))
+            .refine((v) => !isNaN(v), 'WATA_AMOUNT must be a valid number')
+            .optional(),
+        WATA_CURRENCY: z.string().default('RUB'),
+        WATA_SUCCESS_URL: z.optional(z.string()),
+        WATA_FAIL_URL: z.optional(z.string()),
+
         MARZBAN_LEGACY_LINK_ENABLED: z
             .string()
             .default('false')
@@ -56,6 +66,13 @@ export const configSchema = z
                         'MARZBAN_LEGACY_SECRET_KEY is required when MARZBAN_LEGACY_LINK_ENABLED is true',
                 });
             }
+        }
+        if (data.WATA_API_KEY && !data.WATA_AMOUNT) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'WATA_AMOUNT is required when WATA_API_KEY is set',
+                path: ['WATA_AMOUNT'],
+            });
         }
     });
 

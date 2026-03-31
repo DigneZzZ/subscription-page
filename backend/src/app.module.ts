@@ -4,12 +4,14 @@ import { Module } from '@nestjs/common';
 import { validateEnvConfig } from '@common/utils/validate-env-config';
 import { configSchema, Env } from '@common/config/app-config';
 import { AxiosModule } from '@common/axios/axios.module';
+import { WataModule } from '@common/wata/wata.module';
 
 import { SubscriptionPageBackendModule } from '@modules/subscription-page-backend.modules';
 
 @Module({
     imports: [
         AxiosModule,
+        WataModule,
         ConfigModule.forRoot({
             isGlobal: true,
             cache: true,

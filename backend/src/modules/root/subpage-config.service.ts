@@ -121,7 +121,7 @@ export class SubpageConfigService implements OnApplicationBootstrap {
 
     public getBaseSettings(
         subpageConfigUuid: string | null,
-    ): TSubscriptionPageRawConfig['baseSettings'] & { paymentUrl: string } {
+    ): { paymentUrl: string } & TSubscriptionPageRawConfig['baseSettings'] {
         const paymentUrl = this.configService.get<string>('PAYMENT_URL') ?? '';
 
         const subpageConfig = this.subpageConfigMap.get(

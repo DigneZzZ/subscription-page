@@ -12,6 +12,7 @@ import { Logger } from '@nestjs/common';
 import { TRequestTemplateTypeKeys } from '@remnawave/backend-contract';
 
 import { AxiosService } from '@common/axios/axios.service';
+import { WataService } from '@common/wata/wata.service';
 import { IGNORED_HEADERS } from '@common/constants';
 import { sanitizeUsername } from '@common/utils';
 
@@ -29,6 +30,7 @@ export class RootService {
         private readonly jwtService: JwtService,
         private readonly axiosService: AxiosService,
         private readonly subpageConfigService: SubpageConfigService,
+        private readonly wataService: WataService,
     ) {
         this.isMarzbanLegacyLinkEnabled = this.configService.getOrThrow<boolean>(
             'MARZBAN_LEGACY_LINK_ENABLED',
@@ -135,6 +137,29 @@ export class RootService {
         }
     }
 
+    private async resolvePaymentUrl(shortUuid: string, staticPaymentUrl: string): Promise<string> {
+        if (this.wataService.isEnabled) {
+            const amount = this.configService.get<number>('WATA_AMOUNT');
+            if (amount !== undefined) {
+                const wataUrl = await this.wataService.createOrder({
+                    amount,
+                    currency: this.configService.get<string>('WATA_CURRENCY') ?? 'RUB',
+                    failRedirectUrl: this.configService.get<string>('WATA_FAIL_URL'),
+                    orderId: shortUuid,
+                    successRedirectUrl: this.configService.get<string>('WATA_SUCCESS_URL'),
+                });
+
+                if (wataUrl) {
+                    return wataUrl;
+                }
+
+                this.logger.warn('Wata API returned no URL, falling back to static PAYMENT_URL');
+            }
+        }
+
+        return staticPaymentUrl;
+    }
+
     private generateJwtForCookie(uuid: string | null): string {
         return this.jwtService.sign(
             {
@@ -224,6 +249,8 @@ export class RootService {
                 subscriptionData.response.ssConfLinks = {};
             }
 
+            const paymentUrl = await this.resolvePaymentUrl(shortUuid, baseSettings.paymentUrl);
+
             res.cookie('session', this.generateJwtForCookie(subpageConfig.subpageConfigUuid), {
                 httpOnly: true,
                 secure: true,
@@ -234,7 +261,7 @@ export class RootService {
                 metaTitle: baseSettings.metaTitle,
                 metaDescription: baseSettings.metaDescription,
                 panelData: Buffer.from(JSON.stringify(subscriptionData)).toString('base64'),
-                paymentUrl: baseSettings.paymentUrl,
+                paymentUrl,
             });
         } catch (error) {
             this.logger.error('Error in returnWebpage', error);
