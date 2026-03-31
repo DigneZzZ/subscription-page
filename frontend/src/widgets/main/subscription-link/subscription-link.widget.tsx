@@ -3,6 +3,7 @@ import {
     IconBrandTelegram,
     IconBrandVk,
     IconCopy,
+    IconCreditCard,
     IconLink,
     IconMessageChatbot
 } from '@tabler/icons-react'
@@ -21,10 +22,11 @@ import classes from './subscription-link.module.css'
 
 interface IProps {
     hideGetLink: boolean
+    paymentUrl: string
     supportUrl: string
 }
 
-export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink }: IProps) => {
+export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: IProps) => {
     const { t, baseTranslations } = useTranslation()
     const subscription = useSubscription()
     const clipboard = useClipboard({ timeout: 10000 })
@@ -132,6 +134,25 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink }: IProps) => {
                     variant="default"
                 >
                     <IconLink />
+                </ActionIcon>
+            )}
+
+            {paymentUrl !== '' && (
+                <ActionIcon
+                    c="green"
+                    component="a"
+                    href={paymentUrl}
+                    radius="md"
+                    rel="noopener noreferrer"
+                    size="xl"
+                    style={{
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}
+                    target="_blank"
+                    variant="default"
+                >
+                    <IconCreditCard />
                 </ActionIcon>
             )}
 

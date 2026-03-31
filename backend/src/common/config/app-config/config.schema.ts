@@ -22,6 +22,8 @@ export const configSchema = z
         CLOUDFLARE_ZERO_TRUST_CLIENT_ID: z.optional(z.string()),
         CLOUDFLARE_ZERO_TRUST_CLIENT_SECRET: z.optional(z.string()),
 
+        PAYMENT_URL: z.optional(z.string()),
+
         MARZBAN_LEGACY_LINK_ENABLED: z
             .string()
             .default('false')
