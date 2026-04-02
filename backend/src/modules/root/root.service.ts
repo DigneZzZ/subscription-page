@@ -464,7 +464,7 @@ export class RootService {
                 chatwootIdentifierHash: cwIdentifierHash,
             });
         } catch (error) {
-            this.logger.error('Error in returnWebpage', error);
+            this.logger.error(`Error in returnWebpage: ${error}`);
 
             res.socket?.destroy();
             return;
