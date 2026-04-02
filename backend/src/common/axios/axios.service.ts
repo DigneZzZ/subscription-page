@@ -321,8 +321,6 @@ export class AxiosService implements OnModuleInit {
                 Object.entries(headers).filter(([key]) => !IGNORED_HEADERS.has(key.toLowerCase())),
             );
 
-            this.logger.debug(`Request headers: ${JSON.stringify(safeHeaders, null, 0)}`);
-
             const response = await this.axiosInstance.request<unknown>({
                 method: 'GET',
                 url: basePath,
@@ -344,13 +342,11 @@ export class AxiosService implements OnModuleInit {
             if (error instanceof AxiosError) {
                 if (error.response) {
                     if (error.response.status === 404) {
-                        this.logger.warn(`Subscription ${shortUuid} not found in Remnawave.`);
                         return null;
                     }
                 }
 
                 this.logger.error(`Error in GetSubscription Request: ${error.message}`);
-                this.logger.debug(`Error response: ${error.response?.data}`);
             } else {
                 this.logger.error(`Error in GetSubscription Request: ${error}`);
             }
