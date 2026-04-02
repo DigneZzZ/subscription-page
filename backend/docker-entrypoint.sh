@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "Starting entrypoint script..."
-export INTERNAL_JWT_SECRET=$(head -c 64 /dev/urandom | xxd -p)
+export INTERNAL_JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
 
 
 echo "Entrypoint script completed."
