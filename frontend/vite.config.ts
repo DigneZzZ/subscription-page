@@ -22,7 +22,8 @@ export default defineConfig({
                     root: viteConfig.root,
                     panelData: '<%- panelData %>',
                     metaDescription: '<%= metaDescription %>',
-                    metaTitle: '<%= metaTitle %>'
+                    metaTitle: '<%= metaTitle %>',
+                    paymentUrl: '<%- paymentUrl %>'
                 }
             }
             return {
