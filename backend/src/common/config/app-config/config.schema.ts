@@ -22,17 +22,32 @@ export const configSchema = z
         CLOUDFLARE_ZERO_TRUST_CLIENT_ID: z.optional(z.string()),
         CLOUDFLARE_ZERO_TRUST_CLIENT_SECRET: z.optional(z.string()),
 
-        PAYMENT_URL: z.optional(z.string()),
+        PAYMENT_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
 
-        WATA_API_KEY: z.optional(z.string()),
+        WATA_API_KEY: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
         WATA_AMOUNT: z
             .string()
-            .transform((v) => parseFloat(v))
-            .refine((v) => !isNaN(v), 'WATA_AMOUNT must be a valid number')
-            .optional(),
-        WATA_CURRENCY: z.string().default('RUB'),
-        WATA_SUCCESS_URL: z.optional(z.string()),
-        WATA_FAIL_URL: z.optional(z.string()),
+            .optional()
+            .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
+            .refine((v) => v === undefined || !isNaN(v), 'WATA_AMOUNT must be a valid number'),
+        WATA_CURRENCY: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : 'RUB')),
+        WATA_SUCCESS_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        WATA_FAIL_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
 
         MARZBAN_LEGACY_LINK_ENABLED: z
             .string()
