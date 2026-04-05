@@ -105,7 +105,9 @@ async function bootstrap(): Promise<void> {
 
     const customSubPrefix = config.get<string>('CUSTOM_SUB_PREFIX') || '';
 
-    app.setGlobalPrefix(customSubPrefix, { exclude: [APP_CONFIG_ROUTE_WO_LEADING_PATH] });
+    app.setGlobalPrefix(customSubPrefix, {
+        exclude: [APP_CONFIG_ROUTE_WO_LEADING_PATH, 'api/payment-webhook'],
+    });
 
     if (customSubPrefix) {
         logger.info('[CONFIG] CUSTOM_SUB_PREFIX: ' + customSubPrefix);
@@ -115,7 +117,7 @@ async function bootstrap(): Promise<void> {
 
     app.enableCors({
         origin: '*',
-        methods: 'GET',
+        methods: 'GET,POST',
         credentials: false,
     });
 
