@@ -137,27 +137,57 @@ export class RootService {
         }
     }
 
-    private async resolvePaymentUrl(shortUuid: string, staticPaymentUrl: string): Promise<string> {
+    private async resolvePaymentTariffs(
+        shortUuid: string,
+        staticPaymentUrl: string,
+    ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string }>; staticUrl: string }> {
+        const tariffs: Array<{ months: number; amount: number; currency: string; url: string }> = [];
+
         if (this.wataService.isEnabled) {
-            const amount = this.configService.get<number>('WATA_AMOUNT');
-            if (amount !== undefined) {
-                const wataUrl = await this.wataService.createOrder({
-                    amount,
-                    currency: this.configService.get<string>('WATA_CURRENCY') ?? 'RUB',
-                    failRedirectUrl: this.configService.get<string>('WATA_FAIL_URL'),
-                    orderId: shortUuid,
-                    successRedirectUrl: this.configService.get<string>('WATA_SUCCESS_URL'),
-                });
+            const currency = this.configService.get<string>('WATA_CURRENCY') ?? 'RUB';
+            const successRedirectUrl = this.configService.get<string>('WATA_SUCCESS_URL');
+            const failRedirectUrl = this.configService.get<string>('WATA_FAIL_URL');
 
-                if (wataUrl) {
-                    return wataUrl;
+            const tariffConfigs = [
+                { months: 1, envKey: 'WATA_TARIFF_1M' },
+                { months: 3, envKey: 'WATA_TARIFF_3M' },
+                { months: 6, envKey: 'WATA_TARIFF_6M' },
+                { months: 12, envKey: 'WATA_TARIFF_12M' },
+            ];
+
+            const tariffPromises = tariffConfigs
+                .map(({ months, envKey }) => {
+                    const amount = this.configService.get<number>(envKey);
+                    if (amount === undefined) return null;
+                    return { months, amount, currency };
+                })
+                .filter(Boolean) as Array<{ months: number; amount: number; currency: string }>;
+
+            const urlResults = await Promise.all(
+                tariffPromises.map(async (tariff) => {
+                    const url = await this.wataService.createOrder({
+                        amount: tariff.amount,
+                        currency: tariff.currency,
+                        failRedirectUrl,
+                        orderId: `${shortUuid}_${tariff.months}m`,
+                        successRedirectUrl,
+                    });
+                    return url ? { ...tariff, url } : null;
+                }),
+            );
+
+            for (const result of urlResults) {
+                if (result) {
+                    tariffs.push(result);
                 }
+            }
 
-                this.logger.warn('Wata API returned no URL, falling back to static PAYMENT_URL');
+            if (tariffs.length === 0 && tariffPromises.length > 0) {
+                this.logger.warn('Wata API returned no URLs for any tariff, falling back to static PAYMENT_URL');
             }
         }
 
-        return staticPaymentUrl;
+        return { tariffs, staticUrl: staticPaymentUrl };
     }
 
     private generateJwtForCookie(uuid: string | null): string {
@@ -249,7 +279,12 @@ export class RootService {
                 subscriptionData.response.ssConfLinks = {};
             }
 
-            const paymentUrl = await this.resolvePaymentUrl(shortUuid, baseSettings.paymentUrl);
+            const { tariffs, staticUrl } = await this.resolvePaymentTariffs(shortUuid, baseSettings.paymentUrl);
+
+            const paymentUrl = staticUrl;
+            const paymentTariffs = tariffs.length > 0
+                ? Buffer.from(JSON.stringify(tariffs)).toString('base64')
+                : '';
 
             res.cookie('session', this.generateJwtForCookie(subpageConfig.subpageConfigUuid), {
                 httpOnly: true,
@@ -262,6 +297,7 @@ export class RootService {
                 metaDescription: baseSettings.metaDescription,
                 panelData: Buffer.from(JSON.stringify(subscriptionData)).toString('base64'),
                 paymentUrl,
+                paymentTariffs,
             });
         } catch (error) {
             this.logger.error('Error in returnWebpage', error);

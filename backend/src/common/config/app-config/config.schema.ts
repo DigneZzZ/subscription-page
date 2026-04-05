@@ -31,11 +31,29 @@ export const configSchema = z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
-        WATA_AMOUNT: z
+        WATA_TARIFF_1M: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
-            .refine((v) => v === undefined || !isNaN(v), 'WATA_AMOUNT must be a valid number'),
+            .refine((v) => v === undefined || !isNaN(v), 'WATA_TARIFF_1M must be a valid number'),
+        WATA_TARIFF_3M: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
+            .refine((v) => v === undefined || !isNaN(v), 'WATA_TARIFF_3M must be a valid number'),
+        WATA_TARIFF_6M: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
+            .refine((v) => v === undefined || !isNaN(v), 'WATA_TARIFF_6M must be a valid number'),
+        WATA_TARIFF_12M: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
+            .refine(
+                (v) => v === undefined || !isNaN(v),
+                'WATA_TARIFF_12M must be a valid number',
+            ),
         WATA_CURRENCY: z
             .string()
             .optional()
@@ -82,11 +100,18 @@ export const configSchema = z
                 });
             }
         }
-        if (data.WATA_API_KEY && !data.WATA_AMOUNT) {
+        if (
+            data.WATA_API_KEY &&
+            !data.WATA_TARIFF_1M &&
+            !data.WATA_TARIFF_3M &&
+            !data.WATA_TARIFF_6M &&
+            !data.WATA_TARIFF_12M
+        ) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'WATA_AMOUNT is required when WATA_API_KEY is set',
-                path: ['WATA_AMOUNT'],
+                message:
+                    'At least one WATA_TARIFF (1M, 3M, 6M, or 12M) is required when WATA_API_KEY is set',
+                path: ['WATA_TARIFF_1M'],
             });
         }
     });

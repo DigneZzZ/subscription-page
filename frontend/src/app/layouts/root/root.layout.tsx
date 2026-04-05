@@ -53,6 +53,19 @@ export function RootLayout() {
         if (paymentDiv) {
             const paymentUrl = paymentDiv.dataset.url ?? ''
             paymentActions.setPaymentUrl(paymentUrl)
+
+            const tariffsData = paymentDiv.dataset.tariffs ?? ''
+            if (tariffsData) {
+                try {
+                    const tariffs = JSON.parse(atob(tariffsData))
+                    if (Array.isArray(tariffs)) {
+                        paymentActions.setTariffs(tariffs)
+                    }
+                } catch {
+                    consola.error('Failed to parse payment tariffs')
+                }
+            }
+
             paymentDiv.remove()
         }
 

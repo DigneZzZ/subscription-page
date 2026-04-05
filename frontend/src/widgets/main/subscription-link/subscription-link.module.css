@@ -18,3 +18,46 @@
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.payButton {
+    background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+    color: #0a0e14;
+    font-weight: 700;
+    border: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+}
+
+.payButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(34, 211, 238, 0.35);
+}
+
+.payButton:active {
+    transform: translateY(0);
+}
+
+.tariffCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: var(--mantine-radius-md);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+    text-decoration: none;
+    cursor: pointer;
+    min-height: 80px;
+}
+
+.tariffCard:hover {
+    border-color: rgba(34, 211, 238, 0.5);
+    background: rgba(34, 211, 238, 0.06);
+    transform: translateY(-2px);
+}
+
+.tariffCard:active {
+    transform: translateY(0);
+}
