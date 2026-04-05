@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Get, Controller, Res, Req, Param, Logger } from '@nestjs/common';
+import { Get, Post, Body, Controller, Res, Req, Param, Logger, HttpCode } from '@nestjs/common';
 
 import {
     REQUEST_TEMPLATE_TYPE_VALUES,
@@ -27,6 +27,35 @@ export class RootController {
     @Get(APP_CONFIG_ROUTE_WO_LEADING_PATH)
     async getSubscriptionPageConfig(@GetJWTPayload() user: IJwtPayload, @Req() request: Request) {
         return await this.subpageConfigService.getSubscriptionPageConfig(user.su, request);
+    }
+
+    @Post('api/payment-webhook')
+    @HttpCode(200)
+    async paymentWebhook(
+        @Body()
+        body: {
+            orderId: string;
+            months: number;
+            amount: number;
+            currency: string;
+            shortUuid: string;
+            username: string;
+        },
+    ) {
+        if (!body.orderId || !body.months || !body.amount || !body.currency || !body.shortUuid || !body.username) {
+            return { ok: false };
+        }
+
+        await this.rootService.sendPaymentWebhook({
+            orderId: body.orderId,
+            months: body.months,
+            amount: body.amount,
+            currency: body.currency,
+            shortUuid: body.shortUuid,
+            username: body.username,
+        });
+
+        return { ok: true };
     }
 
     @Get([':shortUuid', ':shortUuid/:clientType'])

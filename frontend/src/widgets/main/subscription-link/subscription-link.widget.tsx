@@ -159,14 +159,33 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: 
         })
     }
 
+    const handleTariffClick = (tariff: IPaymentTariff) => {
+        const shortUuid = subscription.user.shortUuid
+        const username = subscription.user.username
+        const orderId = `${shortUuid}_${tariff.months}m`
+
+        fetch('/api/payment-webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId,
+                months: tariff.months,
+                amount: tariff.amount,
+                currency: tariff.currency,
+                shortUuid,
+                username
+            })
+        }).catch(() => {})
+
+        window.open(tariff.url, '_blank', 'noopener,noreferrer')
+        modals.closeAll()
+    }
+
     const renderTariffCard = (tariff: IPaymentTariff) => (
         <UnstyledButton
             className={classes.tariffCard}
-            component="a"
-            href={tariff.url}
             key={tariff.months}
-            rel="noopener noreferrer"
-            target="_blank"
+            onClick={() => handleTariffClick(tariff)}
         >
             <Text c="white" fw={600} size="sm">
                 {getPeriodLabel(tariff.months, currentLang)}

@@ -3,6 +3,7 @@ import { AxiosResponseHeaders } from 'axios';
 import { Request, Response } from 'express';
 import { createHash } from 'node:crypto';
 import { nanoid } from 'nanoid';
+import axios from 'axios';
 
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
@@ -188,6 +189,35 @@ export class RootService {
         }
 
         return { tariffs, staticUrl: staticPaymentUrl };
+    }
+
+    public async sendPaymentWebhook(data: {
+        orderId: string;
+        months: number;
+        amount: number;
+        currency: string;
+        shortUuid: string;
+        username: string;
+    }): Promise<void> {
+        const webhookUrl = this.configService.get<string>('WATA_WEBHOOK_URL');
+        if (!webhookUrl) {
+            return;
+        }
+
+        const payload = {
+            ...data,
+            timestamp: new Date().toISOString(),
+        };
+
+        try {
+            await axios.post(webhookUrl, payload, {
+                headers: { 'Content-Type': 'application/json' },
+                timeout: 10_000,
+            });
+            this.logger.log(`Payment webhook sent for order ${data.orderId}`);
+        } catch (error) {
+            this.logger.error(`Payment webhook failed for order ${data.orderId}: ${error}`);
+        }
     }
 
     private generateJwtForCookie(uuid: string | null): string {
