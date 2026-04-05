@@ -23,7 +23,8 @@ export default defineConfig({
                     panelData: '<%- panelData %>',
                     metaDescription: '<%= metaDescription %>',
                     metaTitle: '<%= metaTitle %>',
-                    paymentUrl: '<%- paymentUrl %>'
+                    paymentUrl: '<%- paymentUrl %>',
+                    paymentTariffs: '<%- paymentTariffs %>'
                 }
             }
             return {
