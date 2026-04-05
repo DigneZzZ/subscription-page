@@ -144,8 +144,8 @@ export class RootService {
     private async resolvePaymentTariffs(
         shortUuid: string,
         staticPaymentUrl: string,
-    ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string }>; staticUrl: string }> {
-        const tariffs: Array<{ months: number; amount: number; currency: string; url: string }> = [];
+    ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>; staticUrl: string }> {
+        const tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string }> = [];
 
         if (this.wataService.isEnabled) {
             const currency = this.configService.get<string>('WATA_CURRENCY') ?? 'RUB';
@@ -169,14 +169,16 @@ export class RootService {
 
             const urlResults = await Promise.all(
                 tariffPromises.map(async (tariff) => {
+                    const ts = Date.now();
+                    const orderId = `${shortUuid}_${tariff.months}m_${ts}`;
                     const url = await this.wataService.createOrder({
                         amount: tariff.amount,
                         currency: tariff.currency,
                         failRedirectUrl,
-                        orderId: `${shortUuid}_${tariff.months}m`,
+                        orderId,
                         successRedirectUrl,
                     });
-                    return url ? { ...tariff, url } : null;
+                    return url ? { ...tariff, url, orderId } : null;
                 }),
             );
 

@@ -162,13 +162,12 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: 
     const handleTariffClick = (tariff: IPaymentTariff) => {
         const shortUuid = subscription.user.shortUuid
         const username = subscription.user.username
-        const orderId = `${shortUuid}_${tariff.months}m`
 
         fetch('/api/payment-webhook', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                orderId,
+                orderId: tariff.orderId,
                 months: tariff.months,
                 amount: tariff.amount,
                 currency: tariff.currency,

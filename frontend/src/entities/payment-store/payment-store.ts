@@ -5,6 +5,7 @@ export interface IPaymentTariff {
     amount: number
     currency: string
     url: string
+    orderId: string
 }
 
 interface IState {
