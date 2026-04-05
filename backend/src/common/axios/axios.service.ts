@@ -54,6 +54,8 @@ export class AxiosService implements OnModuleInit {
             'CLOUDFLARE_ZERO_TRUST_CLIENT_SECRET',
         );
 
+        const egamesCookie = this.configService.get<string | undefined>('EGAMES_COOKIE');
+
         if (caddyAuthApiToken) {
             this.axiosInstance.defaults.headers.common['X-Api-Key'] = caddyAuthApiToken;
         }
@@ -68,6 +70,10 @@ export class AxiosService implements OnModuleInit {
         if (this.configService.getOrThrow('REMNAWAVE_PANEL_URL').startsWith('http://')) {
             this.axiosInstance.defaults.headers.common['X-Forwarded-For'] = '127.0.0.1';
             this.axiosInstance.defaults.headers.common['X-Forwarded-Proto'] = 'https';
+        }
+
+        if (egamesCookie) {
+            this.axiosInstance.defaults.headers.common['Cookie'] = egamesCookie;
         }
     }
 

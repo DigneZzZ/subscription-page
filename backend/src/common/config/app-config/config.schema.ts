@@ -134,6 +134,7 @@ export const configSchema = z
             .transform((val) => (val === '' ? 'false' : val))
             .refine((val) => val === 'true' || val === 'false', 'Must be "true" or "false".'),
         INTERNAL_JWT_SECRET: z.string(),
+        EGAMES_COOKIE: z.optional(z.string()),
     })
     .superRefine((data, ctx) => {
         if (
