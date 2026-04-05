@@ -1,7 +1,7 @@
 import { RawAxiosResponseHeaders } from 'axios';
 import { AxiosResponseHeaders } from 'axios';
 import { Request, Response } from 'express';
-import { createHash } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import { nanoid } from 'nanoid';
 import axios from 'axios';
 
@@ -26,6 +26,9 @@ export class RootService {
     private readonly isMarzbanLegacyLinkEnabled: boolean;
     private readonly marzbanSecretKeys: string[];
     private readonly mlDropRevokedSubscriptions: boolean;
+    private readonly webhookRateMap = new Map<string, number[]>();
+    private readonly WEBHOOK_RATE_LIMIT = 5;
+    private readonly WEBHOOK_RATE_WINDOW_MS = 60_000;
     constructor(
         private readonly configService: ConfigService,
         private readonly jwtService: JwtService,
@@ -191,6 +194,17 @@ export class RootService {
         return { tariffs, staticUrl: staticPaymentUrl };
     }
 
+    public isValidTariffMonths(months: number): boolean {
+        const envKey = `WATA_TARIFF_${months}M`;
+        return this.configService.get<number>(envKey) !== undefined;
+    }
+
+    public isValidTariffAmount(months: number, amount: number): boolean {
+        const envKey = `WATA_TARIFF_${months}M`;
+        const configuredAmount = this.configService.get<number>(envKey);
+        return configuredAmount !== undefined && configuredAmount === amount;
+    }
+
     public async sendPaymentWebhook(data: {
         orderId: string;
         months: number;
@@ -198,25 +212,53 @@ export class RootService {
         currency: string;
         shortUuid: string;
         username: string;
-    }): Promise<void> {
+    }): Promise<{ ok: boolean; reason?: string }> {
         const webhookUrl = this.configService.get<string>('WATA_WEBHOOK_URL');
         if (!webhookUrl) {
-            return;
+            return { ok: false, reason: 'webhook_disabled' };
         }
+
+        // Rate limiting per shortUuid
+        const now = Date.now();
+        const key = data.shortUuid;
+        const timestamps = this.webhookRateMap.get(key) ?? [];
+        const recent = timestamps.filter((ts) => now - ts < this.WEBHOOK_RATE_WINDOW_MS);
+
+        if (recent.length >= this.WEBHOOK_RATE_LIMIT) {
+            this.logger.warn(`Rate limit exceeded for ${key}`);
+            return { ok: false, reason: 'rate_limited' };
+        }
+
+        recent.push(now);
+        this.webhookRateMap.set(key, recent);
 
         const payload = {
             ...data,
             timestamp: new Date().toISOString(),
         };
 
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+        };
+
+        // HMAC signature
+        const secret = this.configService.get<string>('WATA_WEBHOOK_SECRET');
+        if (secret) {
+            const body = JSON.stringify(payload);
+            const signature = createHmac('sha256', secret).update(body).digest('hex');
+            headers['X-Webhook-Signature'] = signature;
+        }
+
         try {
             await axios.post(webhookUrl, payload, {
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 timeout: 10_000,
             });
             this.logger.log(`Payment webhook sent for order ${data.orderId}`);
+            return { ok: true };
         } catch (error) {
             this.logger.error(`Payment webhook failed for order ${data.orderId}: ${error}`);
+            return { ok: false, reason: 'send_failed' };
         }
     }
 

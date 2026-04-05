@@ -12,7 +12,11 @@ export function checkAssetsCookieMiddleware(
     res: Response,
     next: NextFunction,
 ) {
-    if (req.path.startsWith('/assets') || req.path.startsWith('/locales')) {
+    if (
+        req.path.startsWith('/assets') ||
+        req.path.startsWith('/locales') ||
+        req.path === '/api/payment-webhook'
+    ) {
         const secret = process.env.INTERNAL_JWT_SECRET;
 
         if (!secret) {

@@ -32,6 +32,7 @@ export class RootController {
     @Post('api/payment-webhook')
     @HttpCode(200)
     async paymentWebhook(
+        @GetJWTPayload() user: IJwtPayload,
         @Body()
         body: {
             orderId: string;
@@ -42,11 +43,28 @@ export class RootController {
             username: string;
         },
     ) {
+        if (!user) {
+            return { ok: false };
+        }
+
         if (!body.orderId || !body.months || !body.amount || !body.currency || !body.shortUuid || !body.username) {
             return { ok: false };
         }
 
-        await this.rootService.sendPaymentWebhook({
+        // Validate months is one of the configured tariffs
+        if (![1, 3, 6, 12].includes(body.months)) {
+            return { ok: false };
+        }
+
+        // Validate the tariff exists and amount matches configured value
+        if (!this.rootService.isValidTariffAmount(body.months, body.amount)) {
+            this.logger.warn(
+                `Invalid tariff amount: months=${body.months}, amount=${body.amount}`,
+            );
+            return { ok: false };
+        }
+
+        const result = await this.rootService.sendPaymentWebhook({
             orderId: body.orderId,
             months: body.months,
             amount: body.amount,
@@ -55,7 +73,7 @@ export class RootController {
             username: body.username,
         });
 
-        return { ok: true };
+        return { ok: result.ok };
     }
 
     @Get([':shortUuid', ':shortUuid/:clientType'])

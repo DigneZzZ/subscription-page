@@ -70,6 +70,10 @@ export const configSchema = z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
+        WATA_WEBHOOK_SECRET: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
 
         MARZBAN_LEGACY_LINK_ENABLED: z
             .string()
