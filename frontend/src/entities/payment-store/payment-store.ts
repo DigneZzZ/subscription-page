@@ -4,8 +4,6 @@ export interface IPaymentTariff {
     months: number
     amount: number
     currency: string
-    url: string
-    orderId: string
 }
 
 interface IState {

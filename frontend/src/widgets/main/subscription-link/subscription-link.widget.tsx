@@ -7,10 +7,11 @@ import {
     IconLink,
     IconMessageChatbot
 } from '@tabler/icons-react'
-import { ActionIcon, Button, Group, Image, SimpleGrid, Stack, Text, UnstyledButton } from '@mantine/core'
+import { ActionIcon, Button, Group, Image, Loader, SimpleGrid, Stack, Text, UnstyledButton } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useClipboard } from '@mantine/hooks'
 import { modals } from '@mantine/modals'
+import { useState } from 'react'
 import { renderSVG } from 'uqr'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
@@ -63,6 +64,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: 
     const subscription = useSubscription()
     const clipboard = useClipboard({ timeout: 10000 })
     const tariffs = usePaymentTariffs()
+    const [loadingTariff, setLoadingTariff] = useState<number | null>(null)
 
     const isRu = currentLang === 'ru'
     const hasPayment = paymentUrl !== '' || tariffs.length > 0
@@ -159,39 +161,69 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: 
         })
     }
 
-    const handleTariffClick = (tariff: IPaymentTariff) => {
+    const handleTariffClick = async (tariff: IPaymentTariff) => {
         const shortUuid = subscription.user.shortUuid
         const username = subscription.user.username
 
-        fetch('/api/payment-webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                orderId: tariff.orderId,
-                months: tariff.months,
-                amount: tariff.amount,
-                currency: tariff.currency,
-                shortUuid,
-                username
-            })
-        }).catch(() => {})
+        setLoadingTariff(tariff.months)
 
-        window.open(tariff.url, '_blank', 'noopener,noreferrer')
-        modals.closeAll()
+        try {
+            const response = await fetch('/api/create-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    months: tariff.months,
+                    shortUuid,
+                    username
+                })
+            })
+
+            const data = await response.json()
+
+            if (data.ok && data.url) {
+                window.open(data.url, '_blank', 'noopener,noreferrer')
+                modals.closeAll()
+            } else {
+                notifications.show({
+                    title: isRu ? 'Ошибка' : 'Error',
+                    message: isRu
+                        ? 'Не удалось создать платёж. Попробуйте позже.'
+                        : 'Failed to create payment. Please try again.',
+                    color: 'red'
+                })
+            }
+        } catch {
+            notifications.show({
+                title: isRu ? 'Ошибка' : 'Error',
+                message: isRu
+                    ? 'Не удалось создать платёж. Попробуйте позже.'
+                    : 'Failed to create payment. Please try again.',
+                color: 'red'
+            })
+        } finally {
+            setLoadingTariff(null)
+        }
     }
 
     const renderTariffCard = (tariff: IPaymentTariff) => (
         <UnstyledButton
             className={classes.tariffCard}
+            disabled={loadingTariff !== null}
             key={tariff.months}
             onClick={() => handleTariffClick(tariff)}
         >
-            <Text c="white" fw={600} size="sm">
-                {getPeriodLabel(tariff.months, currentLang)}
-            </Text>
-            <Text c="cyan" fw={700} mt={4} size="lg">
-                {formatAmount(tariff.amount, tariff.currency)}
-            </Text>
+            {loadingTariff === tariff.months ? (
+                <Loader color="cyan" size="sm" />
+            ) : (
+                <>
+                    <Text c="white" fw={600} size="sm">
+                        {getPeriodLabel(tariff.months, currentLang)}
+                    </Text>
+                    <Text c="cyan" fw={700} mt={4} size="lg">
+                        {formatAmount(tariff.amount, tariff.currency)}
+                    </Text>
+                </>
+            )}
         </UnstyledButton>
     )
 

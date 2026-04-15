@@ -143,13 +143,21 @@ export class RootService {
         }
     }
 
-    private async resolvePaymentTariffs(
-        shortUuid: string,
-        staticPaymentUrl: string,
-    ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>; staticUrl: string }> {
+    private resolvePaymentInfo(staticPaymentUrl: string): {
+        tariffs: Array<{ months: number; amount: number; currency: string }>;
+        staticUrl: string;
+    } {
+        const tariffs = this.getConfiguredTariffs();
+        const hasProviders = this.hasPaymentProviders();
+
+        return {
+            tariffs: hasProviders ? tariffs : [],
+            staticUrl: staticPaymentUrl,
+        };
+    }
+
+    private getConfiguredTariffs(): Array<{ months: number; amount: number; currency: string }> {
         const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
-        const successRedirectUrl = this.configService.get<string>('PAYMENT_SUCCESS_URL');
-        const failRedirectUrl = this.configService.get<string>('PAYMENT_FAIL_URL');
 
         const tariffConfigs = [
             { months: 1, envKey: 'TARIFF_1M' },
@@ -158,19 +166,29 @@ export class RootService {
             { months: 12, envKey: 'TARIFF_12M' },
         ];
 
-        const configuredTariffs = tariffConfigs
+        return tariffConfigs
             .map(({ months, envKey }) => {
                 const amount = this.configService.get<number>(envKey);
                 if (amount === undefined) return null;
                 return { months, amount, currency };
             })
             .filter(Boolean) as Array<{ months: number; amount: number; currency: string }>;
+    }
 
-        if (configuredTariffs.length === 0) {
-            return { tariffs: [], staticUrl: staticPaymentUrl };
-        }
+    public hasPaymentProviders(): boolean {
+        return this.wataService.isEnabled || this.plategaService.isEnabled;
+    }
 
-        // Collect enabled providers and pick one randomly
+    public async createPaymentOrder(
+        months: number,
+        shortUuid: string,
+    ): Promise<{ url: string; orderId: string; provider: string } | null> {
+        const tariff = this.getConfiguredTariffs().find((t) => t.months === months);
+        if (!tariff) return null;
+
+        const successRedirectUrl = this.configService.get<string>('PAYMENT_SUCCESS_URL');
+        const failRedirectUrl = this.configService.get<string>('PAYMENT_FAIL_URL');
+
         const providers: Array<'wata' | 'platega'> = [];
         if (this.wataService.isEnabled) providers.push('wata');
         if (this.plategaService.isEnabled) providers.push('platega');
@@ -184,65 +202,36 @@ export class RootService {
         this.logger.log(`Payment providers order: [${providers.join(', ')}]`);
 
         for (const provider of providers) {
-            const tariffs = await this.generateTariffsForProvider(
-                provider,
-                shortUuid,
-                configuredTariffs,
-                currency,
-                successRedirectUrl,
-                failRedirectUrl,
-            );
+            const ts = Date.now();
+            const orderId = `${shortUuid}_${tariff.months}m_${ts}`;
+            let url: string | null = null;
 
-            if (tariffs.length > 0) {
-                this.logger.log(`Using payment provider: ${provider}`);
-                return { tariffs, staticUrl: staticPaymentUrl };
+            if (provider === 'wata') {
+                url = await this.wataService.createOrder({
+                    amount: tariff.amount,
+                    currency: tariff.currency,
+                    failRedirectUrl,
+                    orderId,
+                    successRedirectUrl,
+                });
+            } else if (provider === 'platega') {
+                url = await this.plategaService.createOrder({
+                    amount: tariff.amount,
+                    currency: tariff.currency,
+                    orderId,
+                    successRedirectUrl,
+                    failRedirectUrl,
+                });
+            }
+
+            if (url) {
+                this.logger.log(`Using payment provider: ${provider} for ${months}m tariff`);
+                return { url, orderId, provider };
             }
         }
 
-        if (providers.length > 0) {
-            this.logger.warn('All payment providers failed, falling back to static PAYMENT_URL');
-        }
-
-        return { tariffs: [], staticUrl: staticPaymentUrl };
-    }
-
-    private async generateTariffsForProvider(
-        provider: 'wata' | 'platega',
-        shortUuid: string,
-        configuredTariffs: Array<{ months: number; amount: number; currency: string }>,
-        currency: string,
-        successRedirectUrl?: string,
-        failRedirectUrl?: string,
-    ): Promise<Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>> {
-        const results = await Promise.all(
-            configuredTariffs.map(async (tariff) => {
-                const ts = Date.now();
-                const orderId = `${shortUuid}_${tariff.months}m_${ts}`;
-                let url: string | null = null;
-
-                if (provider === 'wata') {
-                    url = await this.wataService.createOrder({
-                        amount: tariff.amount,
-                        currency: tariff.currency,
-                        failRedirectUrl,
-                        orderId,
-                        successRedirectUrl,
-                    });
-                } else if (provider === 'platega') {
-                    url = await this.plategaService.createOrder({
-                        amount: tariff.amount,
-                        currency: tariff.currency,
-                        orderId,
-                        successRedirectUrl,
-                        failRedirectUrl,
-                    });
-                }
-
-                return url ? { ...tariff, url, orderId } : null;
-            }),
-        );
-
-        return results.filter(Boolean) as Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>;
+        this.logger.warn('All payment providers failed');
+        return null;
     }
 
     public isValidTariffMonths(months: number): boolean {
@@ -254,6 +243,14 @@ export class RootService {
         const envKey = `TARIFF_${months}M`;
         const configuredAmount = this.configService.get<number>(envKey);
         return configuredAmount !== undefined && configuredAmount === amount;
+    }
+
+    public getTariffAmount(months: number): number | undefined {
+        return this.configService.get<number>(`TARIFF_${months}M`);
+    }
+
+    public getTariffCurrency(): string {
+        return this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
     }
 
     public async sendPaymentWebhook(data: {
@@ -402,7 +399,7 @@ export class RootService {
                 subscriptionData.response.ssConfLinks = {};
             }
 
-            const { tariffs, staticUrl } = await this.resolvePaymentTariffs(shortUuid, baseSettings.paymentUrl);
+            const { tariffs, staticUrl } = this.resolvePaymentInfo(baseSettings.paymentUrl);
 
             const paymentUrl = staticUrl;
             const paymentTariffs = tariffs.length > 0

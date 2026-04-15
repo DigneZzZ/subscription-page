@@ -29,6 +29,55 @@ export class RootController {
         return await this.subpageConfigService.getSubscriptionPageConfig(user.su, request);
     }
 
+    @Post('api/create-payment')
+    @HttpCode(200)
+    async createPayment(
+        @GetJWTPayload() user: IJwtPayload,
+        @Body()
+        body: {
+            months: number;
+            shortUuid: string;
+            username: string;
+        },
+    ) {
+        if (!user) {
+            return { ok: false };
+        }
+
+        if (!body.months || !body.shortUuid || !body.username) {
+            return { ok: false };
+        }
+
+        if (![1, 3, 6, 12].includes(body.months)) {
+            return { ok: false };
+        }
+
+        if (!this.rootService.isValidTariffMonths(body.months)) {
+            return { ok: false };
+        }
+
+        const result = await this.rootService.createPaymentOrder(body.months, body.shortUuid);
+
+        if (!result) {
+            return { ok: false };
+        }
+
+        // Send webhook notification
+        const tariffAmount = this.rootService.getTariffAmount(body.months);
+        if (tariffAmount !== undefined) {
+            this.rootService.sendPaymentWebhook({
+                orderId: result.orderId,
+                months: body.months,
+                amount: tariffAmount,
+                currency: this.rootService.getTariffCurrency(),
+                shortUuid: body.shortUuid,
+                username: body.username,
+            }).catch(() => {});
+        }
+
+        return { ok: true, url: result.url, orderId: result.orderId };
+    }
+
     @Post('api/payment-webhook')
     @HttpCode(200)
     async paymentWebhook(
