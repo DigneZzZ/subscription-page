@@ -1,7 +1,7 @@
 import { RawAxiosResponseHeaders } from 'axios';
 import { AxiosResponseHeaders } from 'axios';
 import { Request, Response } from 'express';
-import { createHash, createHmac } from 'node:crypto';
+import { createHash, createHmac, randomInt } from 'node:crypto';
 import { nanoid } from 'nanoid';
 import axios from 'axios';
 
@@ -175,11 +175,13 @@ export class RootService {
         if (this.wataService.isEnabled) providers.push('wata');
         if (this.plategaService.isEnabled) providers.push('platega');
 
-        // Shuffle providers for random selection with fallback
+        // Fisher-Yates shuffle with crypto-secure random
         for (let i = providers.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
+            const j = randomInt(i + 1);
             [providers[i], providers[j]] = [providers[j], providers[i]];
         }
+
+        this.logger.log(`Payment providers order: [${providers.join(', ')}]`);
 
         for (const provider of providers) {
             const tariffs = await this.generateTariffsForProvider(
