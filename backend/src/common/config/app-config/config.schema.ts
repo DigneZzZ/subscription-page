@@ -27,50 +27,65 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
 
-        WATA_API_KEY: z
-            .string()
-            .optional()
-            .transform((v) => (v && v.length > 0 ? v : undefined)),
-        WATA_TARIFF_1M: z
+        // Shared tariff settings
+        TARIFF_1M: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
-            .refine((v) => v === undefined || !isNaN(v), 'WATA_TARIFF_1M must be a valid number'),
-        WATA_TARIFF_3M: z
+            .refine((v) => v === undefined || !isNaN(v), 'TARIFF_1M must be a valid number'),
+        TARIFF_3M: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
-            .refine((v) => v === undefined || !isNaN(v), 'WATA_TARIFF_3M must be a valid number'),
-        WATA_TARIFF_6M: z
+            .refine((v) => v === undefined || !isNaN(v), 'TARIFF_3M must be a valid number'),
+        TARIFF_6M: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
-            .refine((v) => v === undefined || !isNaN(v), 'WATA_TARIFF_6M must be a valid number'),
-        WATA_TARIFF_12M: z
+            .refine((v) => v === undefined || !isNaN(v), 'TARIFF_6M must be a valid number'),
+        TARIFF_12M: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
             .refine(
                 (v) => v === undefined || !isNaN(v),
-                'WATA_TARIFF_12M must be a valid number',
+                'TARIFF_12M must be a valid number',
             ),
-        WATA_CURRENCY: z
+        TARIFF_CURRENCY: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : 'RUB')),
-        WATA_SUCCESS_URL: z
+        PAYMENT_SUCCESS_URL: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
-        WATA_FAIL_URL: z
+        PAYMENT_FAIL_URL: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
-        WATA_WEBHOOK_URL: z
+
+        // Wata payment gateway
+        WATA_API_KEY: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
-        WATA_WEBHOOK_SECRET: z
+
+        // Platega payment gateway
+        PLATEGA_MERCHANT_ID: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        PLATEGA_SECRET: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+
+        // Webhook for payment notifications
+        PAYMENT_WEBHOOK_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        PAYMENT_WEBHOOK_SECRET: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
@@ -109,17 +124,24 @@ export const configSchema = z
             }
         }
         if (
-            data.WATA_API_KEY &&
-            !data.WATA_TARIFF_1M &&
-            !data.WATA_TARIFF_3M &&
-            !data.WATA_TARIFF_6M &&
-            !data.WATA_TARIFF_12M
+            (data.WATA_API_KEY || data.PLATEGA_MERCHANT_ID) &&
+            !data.TARIFF_1M &&
+            !data.TARIFF_3M &&
+            !data.TARIFF_6M &&
+            !data.TARIFF_12M
         ) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message:
-                    'At least one WATA_TARIFF (1M, 3M, 6M, or 12M) is required when WATA_API_KEY is set',
-                path: ['WATA_TARIFF_1M'],
+                    'At least one TARIFF (1M, 3M, 6M, or 12M) is required when a payment provider is enabled',
+                path: ['TARIFF_1M'],
+            });
+        }
+        if (data.PLATEGA_MERCHANT_ID && !data.PLATEGA_SECRET) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'PLATEGA_SECRET is required when PLATEGA_MERCHANT_ID is set',
+                path: ['PLATEGA_SECRET'],
             });
         }
     });

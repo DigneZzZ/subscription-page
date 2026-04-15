@@ -13,6 +13,7 @@ import { Logger } from '@nestjs/common';
 import { TRequestTemplateTypeKeys } from '@remnawave/backend-contract';
 
 import { AxiosService } from '@common/axios/axios.service';
+import { PlategaService } from '@common/platega/platega.service';
 import { WataService } from '@common/wata/wata.service';
 import { IGNORED_HEADERS } from '@common/constants';
 import { sanitizeUsername } from '@common/utils';
@@ -35,6 +36,7 @@ export class RootService {
         private readonly axiosService: AxiosService,
         private readonly subpageConfigService: SubpageConfigService,
         private readonly wataService: WataService,
+        private readonly plategaService: PlategaService,
     ) {
         this.isMarzbanLegacyLinkEnabled = this.configService.getOrThrow<boolean>(
             'MARZBAN_LEGACY_LINK_ENABLED',
@@ -145,64 +147,109 @@ export class RootService {
         shortUuid: string,
         staticPaymentUrl: string,
     ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>; staticUrl: string }> {
-        const tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string }> = [];
+        const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
+        const successRedirectUrl = this.configService.get<string>('PAYMENT_SUCCESS_URL');
+        const failRedirectUrl = this.configService.get<string>('PAYMENT_FAIL_URL');
 
-        if (this.wataService.isEnabled) {
-            const currency = this.configService.get<string>('WATA_CURRENCY') ?? 'RUB';
-            const successRedirectUrl = this.configService.get<string>('WATA_SUCCESS_URL');
-            const failRedirectUrl = this.configService.get<string>('WATA_FAIL_URL');
+        const tariffConfigs = [
+            { months: 1, envKey: 'TARIFF_1M' },
+            { months: 3, envKey: 'TARIFF_3M' },
+            { months: 6, envKey: 'TARIFF_6M' },
+            { months: 12, envKey: 'TARIFF_12M' },
+        ];
 
-            const tariffConfigs = [
-                { months: 1, envKey: 'WATA_TARIFF_1M' },
-                { months: 3, envKey: 'WATA_TARIFF_3M' },
-                { months: 6, envKey: 'WATA_TARIFF_6M' },
-                { months: 12, envKey: 'WATA_TARIFF_12M' },
-            ];
+        const configuredTariffs = tariffConfigs
+            .map(({ months, envKey }) => {
+                const amount = this.configService.get<number>(envKey);
+                if (amount === undefined) return null;
+                return { months, amount, currency };
+            })
+            .filter(Boolean) as Array<{ months: number; amount: number; currency: string }>;
 
-            const tariffPromises = tariffConfigs
-                .map(({ months, envKey }) => {
-                    const amount = this.configService.get<number>(envKey);
-                    if (amount === undefined) return null;
-                    return { months, amount, currency };
-                })
-                .filter(Boolean) as Array<{ months: number; amount: number; currency: string }>;
+        if (configuredTariffs.length === 0) {
+            return { tariffs: [], staticUrl: staticPaymentUrl };
+        }
 
-            const urlResults = await Promise.all(
-                tariffPromises.map(async (tariff) => {
-                    const ts = Date.now();
-                    const orderId = `${shortUuid}_${tariff.months}m_${ts}`;
-                    const url = await this.wataService.createOrder({
+        // Collect enabled providers and pick one randomly
+        const providers: Array<'wata' | 'platega'> = [];
+        if (this.wataService.isEnabled) providers.push('wata');
+        if (this.plategaService.isEnabled) providers.push('platega');
+
+        // Shuffle providers for random selection with fallback
+        for (let i = providers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [providers[i], providers[j]] = [providers[j], providers[i]];
+        }
+
+        for (const provider of providers) {
+            const tariffs = await this.generateTariffsForProvider(
+                provider,
+                shortUuid,
+                configuredTariffs,
+                currency,
+                successRedirectUrl,
+                failRedirectUrl,
+            );
+
+            if (tariffs.length > 0) {
+                this.logger.log(`Using payment provider: ${provider}`);
+                return { tariffs, staticUrl: staticPaymentUrl };
+            }
+        }
+
+        if (providers.length > 0) {
+            this.logger.warn('All payment providers failed, falling back to static PAYMENT_URL');
+        }
+
+        return { tariffs: [], staticUrl: staticPaymentUrl };
+    }
+
+    private async generateTariffsForProvider(
+        provider: 'wata' | 'platega',
+        shortUuid: string,
+        configuredTariffs: Array<{ months: number; amount: number; currency: string }>,
+        currency: string,
+        successRedirectUrl?: string,
+        failRedirectUrl?: string,
+    ): Promise<Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>> {
+        const results = await Promise.all(
+            configuredTariffs.map(async (tariff) => {
+                const ts = Date.now();
+                const orderId = `${shortUuid}_${tariff.months}m_${ts}`;
+                let url: string | null = null;
+
+                if (provider === 'wata') {
+                    url = await this.wataService.createOrder({
                         amount: tariff.amount,
                         currency: tariff.currency,
                         failRedirectUrl,
                         orderId,
                         successRedirectUrl,
                     });
-                    return url ? { ...tariff, url, orderId } : null;
-                }),
-            );
-
-            for (const result of urlResults) {
-                if (result) {
-                    tariffs.push(result);
+                } else if (provider === 'platega') {
+                    url = await this.plategaService.createOrder({
+                        amount: tariff.amount,
+                        currency: tariff.currency,
+                        orderId,
+                        successRedirectUrl,
+                        failRedirectUrl,
+                    });
                 }
-            }
 
-            if (tariffs.length === 0 && tariffPromises.length > 0) {
-                this.logger.warn('Wata API returned no URLs for any tariff, falling back to static PAYMENT_URL');
-            }
-        }
+                return url ? { ...tariff, url, orderId } : null;
+            }),
+        );
 
-        return { tariffs, staticUrl: staticPaymentUrl };
+        return results.filter(Boolean) as Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>;
     }
 
     public isValidTariffMonths(months: number): boolean {
-        const envKey = `WATA_TARIFF_${months}M`;
+        const envKey = `TARIFF_${months}M`;
         return this.configService.get<number>(envKey) !== undefined;
     }
 
     public isValidTariffAmount(months: number, amount: number): boolean {
-        const envKey = `WATA_TARIFF_${months}M`;
+        const envKey = `TARIFF_${months}M`;
         const configuredAmount = this.configService.get<number>(envKey);
         return configuredAmount !== undefined && configuredAmount === amount;
     }
@@ -215,7 +262,7 @@ export class RootService {
         shortUuid: string;
         username: string;
     }): Promise<{ ok: boolean; reason?: string }> {
-        const webhookUrl = this.configService.get<string>('WATA_WEBHOOK_URL');
+        const webhookUrl = this.configService.get<string>('PAYMENT_WEBHOOK_URL');
         if (!webhookUrl) {
             return { ok: false, reason: 'webhook_disabled' };
         }
@@ -244,7 +291,7 @@ export class RootService {
         };
 
         // HMAC signature
-        const secret = this.configService.get<string>('WATA_WEBHOOK_SECRET');
+        const secret = this.configService.get<string>('PAYMENT_WEBHOOK_SECRET');
         if (secret) {
             const body = JSON.stringify(payload);
             const signature = createHmac('sha256', secret).update(body).digest('hex');

@@ -3,7 +3,7 @@ name: Build and push
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
 
   workflow_dispatch:
 
@@ -61,6 +61,18 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.TOKEN_GH_DEPLOY }}
 
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            remnawave/subscription-page
+            ghcr.io/remnawave/subscription-page
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -68,11 +80,8 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64, linux/arm64
           push: true
-          tags: |
-            remnawave/subscription-page:latest
-            remnawave/subscription-page:${{github.ref_name}}
-            ghcr.io/remnawave/subscription-page:latest
-            ghcr.io/remnawave/subscription-page:${{github.ref_name}}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   send-telegram-message:
     name: Send Telegram message
