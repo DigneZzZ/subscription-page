@@ -14,7 +14,6 @@ interface ICreateOrderParams {
 interface ICardLinkResponse {
     link_page_url: string;
     bill_id: string;
-    success?: boolean;
 }
 
 @Injectable()
