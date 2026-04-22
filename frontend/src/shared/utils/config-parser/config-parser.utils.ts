@@ -37,6 +37,10 @@ export function getExpirationTextUtil(
         return getLocalizedText(baseTranslations.indefinitely, currentLang)
     }
 
+    if (expiration.diff(now, 'year') >= 10) {
+        return getLocalizedText(baseTranslations.indefinitely, currentLang)
+    }
+
     return `${getLocalizedText(baseTranslations.expiresIn, currentLang)} ${expiration.fromNow(false)}`
 }
 
