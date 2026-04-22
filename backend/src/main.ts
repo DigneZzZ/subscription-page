@@ -1,3 +1,5 @@
+process.title = 'rw-subpage';
+
 import { utilities as nestWinstonModuleUtilities, WinstonModule } from 'nest-winston';
 import cookieParser from 'cookie-parser';
 import { createLogger } from 'winston';
