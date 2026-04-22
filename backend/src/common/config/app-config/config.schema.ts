@@ -80,6 +80,20 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
 
+        // CardLink payment gateway
+        CARDLINK_API_KEY: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        CARDLINK_SHOP_ID: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        CARDLINK_PAYER_PAYS_COMMISSION: z
+            .string()
+            .default('0')
+            .transform((v) => (v === '1' ? 1 : 0)),
+
         // Webhook for payment notifications
         PAYMENT_WEBHOOK_URL: z
             .string()
@@ -124,7 +138,7 @@ export const configSchema = z
             }
         }
         if (
-            (data.WATA_API_KEY || data.PLATEGA_MERCHANT_ID) &&
+            (data.WATA_API_KEY || data.PLATEGA_MERCHANT_ID || data.CARDLINK_API_KEY) &&
             !data.TARIFF_1M &&
             !data.TARIFF_3M &&
             !data.TARIFF_6M &&
@@ -142,6 +156,20 @@ export const configSchema = z
                 code: z.ZodIssueCode.custom,
                 message: 'PLATEGA_SECRET is required when PLATEGA_MERCHANT_ID is set',
                 path: ['PLATEGA_SECRET'],
+            });
+        }
+        if (data.CARDLINK_API_KEY && !data.CARDLINK_SHOP_ID) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'CARDLINK_SHOP_ID is required when CARDLINK_API_KEY is set',
+                path: ['CARDLINK_SHOP_ID'],
+            });
+        }
+        if (data.CARDLINK_SHOP_ID && !data.CARDLINK_API_KEY) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'CARDLINK_API_KEY is required when CARDLINK_SHOP_ID is set',
+                path: ['CARDLINK_API_KEY'],
             });
         }
     });
