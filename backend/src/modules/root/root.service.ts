@@ -13,6 +13,7 @@ import { Logger } from '@nestjs/common';
 import { TRequestTemplateTypeKeys } from '@remnawave/backend-contract';
 
 import { AxiosService } from '@common/axios/axios.service';
+import { CardLinkService } from '@common/cardlink/cardlink.service';
 import { PlategaService } from '@common/platega/platega.service';
 import { WataService } from '@common/wata/wata.service';
 import { IGNORED_HEADERS } from '@common/constants';
@@ -37,6 +38,7 @@ export class RootService {
         private readonly subpageConfigService: SubpageConfigService,
         private readonly wataService: WataService,
         private readonly plategaService: PlategaService,
+        private readonly cardLinkService: CardLinkService,
     ) {
         this.isMarzbanLegacyLinkEnabled = this.configService.getOrThrow<boolean>(
             'MARZBAN_LEGACY_LINK_ENABLED',
@@ -171,9 +173,10 @@ export class RootService {
         }
 
         // Collect enabled providers and pick one randomly
-        const providers: Array<'wata' | 'platega'> = [];
+        const providers: Array<'wata' | 'platega' | 'cardlink'> = [];
         if (this.wataService.isEnabled) providers.push('wata');
         if (this.plategaService.isEnabled) providers.push('platega');
+        if (this.cardLinkService.isEnabled) providers.push('cardlink');
 
         // Fisher-Yates shuffle with crypto-secure random
         for (let i = providers.length - 1; i > 0; i--) {
@@ -207,7 +210,7 @@ export class RootService {
     }
 
     private async generateTariffsForProvider(
-        provider: 'wata' | 'platega',
+        provider: 'wata' | 'platega' | 'cardlink',
         shortUuid: string,
         configuredTariffs: Array<{ months: number; amount: number; currency: string }>,
         currency: string,
@@ -235,6 +238,14 @@ export class RootService {
                         orderId,
                         successRedirectUrl,
                         failRedirectUrl,
+                    });
+                } else if (provider === 'cardlink') {
+                    url = await this.cardLinkService.createOrder({
+                        amount: tariff.amount,
+                        currency: tariff.currency,
+                        failRedirectUrl,
+                        orderId,
+                        successRedirectUrl,
                     });
                 }
 
