@@ -1,0 +1,58 @@
+# Changelog
+
+## [7.2.0](https://github.com/DigneZzZ/subscription-page/compare/v7.1.8...v7.2.0) (2026-04-23)
+
+
+### Features
+
+* add CardLink env vars and paired validation to config schema ([9c9a785](https://github.com/DigneZzZ/subscription-page/commit/9c9a785cb68a6bfb18288d2bc3635eaa551c29f9))
+* add CardLinkModule and barrel export ([3026d57](https://github.com/DigneZzZ/subscription-page/commit/3026d571fab13c91f84b9a61368536047242158b))
+* add CardLinkService implementation ([62fb640](https://github.com/DigneZzZ/subscription-page/commit/62fb6400dc47996776558cef25ae251f31dcd39e))
+* add configurable raw keys display option ([b6cadff](https://github.com/DigneZzZ/subscription-page/commit/b6cadffffa9481ca7969fd45ba8ee4a499be78cd))
+* add HappCryptoLink template variable, add  support for `HideGetLinkButton` ([4e9ab14](https://github.com/DigneZzZ/subscription-page/commit/4e9ab14c3164249612e93cbad789440eb330e95f))
+* add MARZBAN_LEGACY_DROP_REVOKED_SUBSCRIPTIONS configuration ([e2d9ca9](https://github.com/DigneZzZ/subscription-page/commit/e2d9ca92e49e644d3731d75129d49f66cdcd0d2a))
+* add MARZBAN_LEGACY_SUBSCRIPTION_VALID_FROM to config and enhance logging in token verification ([66796ae](https://github.com/DigneZzZ/subscription-page/commit/66796ae4faeaa2b16e8239995d8060bf87bca020))
+* add payment button to subscription page ([734768f](https://github.com/DigneZzZ/subscription-page/commit/734768f24d1b231c1ae41eaec6cb1ae152a6493e))
+* add Platega payment provider with random rotation, shared tariffs, semver CI ([e95b6a4](https://github.com/DigneZzZ/subscription-page/commit/e95b6a4cf622703605785eaa3ce6c07579241463))
+* add Wata payment gateway integration ([829e927](https://github.com/DigneZzZ/subscription-page/commit/829e9276bbe5b7d89e69963bf8c44311a564eb91))
+* additional support for legacy Marzban JWT-based shortUuids ([543e37a](https://github.com/DigneZzZ/subscription-page/commit/543e37a7b3c33f2c2b512e6170d320e9885d93f4))
+* dynamic subpage configuration ([60e3c4d](https://github.com/DigneZzZ/subscription-page/commit/60e3c4df7aa28339b71984b100d1d462f58e1b29))
+* enhance AxiosService logging and update ignored headers ([078c01b](https://github.com/DigneZzZ/subscription-page/commit/078c01b2a2b0764823e5c1b4fd771ec8baebe6bb))
+* enhance global prefix configuration logging ([87515ec](https://github.com/DigneZzZ/subscription-page/commit/87515eccd820cd8ee7d9e207752c1db119e8a2d4))
+* enhance subscription page configuration ([a5d98cf](https://github.com/DigneZzZ/subscription-page/commit/a5d98cf591757c961cb6f2bc53cad205ecdf03d1))
+* expand generic path handling in RootService ([9a824a0](https://github.com/DigneZzZ/subscription-page/commit/9a824a0be04d0beb8c9228734752e34a52679443))
+* forward CardLink bill_id to payment webhook ([7d7068f](https://github.com/DigneZzZ/subscription-page/commit/7d7068ff6a82014a82299a15b982840728ca5a08))
+* implement onModuleInit and getAuthStatus in AxiosService ([b3fb508](https://github.com/DigneZzZ/subscription-page/commit/b3fb508f27889b3bb3ce9b3d98afce89b0b21037))
+* integrate CardLink provider into payment rotation ([0aadd0c](https://github.com/DigneZzZ/subscription-page/commit/0aadd0cd4ba968d1ff99023895fd968f4fe7a23a))
+* nestjs backend ([4689df0](https://github.com/DigneZzZ/subscription-page/commit/4689df077405f106a6f1c9487f206c2b8716fc76))
+* NestJS backend (move from Go) ([ed255c0](https://github.com/DigneZzZ/subscription-page/commit/ed255c017d2e13cdddcfd167cf4fc99ecae6b1c3))
+* prefix payment orderId with user telegramId ([2061315](https://github.com/DigneZzZ/subscription-page/commit/2061315f753c71edf565f590d943737ab1c092b9))
+* register CardLinkModule in AppModule ([e08a460](https://github.com/DigneZzZ/subscription-page/commit/e08a4605f20c3d6583036f9089bbf6180258b1df))
+* strict response validation ([1e599e4](https://github.com/DigneZzZ/subscription-page/commit/1e599e4a3786974d6cfeef3a45ee7d9499751703))
+
+
+### Bug Fixes
+
+* add cache control headers to Axios requests ([c8aad63](https://github.com/DigneZzZ/subscription-page/commit/c8aad636faf702d257e32d733fe985f2a0f3d6e1))
+* add request path check to destroy socket for asset and locale requests in root controller ([d27535c](https://github.com/DigneZzZ/subscription-page/commit/d27535c693195ec62f1bf06ae737e66f8121ee62))
+* correct logic for REMNAWAVE_API_TOKEN validation in config schema ([81c5e11](https://github.com/DigneZzZ/subscription-page/commit/81c5e111059f9a7c7c4280f73a2dbe345841ecb6))
+* default backend options ([6431d11](https://github.com/DigneZzZ/subscription-page/commit/6431d11176c19b8471ba872354151cd0cec19627))
+* do not filter input headers ([dabcfd7](https://github.com/DigneZzZ/subscription-page/commit/dabcfd7b3c0abf5f1898a6f2cd23c827bae13c97))
+* duplicate entry ([68ee0e1](https://github.com/DigneZzZ/subscription-page/commit/68ee0e17558810621801aeb246d11a4536ac4f2f))
+* enforce required field for REMNAWAVE_API_TOKEN in configuration schema ([86c6a86](https://github.com/DigneZzZ/subscription-page/commit/86c6a86a18408d31b3351c9551f64cbc81606dad))
+* enhance environment configuration validation ([8cfd8e3](https://github.com/DigneZzZ/subscription-page/commit/8cfd8e35d292a48f55c8d811362348a2d0e6ab97))
+* enhance error logging ([deee4fd](https://github.com/DigneZzZ/subscription-page/commit/deee4fd052e91214464b3b6fc1809086e13ca794))
+* enhance text formatting in installation guide widget for better readability ([28e3bc5](https://github.com/DigneZzZ/subscription-page/commit/28e3bc572d8127865a226ac43e537fc95d1eea03))
+* fail fast on invalid subpage config during startup ([b929ba6](https://github.com/DigneZzZ/subscription-page/commit/b929ba6098cbd774abb62b130b2e824bb96e5ac1))
+* filter out ignored headers in subscription data response in root service ([4c24ded](https://github.com/DigneZzZ/subscription-page/commit/4c24dedab4c9e00d097a6371e42459f9cbbc79cf))
+* improve error handling ([3c76e2b](https://github.com/DigneZzZ/subscription-page/commit/3c76e2ba6b194ec7b390702049f678caf83b8f73))
+* improve REMNAWAVE_API_TOKEN validation ([ecd2929](https://github.com/DigneZzZ/subscription-page/commit/ecd29295c59b96eeb1e629ffc14c29c32116d324))
+* logging for Remnawave connection status ([61452b4](https://github.com/DigneZzZ/subscription-page/commit/61452b429995d159b6bc2105585204bcbd2a8e85))
+* normalize ignored header names in subscription data response in root service ([a360934](https://github.com/DigneZzZ/subscription-page/commit/a36093439355965793d9eeec9d72ea7236b715ca))
+* remove exit call from AxiosService error handling ([350a1eb](https://github.com/DigneZzZ/subscription-page/commit/350a1eb6b00339059ea675dbc780756864eb52a9))
+* remove specifiic headers ([7345536](https://github.com/DigneZzZ/subscription-page/commit/7345536f2d766fb00cf0cd3cf136bf5f9ce9d19a))
+* update documentation links and logo URL ([46964c7](https://github.com/DigneZzZ/subscription-page/commit/46964c7f881d8682032f6946791d3f708abf0085))
+* update headers to remove ([469ddc2](https://github.com/DigneZzZ/subscription-page/commit/469ddc2a2f770286adbb6570306694d84e5e79db))
+* update no-robots middleware to enhance search engine indexing directives ([4d8910b](https://github.com/DigneZzZ/subscription-page/commit/4d8910be32726b7ecb8c207481937acf86db0be3))
+* update no-robots middleware to enhance search engine indexing directives ([27aaf83](https://github.com/DigneZzZ/subscription-page/commit/27aaf8386b27a99f44ecc0afe3a2ab7949664572))
+* update subscription URL handling and version bump ([24011c6](https://github.com/DigneZzZ/subscription-page/commit/24011c6223f43787a9117ba6b2fe15b3f221ab6d))
