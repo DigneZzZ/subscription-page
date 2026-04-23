@@ -172,6 +172,9 @@ export class RootService {
             return { tariffs: [], staticUrl: staticPaymentUrl };
         }
 
+        const telegramId = await this.fetchTelegramId(shortUuid);
+        const orderPrefix = telegramId !== null ? `${telegramId}_` : '';
+
         // Collect enabled providers and pick one randomly
         const providers: Array<'wata' | 'platega' | 'cardlink'> = [];
         if (this.wataService.isEnabled) providers.push('wata');
@@ -190,6 +193,7 @@ export class RootService {
             const tariffs = await this.generateTariffsForProvider(
                 provider,
                 shortUuid,
+                orderPrefix,
                 configuredTariffs,
                 currency,
                 successRedirectUrl,
@@ -209,9 +213,21 @@ export class RootService {
         return { tariffs: [], staticUrl: staticPaymentUrl };
     }
 
+    private async fetchTelegramId(shortUuid: string): Promise<number | null> {
+        const userResponse = await this.axiosService.getUserByShortUuid(shortUuid);
+
+        if (!userResponse.isOk || !userResponse.response) {
+            this.logger.warn(`Could not fetch user ${shortUuid} for payment orderId`);
+            return null;
+        }
+
+        return userResponse.response.response.telegramId ?? null;
+    }
+
     private async generateTariffsForProvider(
         provider: 'wata' | 'platega' | 'cardlink',
         shortUuid: string,
+        orderPrefix: string,
         configuredTariffs: Array<{ months: number; amount: number; currency: string }>,
         currency: string,
         successRedirectUrl?: string,
@@ -220,7 +236,7 @@ export class RootService {
         const results = await Promise.all(
             configuredTariffs.map(async (tariff) => {
                 const ts = Date.now();
-                const orderId = `${shortUuid}_${tariff.months}m_${ts}`;
+                const orderId = `${orderPrefix}${shortUuid}_${tariff.months}m_${ts}`;
                 let url: string | null = null;
 
                 if (provider === 'wata') {
