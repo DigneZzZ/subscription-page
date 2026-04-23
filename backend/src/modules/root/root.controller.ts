@@ -41,6 +41,7 @@ export class RootController {
             currency: string;
             shortUuid: string;
             username: string;
+            cardLinkBillId?: string;
         },
     ) {
         if (!user) {
@@ -71,6 +72,7 @@ export class RootController {
             currency: body.currency,
             shortUuid: body.shortUuid,
             username: body.username,
+            cardLinkBillId: body.cardLinkBillId,
         });
 
         return { ok: result.ok };

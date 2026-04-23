@@ -172,7 +172,8 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: 
                 amount: tariff.amount,
                 currency: tariff.currency,
                 shortUuid,
-                username
+                username,
+                cardLinkBillId: tariff.cardLinkBillId
             })
         }).catch(() => {})
 

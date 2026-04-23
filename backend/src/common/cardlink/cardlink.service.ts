@@ -34,7 +34,9 @@ export class CardLinkService {
         return !!this.apiKey && !!this.shopId;
     }
 
-    public async createOrder(params: ICreateOrderParams): Promise<string | null> {
+    public async createOrder(
+        params: ICreateOrderParams,
+    ): Promise<{ url: string; billId: string } | null> {
         if (!this.apiKey || !this.shopId) {
             return null;
         }
@@ -72,7 +74,14 @@ export class CardLinkService {
 
             this.logger.log(`CardLink order created: ${response.data.bill_id}`);
 
-            return response.data.link_page_url ?? null;
+            if (!response.data.link_page_url || !response.data.bill_id) {
+                return null;
+            }
+
+            return {
+                url: response.data.link_page_url,
+                billId: response.data.bill_id,
+            };
         } catch (error) {
             if (error instanceof AxiosError) {
                 this.logger.error(

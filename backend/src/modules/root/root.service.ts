@@ -148,7 +148,7 @@ export class RootService {
     private async resolvePaymentTariffs(
         shortUuid: string,
         staticPaymentUrl: string,
-    ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>; staticUrl: string }> {
+    ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string; cardLinkBillId?: string }>; staticUrl: string }> {
         const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
         const successRedirectUrl = this.configService.get<string>('PAYMENT_SUCCESS_URL');
         const failRedirectUrl = this.configService.get<string>('PAYMENT_FAIL_URL');
@@ -232,12 +232,13 @@ export class RootService {
         currency: string,
         successRedirectUrl?: string,
         failRedirectUrl?: string,
-    ): Promise<Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>> {
+    ): Promise<Array<{ months: number; amount: number; currency: string; url: string; orderId: string; cardLinkBillId?: string }>> {
         const results = await Promise.all(
             configuredTariffs.map(async (tariff) => {
                 const ts = Date.now();
                 const orderId = `${orderPrefix}${shortUuid}_${tariff.months}m_${ts}`;
                 let url: string | null = null;
+                let cardLinkBillId: string | undefined;
 
                 if (provider === 'wata') {
                     url = await this.wataService.createOrder({
@@ -256,20 +257,24 @@ export class RootService {
                         failRedirectUrl,
                     });
                 } else if (provider === 'cardlink') {
-                    url = await this.cardLinkService.createOrder({
+                    const cardLinkResult = await this.cardLinkService.createOrder({
                         amount: tariff.amount,
                         currency: tariff.currency,
                         failRedirectUrl,
                         orderId,
                         successRedirectUrl,
                     });
+                    if (cardLinkResult) {
+                        url = cardLinkResult.url;
+                        cardLinkBillId = cardLinkResult.billId;
+                    }
                 }
 
-                return url ? { ...tariff, url, orderId } : null;
+                return url ? { ...tariff, url, orderId, cardLinkBillId } : null;
             }),
         );
 
-        return results.filter(Boolean) as Array<{ months: number; amount: number; currency: string; url: string; orderId: string }>;
+        return results.filter(Boolean) as Array<{ months: number; amount: number; currency: string; url: string; orderId: string; cardLinkBillId?: string }>;
     }
 
     public isValidTariffMonths(months: number): boolean {
@@ -290,6 +295,7 @@ export class RootService {
         currency: string;
         shortUuid: string;
         username: string;
+        cardLinkBillId?: string;
     }): Promise<{ ok: boolean; reason?: string }> {
         const webhookUrl = this.configService.get<string>('PAYMENT_WEBHOOK_URL');
         if (!webhookUrl) {

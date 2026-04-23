@@ -6,6 +6,7 @@ export interface IPaymentTariff {
     currency: string
     url: string
     orderId: string
+    cardLinkBillId?: string
 }
 
 interface IState {
