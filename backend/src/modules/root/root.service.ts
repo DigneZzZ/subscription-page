@@ -189,6 +189,9 @@ export class RootService {
         const successRedirectUrl = this.configService.get<string>('PAYMENT_SUCCESS_URL');
         const failRedirectUrl = this.configService.get<string>('PAYMENT_FAIL_URL');
 
+        const telegramId = await this.fetchTelegramId(shortUuid);
+        const orderPrefix = telegramId !== null ? `${telegramId}_` : '';
+
         const providers: Array<'wata' | 'platega'> = [];
         if (this.wataService.isEnabled) providers.push('wata');
         if (this.plategaService.isEnabled) providers.push('platega');
@@ -203,7 +206,7 @@ export class RootService {
 
         for (const provider of providers) {
             const ts = Date.now();
-            const orderId = `${shortUuid}_${tariff.months}m_${ts}`;
+            const orderId = `${orderPrefix}${shortUuid}_${tariff.months}m_${ts}`;
             let url: string | null = null;
 
             if (provider === 'wata') {
@@ -232,6 +235,17 @@ export class RootService {
 
         this.logger.warn('All payment providers failed');
         return null;
+    }
+
+    private async fetchTelegramId(shortUuid: string): Promise<number | null> {
+        const userResponse = await this.axiosService.getUserByShortUuid(shortUuid);
+
+        if (!userResponse.isOk || !userResponse.response) {
+            this.logger.warn(`Could not fetch user ${shortUuid} for payment orderId`);
+            return null;
+        }
+
+        return userResponse.response.response.telegramId ?? null;
     }
 
     public isValidTariffMonths(months: number): boolean {
