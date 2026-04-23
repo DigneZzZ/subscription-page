@@ -1,0 +1,55 @@
+# Changelog
+
+## [7.2.0](https://github.com/DigneZzZ/subscription-page/compare/v7.1.8...v7.2.0) (2026-04-23)
+
+
+### Features
+
+* add branding configuration to subscription page and update related components ([66807f8](https://github.com/DigneZzZ/subscription-page/commit/66807f8ca7defb300b7c36c28717647bcd56ff32))
+* add configurable raw keys display option ([b6cadff](https://github.com/DigneZzZ/subscription-page/commit/b6cadffffa9481ca7969fd45ba8ee4a499be78cd))
+* add french translation ([b19725f](https://github.com/DigneZzZ/subscription-page/commit/b19725fd11bc03aedfc8696f53c52d3b23ad4167))
+* add HappCryptoLink template variable, add  support for `HideGetLinkButton` ([4e9ab14](https://github.com/DigneZzZ/subscription-page/commit/4e9ab14c3164249612e93cbad789440eb330e95f))
+* add MARZBAN_LEGACY_DROP_REVOKED_SUBSCRIPTIONS configuration ([e2d9ca9](https://github.com/DigneZzZ/subscription-page/commit/e2d9ca92e49e644d3731d75129d49f66cdcd0d2a))
+* add new font families to theme and index.html ([a702b21](https://github.com/DigneZzZ/subscription-page/commit/a702b21adb86c397e13df8416609d2400b263662))
+* add payment button to subscription page ([734768f](https://github.com/DigneZzZ/subscription-page/commit/734768f24d1b231c1ae41eaec6cb1ae152a6493e))
+* add support for androidTV and appleTV platforms in app configuration and installation guide ([ff241d7](https://github.com/DigneZzZ/subscription-page/commit/ff241d7348899bb65ae56c551aac775d4562373b))
+* app icons ([8780fbc](https://github.com/DigneZzZ/subscription-page/commit/8780fbc0892656f54affc67c81c9d1c6fd71674a))
+* dynamic subpage configuration ([60e3c4d](https://github.com/DigneZzZ/subscription-page/commit/60e3c4df7aa28339b71984b100d1d462f58e1b29))
+* enhance loading screen ([57994d6](https://github.com/DigneZzZ/subscription-page/commit/57994d6947e7d11ce0287b751a21f3bc986bd1cc))
+* enhance subscription page configuration ([a5d98cf](https://github.com/DigneZzZ/subscription-page/commit/a5d98cf591757c961cb6f2bc53cad205ecdf03d1))
+* enhance subscription page design ([3114fc9](https://github.com/DigneZzZ/subscription-page/commit/3114fc9a429118aca637c8e95a4c0952179366ac))
+* enhance support link rendering in SubscriptionLinkWidget with platform-specific icons ([0d3e4d1](https://github.com/DigneZzZ/subscription-page/commit/0d3e4d19d4745bfc047dcf0e9c9399d5a03a07df))
+* forward CardLink bill_id to payment webhook ([7d7068f](https://github.com/DigneZzZ/subscription-page/commit/7d7068ff6a82014a82299a15b982840728ca5a08))
+* implement migration for old app configuration format in MainPageConnector ([e5d2d82](https://github.com/DigneZzZ/subscription-page/commit/e5d2d82136c331feef812defdf1e25da70f9507c))
+* nestjs backend ([4689df0](https://github.com/DigneZzZ/subscription-page/commit/4689df077405f106a6f1c9487f206c2b8716fc76))
+* NestJS backend (move from Go) ([ed255c0](https://github.com/DigneZzZ/subscription-page/commit/ed255c017d2e13cdddcfd167cf4fc99ecae6b1c3))
+
+
+### Bug Fixes
+
+* adjust transition duration ([875235a](https://github.com/DigneZzZ/subscription-page/commit/875235aa08d0fa53c3a6118f3947270de57caa33))
+* card styling ([934344f](https://github.com/DigneZzZ/subscription-page/commit/934344fb484356b3435ecfc722527117ec64ab3f))
+* change card hover style ([612df87](https://github.com/DigneZzZ/subscription-page/commit/612df87550f8dea15ef58a3c3dd456c27e3bbae0))
+* correct Russian translation for TUN Mode description in app-config.json ([04a1c07](https://github.com/DigneZzZ/subscription-page/commit/04a1c0784b4b3f5fe91b7ba269e7a26c68ace8bf))
+* dayjs ([ea435b9](https://github.com/DigneZzZ/subscription-page/commit/ea435b9e3554d5b1e6fca5cbc18df267cfef1f90))
+* do not filter input headers ([dabcfd7](https://github.com/DigneZzZ/subscription-page/commit/dabcfd7b3c0abf5f1898a6f2cd23c827bae13c97))
+* enhance text formatting in installation guide widget for better readability ([28e3bc5](https://github.com/DigneZzZ/subscription-page/commit/28e3bc572d8127865a226ac43e537fc95d1eea03))
+* ensure rootDiv dataset is cleared after error handling in RootLayout ([a6faf21](https://github.com/DigneZzZ/subscription-page/commit/a6faf21f129bca412ebaf2f7a45f3542534451b3))
+* fail fast on invalid subpage config during startup ([b929ba6](https://github.com/DigneZzZ/subscription-page/commit/b929ba6098cbd774abb62b130b2e824bb96e5ac1))
+* increase width of device selection input in InstallationGuideWidget ([3b3dce7](https://github.com/DigneZzZ/subscription-page/commit/3b3dce7eaaf5f6670311b1313949f69acea85dfe))
+* ios26 ([edd2597](https://github.com/DigneZzZ/subscription-page/commit/edd2597ac2b5b24f0b2eddc5beda54adc056b3d7))
+* lint ([0c72ad7](https://github.com/DigneZzZ/subscription-page/commit/0c72ad7a6f7373252c8571896c83aa3d0d401d51))
+* lint ([cd57186](https://github.com/DigneZzZ/subscription-page/commit/cd571865b397b870957dee5d63be71dbfd3473f0))
+* NativeSelect on Windows ([62ad429](https://github.com/DigneZzZ/subscription-page/commit/62ad4298123215e38d791a49abd483d5dae3b46c))
+* platform and app selection logic ([caafa85](https://github.com/DigneZzZ/subscription-page/commit/caafa85e38362526496138165ac31d4a0acec6d6))
+* prevent rendering of LanguagePicker when only one locale is available ([d312918](https://github.com/DigneZzZ/subscription-page/commit/d312918cba1c7a38a72e71356dc679ad45669451))
+* remove unnecessary offsetScrollbars prop from ScrollArea in RawKeysWidget ([be37d4c](https://github.com/DigneZzZ/subscription-page/commit/be37d4c5c6ad89dc18f34b8e1ab7513ec67636d8))
+* sync zh translations to new format ([e3f6575](https://github.com/DigneZzZ/subscription-page/commit/e3f65750833ae646f06443c4c26b9aeccea2cade))
+* ui ([b75d694](https://github.com/DigneZzZ/subscription-page/commit/b75d694cd1f4da41bec7be340e3a1c095c78789d))
+* update Discord support link to use the correct domain in SubscriptionLinkWidget ([1bf4c4e](https://github.com/DigneZzZ/subscription-page/commit/1bf4c4e0f2b84976cb9e7196eddfc7cd94a9b34d))
+* update documentation links and logo URL ([46964c7](https://github.com/DigneZzZ/subscription-page/commit/46964c7f881d8682032f6946791d3f708abf0085))
+* update logo dimensions ([061df9b](https://github.com/DigneZzZ/subscription-page/commit/061df9b0839aac92b8ac469230c30360161977d1))
+* update Russian translation for QR code import instruction ([cb0217b](https://github.com/DigneZzZ/subscription-page/commit/cb0217bacfe8580b577309fc2ac93d18482b3b13))
+* update Russian translations for subscription-related terms ([52a8320](https://github.com/DigneZzZ/subscription-page/commit/52a83204637fe715ad84a036523bbb29c0a90028))
+* update subscription URL handling and version bump ([24011c6](https://github.com/DigneZzZ/subscription-page/commit/24011c6223f43787a9117ba6b2fe15b3f221ab6d))
+* update TypeScript paths and enhance Vite configuration ([ef38481](https://github.com/DigneZzZ/subscription-page/commit/ef384811f43f8c1a2a047f24461eff6397658f61))
