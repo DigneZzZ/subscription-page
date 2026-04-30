@@ -27,6 +27,16 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
 
+        SUPPORT_EMAIL: z
+            .string()
+            .optional()
+            .refine(
+                (v: string | undefined) =>
+                    !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+                'SUPPORT_EMAIL must be a valid email address',
+            )
+            .transform((v: string | undefined) => (v && v.length > 0 ? v : undefined)),
+
         // Shared tariff settings
         TARIFF_1M: z
             .string()

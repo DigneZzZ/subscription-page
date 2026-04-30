@@ -16,6 +16,7 @@ import {
 import { useAppConfig, useAppConfigStoreActions, useCurrentLang } from '@entities/app-config-store'
 import { LanguagePicker } from '@shared/ui/language-picker/language-picker.shared'
 import { usePaymentUrl } from '@entities/payment-store'
+import { useSupportEmail } from '@entities/support-store'
 import { Page, RemnawaveLogo } from '@shared/ui'
 
 interface IMainPageComponentProps {
@@ -42,6 +43,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     const currentLang = useCurrentLang()
     const { setLanguage } = useAppConfigStoreActions()
     const paymentUrl = usePaymentUrl()
+    const supportEmail = useSupportEmail()
 
     const brandName = config.brandingSettings.title
     let hasCustomLogo = !!config.brandingSettings.logoUrl
@@ -100,6 +102,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                         <SubscriptionLinkWidget
                             hideGetLink={config.baseSettings.hideGetLinkButton}
                             paymentUrl={paymentUrl}
+                            supportEmail={supportEmail}
                             supportUrl={config.brandingSettings.supportUrl}
                         />
                     </Group>

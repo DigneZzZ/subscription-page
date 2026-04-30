@@ -5,6 +5,7 @@ import {
     IconCopy,
     IconCreditCard,
     IconLink,
+    IconMail,
     IconMessageChatbot
 } from '@tabler/icons-react'
 import { ActionIcon, Button, Group, Image, SimpleGrid, Stack, Text, UnstyledButton } from '@mantine/core'
@@ -24,6 +25,7 @@ import classes from './subscription-link.module.css'
 interface IProps {
     hideGetLink: boolean
     paymentUrl: string
+    supportEmail: string
     supportUrl: string
 }
 
@@ -58,7 +60,12 @@ function getPeriodLabel(months: number, lang: string): string {
     return lang === 'ru' ? labels.ru : labels.en
 }
 
-export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: IProps) => {
+export const SubscriptionLinkWidget = ({
+    supportUrl,
+    supportEmail,
+    hideGetLink,
+    paymentUrl
+}: IProps) => {
     const { t, baseTranslations, currentLang } = useTranslation()
     const subscription = useSubscription()
     const clipboard = useClipboard({ timeout: 10000 })
@@ -79,6 +86,25 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: 
             color: 'cyan'
         })
         clipboard.copy(subscriptionUrl)
+    }
+
+    const renderSupportEmailLink = (email: string) => {
+        return (
+            <ActionIcon
+                c="cyan"
+                component="a"
+                href={`mailto:${email}`}
+                radius="md"
+                size="xl"
+                style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}
+                variant="default"
+            >
+                <IconMail />
+            </ActionIcon>
+        )
     }
 
     const renderSupportLink = (supportUrl: string) => {
@@ -250,6 +276,8 @@ export const SubscriptionLinkWidget = ({ supportUrl, hideGetLink, paymentUrl }: 
             )}
 
             {supportUrl !== '' && renderSupportLink(supportUrl)}
+
+            {supportEmail !== '' && renderSupportEmailLink(supportEmail)}
         </Group>
     )
 }

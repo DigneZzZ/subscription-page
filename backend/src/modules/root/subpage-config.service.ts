@@ -121,8 +121,9 @@ export class SubpageConfigService implements OnApplicationBootstrap {
 
     public getBaseSettings(
         subpageConfigUuid: string | null,
-    ): { paymentUrl: string } & TSubscriptionPageRawConfig['baseSettings'] {
+    ): { paymentUrl: string; supportEmail: string } & TSubscriptionPageRawConfig['baseSettings'] {
         const paymentUrl = this.configService.get<string>('PAYMENT_URL') ?? '';
+        const supportEmail = this.configService.get<string>('SUPPORT_EMAIL') ?? '';
 
         const subpageConfig = this.subpageConfigMap.get(
             this.getFinalSubpageConfigUuid(subpageConfigUuid),
@@ -135,6 +136,7 @@ export class SubpageConfigService implements OnApplicationBootstrap {
                 showConnectionKeys: false,
                 hideGetLinkButton: false,
                 paymentUrl,
+                supportEmail,
             };
         }
 
@@ -144,6 +146,7 @@ export class SubpageConfigService implements OnApplicationBootstrap {
             showConnectionKeys: subpageConfig.baseSettings.showConnectionKeys,
             hideGetLinkButton: subpageConfig.baseSettings.hideGetLinkButton,
             paymentUrl,
+            supportEmail,
         };
     }
 

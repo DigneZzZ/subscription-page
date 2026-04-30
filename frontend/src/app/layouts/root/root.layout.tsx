@@ -14,6 +14,7 @@ import {
 } from '@entities/subscription-info-store'
 import { useAppConfigStoreActions, useIsConfigLoaded } from '@entities/app-config-store'
 import { usePaymentStoreActions } from '@entities/payment-store'
+import { useSupportStoreActions } from '@entities/support-store'
 import { LoadingScreen } from '@shared/ui'
 
 import classes from './root.module.css'
@@ -22,6 +23,7 @@ export function RootLayout() {
     const subscriptionActions = useSubscriptionInfoStoreActions()
     const configActions = useAppConfigStoreActions()
     const paymentActions = usePaymentStoreActions()
+    const supportActions = useSupportStoreActions()
 
     const { subscription } = useSubscriptionInfoStoreInfo()
     const isConfigLoaded = useIsConfigLoaded()
@@ -67,6 +69,13 @@ export function RootLayout() {
             }
 
             paymentDiv.remove()
+        }
+
+        const supportDiv = document.getElementById('sup')
+        if (supportDiv) {
+            const supportEmail = supportDiv.dataset.email ?? ''
+            supportActions.setSupportEmail(supportEmail)
+            supportDiv.remove()
         }
 
         const fetchConfig = async () => {

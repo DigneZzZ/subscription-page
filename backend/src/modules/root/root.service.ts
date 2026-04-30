@@ -454,6 +454,7 @@ export class RootService {
                 panelData: Buffer.from(JSON.stringify(subscriptionData)).toString('base64'),
                 paymentUrl,
                 paymentTariffs,
+                supportEmail: baseSettings.supportEmail,
             });
         } catch (error) {
             this.logger.error('Error in returnWebpage', error);
