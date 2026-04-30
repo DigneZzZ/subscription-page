@@ -24,7 +24,8 @@ export default defineConfig({
                     metaDescription: '<%= metaDescription %>',
                     metaTitle: '<%= metaTitle %>',
                     paymentUrl: '<%- paymentUrl %>',
-                    paymentTariffs: '<%- paymentTariffs %>'
+                    paymentTariffs: '<%- paymentTariffs %>',
+                    supportEmail: '<%- supportEmail %>'
                 }
             }
             return {
