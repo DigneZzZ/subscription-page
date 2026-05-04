@@ -455,6 +455,8 @@ export class RootService {
                 paymentUrl,
                 paymentTariffs,
                 supportEmail: baseSettings.supportEmail,
+                chatwootBaseUrl: this.configService.get<string>('CHATWOOT_BASE_URL') || '',
+                chatwootWebsiteToken: this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',
             });
         } catch (error) {
             this.logger.error('Error in returnWebpage', error);

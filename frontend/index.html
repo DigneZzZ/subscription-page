@@ -40,5 +40,61 @@
         <div id="sbpg" data-panel="<%- panelData %>"></div>
         <div id="pmt" data-url="<%- paymentUrl %>" data-tariffs="<%- paymentTariffs %>"></div>
         <div id="sup" data-email="<%- supportEmail %>"></div>
+
+        <% if (chatwootBaseUrl && chatwootWebsiteToken) { %>
+        <!-- Chatwoot live chat widget -->
+        <script>
+          (function () {
+            try {
+              var el = document.getElementById("sbpg");
+              if (el && el.dataset && el.dataset.panel) {
+                window.__rwPanelData = el.dataset.panel;
+              }
+            } catch (e) {}
+          })();
+
+          (function (d, t) {
+            var BASE = "<%- chatwootBaseUrl %>";
+            var TOKEN = "<%- chatwootWebsiteToken %>";
+            var g = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+            g.src = BASE + "/packs/js/sdk.js";
+            g.defer = true;
+            g.async = true;
+            s.parentNode.insertBefore(g, s);
+            g.onload = function () {
+              if (!window.chatwootSDK) return;
+              window.chatwootSDK.run({ websiteToken: TOKEN, baseUrl: BASE });
+            };
+          })(document, "script");
+
+          window.addEventListener("chatwoot:ready", function () {
+            try {
+              var raw = window.__rwPanelData;
+              if (!raw) return;
+              var data = JSON.parse(atob(raw));
+              var u = (data && data.user) || {};
+              var uid = u.shortUuid || u.username || "";
+              if (!uid) return;
+              window.$chatwoot.setUser(uid, {
+                name: u.username || u.shortUuid || uid,
+                email: u.email || undefined,
+                custom_attributes: {
+                  short_uuid: u.shortUuid || "",
+                  username: u.username || "",
+                  status: u.userStatus || "",
+                  expires_at: u.expiresAt || "",
+                  traffic_used: u.trafficUsed || "",
+                  traffic_limit: u.trafficLimit || "",
+                  days_left: u.daysLeft != null ? String(u.daysLeft) : "",
+                },
+              });
+              window.$chatwoot.setCustomAttributes({ source: "subscription_page" });
+            } catch (e) {
+              console.warn("Chatwoot setUser failed:", e);
+            }
+          });
+        </script>
+        <% } %>
     </body>
 </html>

@@ -18,6 +18,13 @@ export const configSchema = z
         SUBPAGE_CONFIG_UUID: z.string().default('00000000-0000-0000-0000-000000000000'),
         CUSTOM_SUB_PREFIX: z.optional(z.string()),
 
+        // Chatwoot live chat widget (optional)
+        CHATWOOT_BASE_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v.replace(/\/+$/, '') : undefined)),
+        CHATWOOT_WEBSITE_TOKEN: z.optional(z.string()),
+
         CADDY_AUTH_API_TOKEN: z.optional(z.string()),
         CLOUDFLARE_ZERO_TRUST_CLIENT_ID: z.optional(z.string()),
         CLOUDFLARE_ZERO_TRUST_CLIENT_SECRET: z.optional(z.string()),
