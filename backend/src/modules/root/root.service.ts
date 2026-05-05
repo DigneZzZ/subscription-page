@@ -448,6 +448,16 @@ export class RootService {
                 maxAge: 1_800_000, // 30 minutes
             });
 
+            const cwHmacSecret = this.configService.get<string>('CHATWOOT_HMAC_SECRET') || '';
+            const cwIdentifier =
+                subscriptionData?.user?.shortUuid ||
+                subscriptionData?.user?.username ||
+                '';
+            const cwIdentifierHash =
+                cwHmacSecret && cwIdentifier
+                    ? createHmac('sha256', cwHmacSecret).update(cwIdentifier).digest('hex')
+                    : '';
+
             res.render('index', {
                 metaTitle: baseSettings.metaTitle,
                 metaDescription: baseSettings.metaDescription,
@@ -457,6 +467,7 @@ export class RootService {
                 supportEmail: baseSettings.supportEmail,
                 chatwootBaseUrl: this.configService.get<string>('CHATWOOT_BASE_URL') || '',
                 chatwootWebsiteToken: this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',
+                chatwootIdentifierHash: cwIdentifierHash,
             });
         } catch (error) {
             this.logger.error('Error in returnWebpage', error);

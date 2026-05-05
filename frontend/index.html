@@ -76,7 +76,8 @@
               var u = (data && data.user) || {};
               var uid = u.shortUuid || u.username || "";
               if (!uid) return;
-              window.$chatwoot.setUser(uid, {
+              var IDENTIFIER_HASH = "<%- chatwootIdentifierHash %>";
+              var userPayload = {
                 name: u.username || u.shortUuid || uid,
                 email: u.email || undefined,
                 custom_attributes: {
@@ -88,7 +89,9 @@
                   traffic_limit: u.trafficLimit || "",
                   days_left: u.daysLeft != null ? String(u.daysLeft) : "",
                 },
-              });
+              };
+              if (IDENTIFIER_HASH) userPayload.identifier_hash = IDENTIFIER_HASH;
+              window.$chatwoot.setUser(uid, userPayload);
               window.$chatwoot.setCustomAttributes({ source: "subscription_page" });
             } catch (e) {
               console.warn("Chatwoot setUser failed:", e);

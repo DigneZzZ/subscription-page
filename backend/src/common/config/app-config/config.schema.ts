@@ -24,6 +24,7 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v.replace(/\/+$/, '') : undefined)),
         CHATWOOT_WEBSITE_TOKEN: z.optional(z.string()),
+        CHATWOOT_HMAC_SECRET: z.optional(z.string()),
 
         CADDY_AUTH_API_TOKEN: z.optional(z.string()),
         CLOUDFLARE_ZERO_TRUST_CLIENT_ID: z.optional(z.string()),

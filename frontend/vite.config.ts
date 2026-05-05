@@ -27,7 +27,8 @@ export default defineConfig({
                     paymentTariffs: '<%- paymentTariffs %>',
                     supportEmail: '<%- supportEmail %>',
                     chatwootBaseUrl: '<%- chatwootBaseUrl %>',
-                    chatwootWebsiteToken: '<%- chatwootWebsiteToken %>'
+                    chatwootWebsiteToken: '<%- chatwootWebsiteToken %>',
+                    chatwootIdentifierHash: '<%- chatwootIdentifierHash %>'
                 }
             }
             return {
