@@ -73,7 +73,7 @@
               var raw = window.__rwPanelData;
               if (!raw) return;
               var data = JSON.parse(atob(raw));
-              var u = (data && data.user) || {};
+              var u = (data && data.response && data.response.user) || {};
               var uid = u.shortUuid || u.username || "";
               if (!uid) return;
               var IDENTIFIER_HASH = "<%- chatwootIdentifierHash %>";

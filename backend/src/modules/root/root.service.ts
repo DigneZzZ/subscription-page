@@ -450,8 +450,8 @@ export class RootService {
 
             const cwHmacSecret = this.configService.get<string>('CHATWOOT_HMAC_SECRET') || '';
             const cwIdentifier =
-                subscriptionData?.user?.shortUuid ||
-                subscriptionData?.user?.username ||
+                subscriptionData?.response?.user?.shortUuid ||
+                subscriptionData?.response?.user?.username ||
                 '';
             const cwIdentifierHash =
                 cwHmacSecret && cwIdentifier
