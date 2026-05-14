@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Get, Post, Body, Controller, Res, Req, Param, Logger, HttpCode } from '@nestjs/common';
+import { Get, Controller, Res, Req, Param, Query, Logger } from '@nestjs/common';
 
 import {
     REQUEST_TEMPLATE_TYPE_VALUES,
@@ -29,53 +29,37 @@ export class RootController {
         return await this.subpageConfigService.getSubscriptionPageConfig(user.su, request);
     }
 
-    @Post('api/payment-webhook')
-    @HttpCode(200)
-    async paymentWebhook(
+    @Get('api/pay')
+    async createPayment(
         @GetJWTPayload() user: IJwtPayload,
-        @Body()
-        body: {
-            orderId: string;
-            months: number;
-            amount: number;
-            currency: string;
-            shortUuid: string;
-            username: string;
-            cardLinkBillId?: string;
-        },
+        @Res() response: Response,
+        @Query('shortUuid') shortUuid: string,
+        @Query('months') monthsRaw: string,
     ) {
         if (!user) {
-            return { ok: false };
+            response.socket?.destroy();
+            return;
         }
 
-        if (!body.orderId || !body.months || !body.amount || !body.currency || !body.shortUuid || !body.username) {
-            return { ok: false };
+        if (!shortUuid || !monthsRaw) {
+            response.status(400).send('Bad Request');
+            return;
         }
 
-        // Validate months is one of the configured tariffs
-        if (![1, 3, 6, 12].includes(body.months)) {
-            return { ok: false };
+        const months = parseInt(monthsRaw, 10);
+        if (!Number.isFinite(months) || ![1, 3, 6, 12].includes(months)) {
+            response.status(400).send('Invalid months');
+            return;
         }
 
-        // Validate the tariff exists and amount matches configured value
-        if (!this.rootService.isValidTariffAmount(body.months, body.amount)) {
-            this.logger.warn(
-                `Invalid tariff amount: months=${body.months}, amount=${body.amount}`,
-            );
-            return { ok: false };
+        const result = await this.rootService.createPaymentForTariff(shortUuid, months);
+        if (!result.ok) {
+            this.logger.warn(`Payment creation failed for ${shortUuid} (${months}m): ${result.reason}`);
+            response.status(result.reason === 'rate_limited' ? 429 : 502).send('Payment unavailable');
+            return;
         }
 
-        const result = await this.rootService.sendPaymentWebhook({
-            orderId: body.orderId,
-            months: body.months,
-            amount: body.amount,
-            currency: body.currency,
-            shortUuid: body.shortUuid,
-            username: body.username,
-            cardLinkBillId: body.cardLinkBillId,
-        });
-
-        return { ok: result.ok };
+        response.redirect(302, result.url);
     }
 
     @Get([':shortUuid', ':shortUuid/:clientType'])

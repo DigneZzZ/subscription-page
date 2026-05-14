@@ -187,23 +187,8 @@ export const SubscriptionLinkWidget = ({
 
     const handleTariffClick = (tariff: IPaymentTariff) => {
         const shortUuid = subscription.user.shortUuid
-        const username = subscription.user.username
-
-        fetch('/api/payment-webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                orderId: tariff.orderId,
-                months: tariff.months,
-                amount: tariff.amount,
-                currency: tariff.currency,
-                shortUuid,
-                username,
-                cardLinkBillId: tariff.cardLinkBillId
-            })
-        }).catch(() => {})
-
-        window.open(tariff.url, '_blank', 'noopener,noreferrer')
+        const url = `/api/pay?shortUuid=${encodeURIComponent(shortUuid)}&months=${tariff.months}`
+        window.open(url, '_blank', 'noopener,noreferrer')
         modals.closeAll()
     }
 

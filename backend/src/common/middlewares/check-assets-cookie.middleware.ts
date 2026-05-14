@@ -15,7 +15,7 @@ export function checkAssetsCookieMiddleware(
     if (
         req.path.startsWith('/assets') ||
         req.path.startsWith('/locales') ||
-        req.path === '/api/payment-webhook'
+        req.path === '/api/pay'
     ) {
         const secret = process.env.INTERNAL_JWT_SECRET;
 

@@ -108,7 +108,7 @@ async function bootstrap(): Promise<void> {
     const customSubPrefix = config.get<string>('CUSTOM_SUB_PREFIX') || '';
 
     app.setGlobalPrefix(customSubPrefix, {
-        exclude: [APP_CONFIG_ROUTE_WO_LEADING_PATH, 'api/payment-webhook'],
+        exclude: [APP_CONFIG_ROUTE_WO_LEADING_PATH, 'api/pay'],
     });
 
     if (customSubPrefix) {

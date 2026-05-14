@@ -139,14 +139,8 @@ export class RootService {
         }
     }
 
-    private async resolvePaymentTariffs(
-        shortUuid: string,
-        staticPaymentUrl: string,
-    ): Promise<{ tariffs: Array<{ months: number; amount: number; currency: string; url: string; orderId: string; cardLinkBillId?: string }>; staticUrl: string }> {
+    public listAvailableTariffs(): Array<{ months: number; amount: number; currency: string }> {
         const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
-        const successRedirectUrl = this.configService.get<string>('PAYMENT_SUCCESS_URL');
-        const failRedirectUrl = this.configService.get<string>('PAYMENT_FAIL_URL');
-
         const tariffConfigs = [
             { months: 1, envKey: 'TARIFF_1M' },
             { months: 3, envKey: 'TARIFF_3M' },
@@ -154,106 +148,98 @@ export class RootService {
             { months: 12, envKey: 'TARIFF_12M' },
         ];
 
-        const configuredTariffs = tariffConfigs
+        return tariffConfigs
             .map(({ months, envKey }) => {
                 const amount = this.configService.get<number>(envKey);
                 if (amount === undefined) return null;
                 return { months, amount, currency };
             })
             .filter(Boolean) as Array<{ months: number; amount: number; currency: string }>;
+    }
 
-        if (configuredTariffs.length === 0) {
-            return { tariffs: [], staticUrl: staticPaymentUrl };
+    public hasAnyPaymentProvider(): boolean {
+        return (
+            this.wataService.isEnabled ||
+            this.plategaService.isEnabled ||
+            this.cardLinkService.isEnabled
+        );
+    }
+
+    public async createPaymentForTariff(
+        shortUuid: string,
+        months: number,
+    ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
+        if (!this.isValidTariffMonths(months)) {
+            return { ok: false, reason: 'invalid_months' };
         }
 
-        const telegramId = await this.fetchTelegramId(shortUuid);
+        const amount = this.configService.get<number>(`TARIFF_${months}M`);
+        if (amount === undefined) {
+            return { ok: false, reason: 'tariff_not_configured' };
+        }
+
+        const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
+
+        if (!this.applyPaymentRateLimit(shortUuid)) {
+            this.logger.warn(`Payment rate limit exceeded for ${shortUuid}`);
+            return { ok: false, reason: 'rate_limited' };
+        }
+
+        const userResponse = await this.axiosService.getUserByShortUuid(shortUuid);
+        if (!userResponse.isOk || !userResponse.response) {
+            this.logger.warn(`Cannot create payment: user ${shortUuid} not found`);
+            return { ok: false, reason: 'user_not_found' };
+        }
+
+        const userInfo = userResponse.response.response;
+        const telegramId = userInfo.telegramId ?? null;
+        const username = userInfo.username ?? '';
         const orderPrefix = telegramId !== null ? `${telegramId}_` : '';
 
-        // Collect enabled providers and pick one randomly
+        const successRedirectUrl = this.configService.get<string>('PAYMENT_SUCCESS_URL');
+        const failRedirectUrl = this.configService.get<string>('PAYMENT_FAIL_URL');
+
         const providers: Array<'wata' | 'platega' | 'cardlink'> = [];
         if (this.wataService.isEnabled) providers.push('wata');
         if (this.plategaService.isEnabled) providers.push('platega');
         if (this.cardLinkService.isEnabled) providers.push('cardlink');
 
-        // Fisher-Yates shuffle with crypto-secure random
+        if (providers.length === 0) {
+            return { ok: false, reason: 'no_providers' };
+        }
+
         for (let i = providers.length - 1; i > 0; i--) {
             const j = randomInt(i + 1);
             [providers[i], providers[j]] = [providers[j], providers[i]];
         }
 
-        this.logger.log(`Payment providers order: [${providers.join(', ')}]`);
-
         for (const provider of providers) {
-            const tariffs = await this.generateTariffsForProvider(
-                provider,
-                shortUuid,
-                orderPrefix,
-                configuredTariffs,
-                currency,
-                successRedirectUrl,
-                failRedirectUrl,
-            );
+            const ts = Date.now();
+            const orderId = `${orderPrefix}${shortUuid}_${months}m_${ts}`;
+            let url: string | null = null;
+            let cardLinkBillId: string | undefined;
 
-            if (tariffs.length > 0) {
-                this.logger.log(`Using payment provider: ${provider}`);
-                return { tariffs, staticUrl: staticPaymentUrl };
-            }
-        }
-
-        if (providers.length > 0) {
-            this.logger.warn('All payment providers failed, falling back to static PAYMENT_URL');
-        }
-
-        return { tariffs: [], staticUrl: staticPaymentUrl };
-    }
-
-    private async fetchTelegramId(shortUuid: string): Promise<number | null> {
-        const userResponse = await this.axiosService.getUserByShortUuid(shortUuid);
-
-        if (!userResponse.isOk || !userResponse.response) {
-            this.logger.warn(`Could not fetch user ${shortUuid} for payment orderId`);
-            return null;
-        }
-
-        return userResponse.response.response.telegramId ?? null;
-    }
-
-    private async generateTariffsForProvider(
-        provider: 'wata' | 'platega' | 'cardlink',
-        shortUuid: string,
-        orderPrefix: string,
-        configuredTariffs: Array<{ months: number; amount: number; currency: string }>,
-        currency: string,
-        successRedirectUrl?: string,
-        failRedirectUrl?: string,
-    ): Promise<Array<{ months: number; amount: number; currency: string; url: string; orderId: string; cardLinkBillId?: string }>> {
-        const results = await Promise.all(
-            configuredTariffs.map(async (tariff) => {
-                const ts = Date.now();
-                const orderId = `${orderPrefix}${shortUuid}_${tariff.months}m_${ts}`;
-                let url: string | null = null;
-                let cardLinkBillId: string | undefined;
-
+            try {
                 if (provider === 'wata') {
                     url = await this.wataService.createOrder({
-                        amount: tariff.amount,
-                        currency: tariff.currency,
+                        amount,
+                        currency,
                         failRedirectUrl,
                         orderId,
                         successRedirectUrl,
                     });
                 } else if (provider === 'platega') {
                     url = await this.plategaService.createOrder({
-                        amount: tariff.amount,
-                        currency: tariff.currency,
+                        amount,
+                        currency,
                         orderId,
                         successRedirectUrl,
                         failRedirectUrl,
                     });
                 } else if (provider === 'cardlink') {
                     const cardLinkResult = await this.cardLinkService.createOrder({
-                        amount: tariff.amount,
-                        currency: tariff.currency,
+                        amount,
+                        currency,
                         failRedirectUrl,
                         orderId,
                         successRedirectUrl,
@@ -263,12 +249,42 @@ export class RootService {
                         cardLinkBillId = cardLinkResult.billId;
                     }
                 }
+            } catch (err) {
+                this.logger.error(`Provider ${provider} failed for order ${orderId}: ${err}`);
+            }
 
-                return url ? { ...tariff, url, orderId, cardLinkBillId } : null;
-            }),
-        );
+            if (url) {
+                this.logger.log(`Order ${orderId} created via ${provider}`);
+                this.sendPaymentWebhook({
+                    orderId,
+                    months,
+                    amount,
+                    currency,
+                    shortUuid,
+                    username,
+                    cardLinkBillId,
+                }).catch((e) =>
+                    this.logger.error(`Webhook dispatch failed for ${orderId}: ${e}`),
+                );
+                return { ok: true, url };
+            }
+        }
 
-        return results.filter(Boolean) as Array<{ months: number; amount: number; currency: string; url: string; orderId: string; cardLinkBillId?: string }>;
+        return { ok: false, reason: 'all_providers_failed' };
+    }
+
+    private applyPaymentRateLimit(shortUuid: string): boolean {
+        const now = Date.now();
+        const timestamps = this.webhookRateMap.get(shortUuid) ?? [];
+        const recent = timestamps.filter((ts) => now - ts < this.WEBHOOK_RATE_WINDOW_MS);
+
+        if (recent.length >= this.WEBHOOK_RATE_LIMIT) {
+            return false;
+        }
+
+        recent.push(now);
+        this.webhookRateMap.set(shortUuid, recent);
+        return true;
     }
 
     public isValidTariffMonths(months: number): boolean {
@@ -282,7 +298,7 @@ export class RootService {
         return configuredAmount !== undefined && configuredAmount === amount;
     }
 
-    public async sendPaymentWebhook(data: {
+    private async sendPaymentWebhook(data: {
         orderId: string;
         months: number;
         amount: number;
@@ -295,20 +311,6 @@ export class RootService {
         if (!webhookUrl) {
             return { ok: false, reason: 'webhook_disabled' };
         }
-
-        // Rate limiting per shortUuid
-        const now = Date.now();
-        const key = data.shortUuid;
-        const timestamps = this.webhookRateMap.get(key) ?? [];
-        const recent = timestamps.filter((ts) => now - ts < this.WEBHOOK_RATE_WINDOW_MS);
-
-        if (recent.length >= this.WEBHOOK_RATE_LIMIT) {
-            this.logger.warn(`Rate limit exceeded for ${key}`);
-            return { ok: false, reason: 'rate_limited' };
-        }
-
-        recent.push(now);
-        this.webhookRateMap.set(key, recent);
 
         const payload = {
             ...data,
@@ -429,9 +431,9 @@ export class RootService {
                 subscriptionData.response.ssConfLinks = {};
             }
 
-            const { tariffs, staticUrl } = await this.resolvePaymentTariffs(shortUuid, baseSettings.paymentUrl);
+            const tariffs = this.hasAnyPaymentProvider() ? this.listAvailableTariffs() : [];
 
-            const paymentUrl = staticUrl;
+            const paymentUrl = baseSettings.paymentUrl;
             const paymentTariffs = tariffs.length > 0
                 ? Buffer.from(JSON.stringify(tariffs)).toString('base64')
                 : '';
