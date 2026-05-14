@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.3.0](https://github.com/DigneZzZ/subscription-page/compare/v7.2.0...v7.3.0) (2026-05-14)
+
+
+### Features
+
+* show 'preparing payment link' interstitial before provider redirect ([43570ab](https://github.com/DigneZzZ/subscription-page/commit/43570ab823daa3bb6eff3f0769d03335c5929780))
+
+
+### Bug Fixes
+
+* **payment:** create orders only on user click, not on page render ([a97acc4](https://github.com/DigneZzZ/subscription-page/commit/a97acc451a6d99068d3c0f49060c19bfd9979ecf))
+
 ## [7.2.0](https://github.com/DigneZzZ/subscription-page/compare/v7.1.8...v7.2.0) (2026-05-06)
 
 

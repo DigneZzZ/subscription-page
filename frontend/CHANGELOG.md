@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.2.1](https://github.com/DigneZzZ/subscription-page/compare/v7.2.0...v7.2.1) (2026-05-14)
+
+
+### Bug Fixes
+
+* **payment:** create orders only on user click, not on page render ([a97acc4](https://github.com/DigneZzZ/subscription-page/commit/a97acc451a6d99068d3c0f49060c19bfd9979ecf))
+
 ## [7.2.0](https://github.com/DigneZzZ/subscription-page/compare/v7.1.8...v7.2.0) (2026-05-06)
 
 
