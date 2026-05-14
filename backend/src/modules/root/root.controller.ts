@@ -32,6 +32,7 @@ export class RootController {
     @Get('api/pay')
     async createPayment(
         @GetJWTPayload() user: IJwtPayload,
+        @Req() request: Request,
         @Res() response: Response,
         @Query('shortUuid') shortUuid: string,
         @Query('months') monthsRaw: string,
@@ -59,7 +60,82 @@ export class RootController {
             return;
         }
 
-        response.redirect(302, result.url);
+        const acceptLang = String(request.headers['accept-language'] ?? '');
+        const isRu = /(^|,|;)\s*ru\b/i.test(acceptLang);
+
+        response
+            .status(200)
+            .type('html')
+            .setHeader('Cache-Control', 'no-store')
+            .send(this.renderPayRedirectPage(result.url, isRu));
+    }
+
+    private renderPayRedirectPage(url: string, isRu: boolean): string {
+        const safeUrlAttr = url
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        const title = isRu ? 'Формируем платёжную ссылку…' : 'Preparing payment link…';
+        const fallbackText = isRu
+            ? 'Если страница не открылась автоматически —'
+            : 'If the page does not open automatically —';
+        const linkText = isRu ? 'нажмите здесь' : 'click here';
+        const delayMs = 700;
+        const metaRefreshSec = 2;
+
+        return `<!doctype html>
+<html lang="${isRu ? 'ru' : 'en'}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="refresh" content="${metaRefreshSec};url=${safeUrlAttr}">
+    <title>${title}</title>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; }
+        body {
+            background: #161B23;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .box { text-align: center; padding: 24px; max-width: 420px; }
+        .spinner {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 28px;
+            border: 3px solid rgba(34, 211, 238, 0.18);
+            border-top-color: #22d3ee;
+            border-radius: 50%;
+            animation: spin 0.85s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.2px; }
+        p { margin: 18px 0 0; font-size: 13px; color: #8b95a7; line-height: 1.5; }
+        a { color: #22d3ee; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <main class="box">
+        <div class="spinner" aria-hidden="true"></div>
+        <h1>${title}</h1>
+        <p>${fallbackText} <a id="pay-link" href="${safeUrlAttr}">${linkText}</a></p>
+    </main>
+    <script>
+        (function () {
+            var link = document.getElementById('pay-link');
+            var target = link && link.getAttribute('href');
+            if (!target) return;
+            setTimeout(function () { window.location.replace(target); }, ${delayMs});
+        })();
+    </script>
+</body>
+</html>`;
     }
 
     @Get([':shortUuid', ':shortUuid/:clientType'])
