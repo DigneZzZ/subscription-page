@@ -29,6 +29,9 @@ export class RootService {
     private readonly webhookRateMap = new Map<string, number[]>();
     private readonly WEBHOOK_RATE_LIMIT = 5;
     private readonly WEBHOOK_RATE_WINDOW_MS = 60_000;
+    private readonly RATE_MAP_MAX_KEYS = 10_000;
+    private readonly RATE_SWEEP_INTERVAL_MS = 60_000;
+    private lastRateSweep = 0;
     constructor(
         private readonly configService: ConfigService,
         private readonly jwtService: JwtService,
@@ -168,6 +171,7 @@ export class RootService {
     public async createPaymentForTariff(
         shortUuid: string,
         months: number,
+        sessionId: string,
     ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
         if (!this.isValidTariffMonths(months)) {
             return { ok: false, reason: 'invalid_months' };
@@ -180,8 +184,15 @@ export class RootService {
 
         const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
 
-        if (!this.applyPaymentRateLimit(shortUuid)) {
-            this.logger.warn(`Payment rate limit exceeded for ${shortUuid}`);
+        // Limit by session AND by shortUuid: keying on shortUuid alone let one session
+        // fan out unlimited distinct values (panel-call amplification + unbounded map growth).
+        if (
+            !this.applyPaymentRateLimit(`s:${sessionId}`) ||
+            !this.applyPaymentRateLimit(`u:${shortUuid}`)
+        ) {
+            this.logger.warn(
+                `Payment rate limit exceeded (session ${sessionId}, shortUuid ${shortUuid})`,
+            );
             return { ok: false, reason: 'rate_limited' };
         }
 
@@ -273,17 +284,43 @@ export class RootService {
         return { ok: false, reason: 'all_providers_failed' };
     }
 
-    private applyPaymentRateLimit(shortUuid: string): boolean {
+    private sweepRateMap(now: number): void {
+        if (now - this.lastRateSweep < this.RATE_SWEEP_INTERVAL_MS) {
+            return;
+        }
+
+        for (const [key, timestamps] of this.webhookRateMap) {
+            const live = timestamps.filter((ts) => now - ts < this.WEBHOOK_RATE_WINDOW_MS);
+            if (live.length === 0) {
+                this.webhookRateMap.delete(key);
+            } else {
+                this.webhookRateMap.set(key, live);
+            }
+        }
+
+        this.lastRateSweep = now;
+    }
+
+    private applyPaymentRateLimit(key: string): boolean {
         const now = Date.now();
-        const timestamps = this.webhookRateMap.get(shortUuid) ?? [];
-        const recent = timestamps.filter((ts) => now - ts < this.WEBHOOK_RATE_WINDOW_MS);
+        this.sweepRateMap(now);
+
+        const existing = this.webhookRateMap.get(key);
+
+        // Reject brand-new keys once the map is saturated, so an attacker iterating
+        // distinct keys cannot grow it without bound (memory-exhaustion DoS).
+        if (existing === undefined && this.webhookRateMap.size >= this.RATE_MAP_MAX_KEYS) {
+            return false;
+        }
+
+        const recent = (existing ?? []).filter((ts) => now - ts < this.WEBHOOK_RATE_WINDOW_MS);
 
         if (recent.length >= this.WEBHOOK_RATE_LIMIT) {
             return false;
         }
 
         recent.push(now);
-        this.webhookRateMap.set(shortUuid, recent);
+        this.webhookRateMap.set(key, recent);
         return true;
     }
 
@@ -342,11 +379,12 @@ export class RootService {
         }
     }
 
-    private generateJwtForCookie(uuid: string | null): string {
+    private generateJwtForCookie(uuid: string | null, sub: string): string {
         return this.jwtService.sign(
             {
                 sessionId: nanoid(32),
                 su: this.subpageConfigService.getEncryptedSubpageConfigUuid(uuid),
+                sub,
             },
             {
                 expiresIn: '33m',
@@ -438,11 +476,17 @@ export class RootService {
                 ? Buffer.from(JSON.stringify(tariffs)).toString('base64')
                 : '';
 
-            res.cookie('session', this.generateJwtForCookie(subpageConfig.subpageConfigUuid), {
-                httpOnly: true,
-                secure: true,
-                maxAge: 1_800_000, // 30 minutes
-            });
+            const sessionShortUuid = subscriptionData?.response?.user?.shortUuid ?? '';
+
+            res.cookie(
+                'session',
+                this.generateJwtForCookie(subpageConfig.subpageConfigUuid, sessionShortUuid),
+                {
+                    httpOnly: true,
+                    secure: true,
+                    maxAge: 1_800_000, // 30 minutes
+                },
+            );
 
             const cwHmacSecret = this.configService.get<string>('CHATWOOT_HMAC_SECRET') || '';
             const cwIdentifier =

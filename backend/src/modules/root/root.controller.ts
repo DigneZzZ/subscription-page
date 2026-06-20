@@ -53,7 +53,18 @@ export class RootController {
             return;
         }
 
-        const result = await this.rootService.createPaymentForTariff(shortUuid, months);
+        // Bind the payment to the subscription the session was issued for.
+        // Without this, any valid session could create orders for an arbitrary victim's shortUuid.
+        if (!user.sub || user.sub !== shortUuid) {
+            response.status(403).send('Forbidden');
+            return;
+        }
+
+        const result = await this.rootService.createPaymentForTariff(
+            shortUuid,
+            months,
+            user.sessionId,
+        );
         if (!result.ok) {
             this.logger.warn(`Payment creation failed for ${shortUuid} (${months}m): ${result.reason}`);
             response.status(result.reason === 'rate_limited' ? 429 : 502).send('Payment unavailable');
