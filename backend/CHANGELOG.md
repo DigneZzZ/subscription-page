@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.3.1](https://github.com/DigneZzZ/subscription-page/compare/v7.3.0...v7.3.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* **security:** URL injection, payment IDOR, and rate-limit DoS ([25b1103](https://github.com/DigneZzZ/subscription-page/commit/25b1103bf397eb627623d98233d32b9a3013dc4c))
+
 ## [7.3.0](https://github.com/DigneZzZ/subscription-page/compare/v7.2.0...v7.3.0) (2026-05-14)
 
 
