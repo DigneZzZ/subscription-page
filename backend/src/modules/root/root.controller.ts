@@ -81,6 +81,51 @@ export class RootController {
             .send(this.renderPayRedirectPage(result.url, isRu));
     }
 
+    @Get('api/pay/reset')
+    async createTrafficResetPayment(
+        @GetJWTPayload() user: IJwtPayload,
+        @Req() request: Request,
+        @Res() response: Response,
+        @Query('shortUuid') shortUuid: string,
+    ) {
+        if (!user) {
+            response.socket?.destroy();
+            return;
+        }
+
+        if (!shortUuid) {
+            response.status(400).send('Bad Request');
+            return;
+        }
+
+        // Bind the payment to the subscription the session was issued for (same IDOR guard as /api/pay).
+        if (!user.sub || user.sub !== shortUuid) {
+            response.status(403).send('Forbidden');
+            return;
+        }
+
+        const result = await this.rootService.createTrafficResetPayment(
+            shortUuid,
+            user.sessionId,
+        );
+        if (!result.ok) {
+            this.logger.warn(`Traffic reset payment failed for ${shortUuid}: ${result.reason}`);
+            response
+                .status(result.reason === 'rate_limited' ? 429 : 502)
+                .send('Payment unavailable');
+            return;
+        }
+
+        const acceptLang = String(request.headers['accept-language'] ?? '');
+        const isRu = /(^|,|;)\s*ru\b/i.test(acceptLang);
+
+        response
+            .status(200)
+            .type('html')
+            .setHeader('Cache-Control', 'no-store')
+            .send(this.renderPayRedirectPage(result.url, isRu));
+    }
+
     private renderPayRedirectPage(url: string, isRu: boolean): string {
         const safeUrlAttr = url
             .replace(/&/g, '&amp;')

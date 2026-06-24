@@ -15,7 +15,8 @@ export function checkAssetsCookieMiddleware(
     if (
         req.path.startsWith('/assets') ||
         req.path.startsWith('/locales') ||
-        req.path === '/api/pay'
+        req.path === '/api/pay' ||
+        req.path === '/api/pay/reset'
     ) {
         const secret = process.env.INTERNAL_JWT_SECRET;
 
