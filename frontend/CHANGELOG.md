@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.5.0](https://github.com/DigneZzZ/subscription-page/compare/v7.4.0...v7.5.0) (2026-06-24)
+
+
+### Features
+
+* **payments:** gate reset button by minimum traffic-usage percent ([eb1a9cf](https://github.com/DigneZzZ/subscription-page/commit/eb1a9cff282ed7d1fdda827976a6c7438d11df5f))
+
 ## [7.4.0](https://github.com/DigneZzZ/subscription-page/compare/v7.3.0...v7.4.0) (2026-06-24)
 
 
