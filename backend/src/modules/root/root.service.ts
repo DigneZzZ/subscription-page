@@ -528,6 +528,15 @@ export class RootService {
                 ? Buffer.from(JSON.stringify(tariffs)).toString('base64')
                 : '';
 
+            const paymentReset = this.isTrafficResetEnabled()
+                ? Buffer.from(
+                      JSON.stringify({
+                          amount: this.configService.get<number>('TRAFFIC_RESET_PRICE'),
+                          currency: this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB',
+                      }),
+                  ).toString('base64')
+                : '';
+
             const sessionShortUuid = subscriptionData?.response?.user?.shortUuid ?? '';
 
             res.cookie(
@@ -556,6 +565,7 @@ export class RootService {
                 panelData: Buffer.from(JSON.stringify(subscriptionData)).toString('base64'),
                 paymentUrl,
                 paymentTariffs,
+                paymentReset,
                 supportEmail: baseSettings.supportEmail,
                 chatwootBaseUrl: this.configService.get<string>('CHATWOOT_BASE_URL') || '',
                 chatwootWebsiteToken: this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',

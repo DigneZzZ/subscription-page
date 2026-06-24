@@ -25,6 +25,7 @@ export default defineConfig({
                     metaTitle: '<%= metaTitle %>',
                     paymentUrl: '<%- paymentUrl %>',
                     paymentTariffs: '<%- paymentTariffs %>',
+                    paymentReset: '<%- paymentReset %>',
                     supportEmail: '<%- supportEmail %>',
                     chatwootBaseUrl: '<%- chatwootBaseUrl %>',
                     chatwootWebsiteToken: '<%- chatwootWebsiteToken %>',
