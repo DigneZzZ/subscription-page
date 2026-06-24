@@ -104,10 +104,7 @@ export class RootController {
             return;
         }
 
-        const result = await this.rootService.createTrafficResetPayment(
-            shortUuid,
-            user.sessionId,
-        );
+        const result = await this.rootService.createTrafficResetPayment(shortUuid, user.sessionId);
         if (!result.ok) {
             this.logger.warn(`Traffic reset payment failed for ${shortUuid}: ${result.reason}`);
             response
