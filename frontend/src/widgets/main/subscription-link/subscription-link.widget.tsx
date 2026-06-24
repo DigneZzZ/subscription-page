@@ -15,8 +15,9 @@ import { modals } from '@mantine/modals'
 import { renderSVG } from 'uqr'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
+import { type IPaymentTariff, usePaymentTariffs } from '@entities/payment-store'
 import { useSubscription } from '@entities/subscription-info-store'
-import { usePaymentTariffs, type IPaymentTariff } from '@entities/payment-store'
+import { formatAmount } from '@shared/utils/format-amount'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
 
@@ -29,27 +30,11 @@ interface IProps {
     supportUrl: string
 }
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-    RUB: '₽',
-    USD: '$',
-    EUR: '€',
-    UAH: '₴',
-    KZT: '₸',
-    BYN: 'Br',
-    GBP: '£',
-    TRY: '₺'
-}
-
-const PERIOD_LABELS: Record<number, { ru: string; en: string }> = {
+const PERIOD_LABELS: Record<number, { en: string; ru: string; }> = {
     1: { ru: '1 месяц', en: '1 month' },
     3: { ru: '3 месяца', en: '3 months' },
     6: { ru: '6 месяцев', en: '6 months' },
     12: { ru: '12 месяцев', en: '12 months' }
-}
-
-function formatAmount(amount: number, currency: string): string {
-    const symbol = CURRENCY_SYMBOLS[currency] ?? currency
-    return `${amount} ${symbol}`
 }
 
 function getPeriodLabel(months: number, lang: string): string {
@@ -186,7 +171,7 @@ export const SubscriptionLinkWidget = ({
     }
 
     const handleTariffClick = (tariff: IPaymentTariff) => {
-        const shortUuid = subscription.user.shortUuid
+        const { shortUuid } = subscription.user
         const url = `/api/pay?shortUuid=${encodeURIComponent(shortUuid)}&months=${tariff.months}`
         window.open(url, '_blank', 'noopener,noreferrer')
         modals.closeAll()
