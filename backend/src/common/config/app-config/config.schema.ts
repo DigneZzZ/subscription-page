@@ -135,6 +135,16 @@ export const configSchema = z
             .refine((val) => val === 'true' || val === 'false', 'Must be "true" or "false".'),
         INTERNAL_JWT_SECRET: z.string(),
         EGAMES_COOKIE: z.optional(z.string()),
+
+        // Price to reset a user's traffic. Presence (+ an enabled provider) shows the button.
+        TRAFFIC_RESET_PRICE: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
+            .refine(
+                (v) => v === undefined || (!isNaN(v) && v > 0),
+                'TRAFFIC_RESET_PRICE must be a positive number',
+            ),
     })
     .superRefine((data, ctx) => {
         if (
