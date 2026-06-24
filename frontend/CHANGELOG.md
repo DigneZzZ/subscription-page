@@ -1,5 +1,14 @@
 # Changelog
 
+## [7.4.0](https://github.com/DigneZzZ/subscription-page/compare/v7.3.0...v7.4.0) (2026-06-24)
+
+
+### Features
+
+* **frontend:** add reset-traffic button with confirm modal ([a4ce87e](https://github.com/DigneZzZ/subscription-page/commit/a4ce87ebe31b8c9f33f3871f12b487638589ae2e))
+* **payments:** expose traffic-reset price to the page via #pmt data ([4228aaf](https://github.com/DigneZzZ/subscription-page/commit/4228aaf2a9e4e9de3f9bab5c97367941db188e36))
+* **payments:** hydrate traffic-reset config into the payment store ([835e778](https://github.com/DigneZzZ/subscription-page/commit/835e7781613350728cdb86c663a44165ec227571))
+
 ## [7.3.0](https://github.com/DigneZzZ/subscription-page/compare/v7.2.1...v7.3.0) (2026-06-20)
 
 

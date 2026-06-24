@@ -1,5 +1,16 @@
 # Changelog
 
+## [7.4.0](https://github.com/DigneZzZ/subscription-page/compare/v7.3.1...v7.4.0) (2026-06-24)
+
+
+### Features
+
+* **cardlink:** support optional order description ([3bea89e](https://github.com/DigneZzZ/subscription-page/commit/3bea89eaa7738bac677020f98482bfb6b287984f))
+* **config:** add TRAFFIC_RESET_PRICE env var ([522f777](https://github.com/DigneZzZ/subscription-page/commit/522f77767f0d4140aaaff82b035dd037300f33fa))
+* **payments:** add authenticated /api/pay/reset endpoint ([bdfe5d6](https://github.com/DigneZzZ/subscription-page/commit/bdfe5d6c382a1eb633a26ac8e18129e3c9d8f07f))
+* **payments:** expose traffic-reset price to the page via #pmt data ([4228aaf](https://github.com/DigneZzZ/subscription-page/commit/4228aaf2a9e4e9de3f9bab5c97367941db188e36))
+* **payments:** shared payment core with traffic-reset product and typed webhook ([d6269f1](https://github.com/DigneZzZ/subscription-page/commit/d6269f153fd0fe05825192aec1c94505f0365618))
+
 ## [7.3.1](https://github.com/DigneZzZ/subscription-page/compare/v7.3.0...v7.3.1) (2026-06-20)
 
 
