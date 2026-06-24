@@ -32,6 +32,7 @@ export class RootService {
     private readonly RATE_MAP_MAX_KEYS = 10_000;
     private readonly RATE_SWEEP_INTERVAL_MS = 60_000;
     private lastRateSweep = 0;
+    private static readonly RESET_PAYMENT_DESCRIPTION = 'Сброс трафика';
     constructor(
         private readonly configService: ConfigService,
         private readonly jwtService: JwtService,
@@ -177,12 +178,57 @@ export class RootService {
             return { ok: false, reason: 'invalid_months' };
         }
 
-        const amount = this.configService.get<number>(`TARIFF_${months}M`);
-        if (amount === undefined) {
-            return { ok: false, reason: 'tariff_not_configured' };
+        return this.createPayment(shortUuid, sessionId, { kind: 'subscription', months });
+    }
+
+    public async createTrafficResetPayment(
+        shortUuid: string,
+        sessionId: string,
+    ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
+        if (!this.isTrafficResetEnabled()) {
+            return { ok: false, reason: 'reset_disabled' };
         }
 
+        return this.createPayment(shortUuid, sessionId, { kind: 'reset' });
+    }
+
+    public isTrafficResetEnabled(): boolean {
+        const price = this.configService.get<number>('TRAFFIC_RESET_PRICE');
+        return price !== undefined && price > 0 && this.hasAnyPaymentProvider();
+    }
+
+    private async createPayment(
+        shortUuid: string,
+        sessionId: string,
+        product: { kind: 'subscription'; months: number } | { kind: 'reset' },
+    ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
         const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
+
+        let amount: number | undefined;
+        let orderToken: string;
+        let description: string | undefined;
+        let webhookType: 'SUBSCRIPTION' | 'TRAFFIC_RESET';
+        let months: number | undefined;
+
+        if (product.kind === 'subscription') {
+            amount = this.configService.get<number>(`TARIFF_${product.months}M`);
+            if (amount === undefined) {
+                return { ok: false, reason: 'tariff_not_configured' };
+            }
+            orderToken = `${product.months}m`;
+            webhookType = 'SUBSCRIPTION';
+            months = product.months;
+            description = undefined;
+        } else {
+            amount = this.configService.get<number>('TRAFFIC_RESET_PRICE');
+            if (amount === undefined) {
+                return { ok: false, reason: 'reset_not_configured' };
+            }
+            orderToken = 'reset';
+            webhookType = 'TRAFFIC_RESET';
+            months = undefined;
+            description = RootService.RESET_PAYMENT_DESCRIPTION;
+        }
 
         // Limit by session AND by shortUuid: keying on shortUuid alone let one session
         // fan out unlimited distinct values (panel-call amplification + unbounded map growth).
@@ -226,7 +272,7 @@ export class RootService {
 
         for (const provider of providers) {
             const ts = Date.now();
-            const orderId = `${orderPrefix}${shortUuid}_${months}m_${ts}`;
+            const orderId = `${orderPrefix}${shortUuid}_${orderToken}_${ts}`;
             let url: string | null = null;
             let cardLinkBillId: string | undefined;
 
@@ -243,6 +289,7 @@ export class RootService {
                     url = await this.plategaService.createOrder({
                         amount,
                         currency,
+                        description,
                         orderId,
                         successRedirectUrl,
                         failRedirectUrl,
@@ -251,6 +298,7 @@ export class RootService {
                     const cardLinkResult = await this.cardLinkService.createOrder({
                         amount,
                         currency,
+                        description,
                         failRedirectUrl,
                         orderId,
                         successRedirectUrl,
@@ -267,6 +315,7 @@ export class RootService {
             if (url) {
                 this.logger.log(`Order ${orderId} created via ${provider}`);
                 this.sendPaymentWebhook({
+                    type: webhookType,
                     orderId,
                     months,
                     amount,
@@ -336,8 +385,9 @@ export class RootService {
     }
 
     private async sendPaymentWebhook(data: {
+        type: 'SUBSCRIPTION' | 'TRAFFIC_RESET';
         orderId: string;
-        months: number;
+        months?: number;
         amount: number;
         currency: string;
         shortUuid: string;
@@ -349,8 +399,10 @@ export class RootService {
             return { ok: false, reason: 'webhook_disabled' };
         }
 
+        const { months, ...rest } = data;
         const payload = {
-            ...data,
+            ...rest,
+            ...(months !== undefined ? { months } : {}),
             timestamp: new Date().toISOString(),
         };
 
