@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 interface ICreateOrderParams {
     amount: number;
     currency?: string;
+    description?: string;
     failRedirectUrl?: string;
     orderId: string;
     successRedirectUrl?: string;
@@ -44,7 +45,7 @@ export class CardLinkService {
         const body = new URLSearchParams();
         body.append('amount', params.amount.toFixed(2));
         body.append('order_id', params.orderId);
-        body.append('description', params.orderId);
+        body.append('description', params.description ?? params.orderId);
         body.append('name', params.orderId);
         body.append('type', 'normal');
         body.append('shop_id', this.shopId);
