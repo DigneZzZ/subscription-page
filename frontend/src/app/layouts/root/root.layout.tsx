@@ -68,6 +68,22 @@ export function RootLayout() {
                 }
             }
 
+            const resetData = paymentDiv.dataset.reset ?? ''
+            if (resetData) {
+                try {
+                    const reset = JSON.parse(atob(resetData))
+                    if (
+                        reset &&
+                        typeof reset.amount === 'number' &&
+                        typeof reset.currency === 'string'
+                    ) {
+                        paymentActions.setReset(reset)
+                    }
+                } catch {
+                    consola.error('Failed to parse payment reset config')
+                }
+            }
+
             paymentDiv.remove()
         }
 

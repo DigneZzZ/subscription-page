@@ -1,26 +1,34 @@
 import { create } from 'zustand'
 
 export interface IPaymentTariff {
+    amount: number
+    currency: string
     months: number
+}
+
+export interface IPaymentReset {
     amount: number
     currency: string
 }
 
 interface IState {
     paymentUrl: string
+    reset: IPaymentReset | null
     tariffs: IPaymentTariff[]
 }
 
 interface IActions {
     actions: {
         setPaymentUrl: (url: string) => void
+        setReset: (reset: IPaymentReset | null) => void
         setTariffs: (tariffs: IPaymentTariff[]) => void
     }
 }
 
 const initialState: IState = {
     paymentUrl: '',
-    tariffs: []
+    tariffs: [],
+    reset: null
 }
 
 export const usePaymentStore = create<IActions & IState>()((set) => ({
@@ -31,6 +39,9 @@ export const usePaymentStore = create<IActions & IState>()((set) => ({
         },
         setTariffs: (tariffs: IPaymentTariff[]) => {
             set({ tariffs })
+        },
+        setReset: (reset: IPaymentReset | null) => {
+            set({ reset })
         }
     }
 }))
@@ -40,3 +51,5 @@ export const usePaymentStoreActions = () => usePaymentStore((store) => store.act
 export const usePaymentUrl = () => usePaymentStore((state) => state.paymentUrl)
 
 export const usePaymentTariffs = () => usePaymentStore((state) => state.tariffs)
+
+export const usePaymentReset = () => usePaymentStore((state) => state.reset)
