@@ -67,7 +67,23 @@ async function bootstrap(): Promise<void> {
         }),
     });
 
+    const config = app.get(ConfigService);
+
     app.disable('x-powered-by');
+
+    // Resolve the real client IP from the trusted reverse-proxy hop. Without this, Express
+    // would treat the immediate peer as the client and getRealIp would fall back to
+    // raw, client-spoofable forwarding headers (the IP is forwarded to the panel).
+    const trustProxy = config.get('TRUST_PROXY') ?? 1;
+    app.set('trust proxy', trustProxy);
+
+    if (trustProxy === true) {
+        logger.warn(
+            '[SECURITY] TRUST_PROXY=true trusts every hop: any client can spoof its IP via ' +
+                'X-Forwarded-For, and that IP is forwarded to the Remnawave panel. Set ' +
+                'TRUST_PROXY to the exact number of reverse-proxy hops (e.g. 1) instead.',
+        );
+    }
 
     app.use(cookieParser());
 
@@ -89,8 +105,6 @@ async function bootstrap(): Promise<void> {
     app.setViewEngine('html');
 
     app.use(json({ limit: '100mb' }));
-
-    const config = app.get(ConfigService);
 
     app.use(helmet({ contentSecurityPolicy: false }));
 

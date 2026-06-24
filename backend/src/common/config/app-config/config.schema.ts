@@ -1,5 +1,19 @@
 import { createZodDto } from 'nestjs-zod';
+import proxyaddr from 'proxy-addr';
 import { z } from 'zod';
+
+const TRUST_PROXY_DEFAULT = '1';
+
+const isTrustProxy = (val: string): boolean => {
+    if (val === 'true' || val === 'false' || /^\d+$/.test(val)) return true;
+
+    try {
+        proxyaddr.compile(val.split(',').map((entry) => entry.trim()));
+        return true;
+    } catch {
+        return false;
+    }
+};
 
 const REQUIRED_REMNAWAVE_API_TOKEN_MESSAGE =
     'Remnawave Dashboard → Remnawave Settings → API Tokens. Create a new API Token and set it in the .env file.';
@@ -17,6 +31,23 @@ export const configSchema = z
 
         SUBPAGE_CONFIG_UUID: z.string().default('00000000-0000-0000-0000-000000000000'),
         CUSTOM_SUB_PREFIX: z.optional(z.string()),
+
+        TRUST_PROXY: z
+            .string()
+            .default(TRUST_PROXY_DEFAULT)
+            .transform((val) => (val.trim() === '' ? TRUST_PROXY_DEFAULT : val.trim()))
+            .refine(
+                isTrustProxy,
+                'TRUST_PROXY must be "true"/"false", a non-negative integer (number of trusted ' +
+                    'reverse-proxy hops), or a comma-separated list of preset names ' +
+                    '(loopback, linklocal, uniquelocal) and/or IP addresses / CIDR subnets.',
+            )
+            .transform((val): boolean | number | string => {
+                if (val === 'true') return true;
+                if (val === 'false') return false;
+                if (/^\d+$/.test(val)) return Number(val);
+                return val;
+            }),
 
         // Chatwoot live chat widget (optional)
         CHATWOOT_BASE_URL: z

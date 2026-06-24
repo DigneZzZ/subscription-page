@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import { getClientIp } from '@kastov/request-ip';
 import morgan from 'morgan';
 
 morgan.token('remote-addr', (req: { clientIp: string } & Request) => {
@@ -11,12 +10,11 @@ export const getRealIp = function (
     res: Response,
     next: NextFunction,
 ) {
-    const ip = getClientIp(req);
-    if (ip) {
-        req.clientIp = ip;
-    } else {
-        req.clientIp = '0.0.0.0';
-    }
+    // `req.ip` is derived by Express from the configured `trust proxy` setting, so it
+    // reflects the real client as seen by the trusted reverse proxy and cannot be
+    // spoofed by a client-supplied X-Forwarded-For / X-Real-IP header.
+    const raw = req.ip || req.socket.remoteAddress || '0.0.0.0';
+    req.clientIp = raw.startsWith('::ffff:') ? raw.slice(7) : raw;
 
     next();
 };
