@@ -5,6 +5,7 @@ import { useSubscription } from '@entities/subscription-info-store'
 import { formatDate } from '@shared/utils/config-parser'
 import { useTranslation } from '@shared/hooks'
 
+import { ResetTrafficButton } from './reset-traffic-button'
 import classes from './subscription-info-cards.module.css'
 
 type ColorVariant = 'blue' | 'cyan' | 'green' | 'orange' | 'red' | 'teal' | 'violet' | 'yellow'
@@ -80,34 +81,38 @@ export const SubscriptionInfoCardsWidget = ({ isMobile: _ }: IProps) => {
             : `${user.trafficUsed} / ${user.trafficLimit}`
 
     return (
-        <SimpleGrid cols={{ base: 1, xs: 1, sm: 2 }} spacing="xs" verticalSpacing="xs">
-            <CardItem
-                color="blue"
-                icon={<IconUserScan size={18} />}
-                label={t(baseTranslations.name)}
-                value={user.username}
-            />
+        <Stack gap="xs">
+            <SimpleGrid cols={{ base: 1, xs: 1, sm: 2 }} spacing="xs" verticalSpacing="xs">
+                <CardItem
+                    color="blue"
+                    icon={<IconUserScan size={18} />}
+                    label={t(baseTranslations.name)}
+                    value={user.username}
+                />
 
-            <CardItem
-                color={isActive ? 'green' : 'red'}
-                icon={isActive ? <IconCheck size={18} /> : <IconX size={18} />}
-                label={t(baseTranslations.status)}
-                value={statusText}
-            />
+                <CardItem
+                    color={isActive ? 'green' : 'red'}
+                    icon={isActive ? <IconCheck size={18} /> : <IconX size={18} />}
+                    label={t(baseTranslations.status)}
+                    value={statusText}
+                />
 
-            <CardItem
-                color="orange"
-                icon={<IconCalendar size={18} />}
-                label={t(baseTranslations.expires)}
-                value={formatDate(user.expiresAt, currentLang, baseTranslations)}
-            />
+                <CardItem
+                    color="orange"
+                    icon={<IconCalendar size={18} />}
+                    label={t(baseTranslations.expires)}
+                    value={formatDate(user.expiresAt, currentLang, baseTranslations)}
+                />
 
-            <CardItem
-                color="cyan"
-                icon={<IconArrowsUpDown size={18} />}
-                label={t(baseTranslations.bandwidth)}
-                value={bandwidthValue}
-            />
-        </SimpleGrid>
+                <CardItem
+                    color="cyan"
+                    icon={<IconArrowsUpDown size={18} />}
+                    label={t(baseTranslations.bandwidth)}
+                    value={bandwidthValue}
+                />
+            </SimpleGrid>
+
+            <ResetTrafficButton />
+        </Stack>
     )
 }

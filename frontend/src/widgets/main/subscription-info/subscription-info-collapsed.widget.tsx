@@ -29,6 +29,8 @@ import { useSubscription } from '@entities/subscription-info-store'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
 
+import { ResetTrafficButton } from './reset-traffic-button'
+
 interface IProps {
     isMobile: boolean
 }
@@ -157,6 +159,7 @@ export const SubscriptionInfoCollapsedWidget = ({ isMobile }: IProps) => {
                             value={`${user.trafficUsed} / ${user.trafficLimit === '0' ? '∞' : user.trafficLimit}`}
                         />
                     </SimpleGrid>
+                    <ResetTrafficButton />
                 </Stack>
             </Collapse>
         </Card>

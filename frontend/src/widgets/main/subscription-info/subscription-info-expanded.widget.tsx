@@ -17,6 +17,8 @@ import { InfoBlockShared } from '@shared/ui/info-block/info-block.shared'
 import { useSubscription } from '@entities/subscription-info-store'
 import { useTranslation } from '@shared/hooks'
 
+import { ResetTrafficButton } from './reset-traffic-button'
+
 interface IProps {
     isMobile: boolean
 }
@@ -150,6 +152,7 @@ export const SubscriptionInfoExpandedWidget = ({ isMobile }: IProps) => {
                         value={`${user.trafficUsed} / ${user.trafficLimit === '0' ? '∞' : user.trafficLimit}`}
                     />
                 </SimpleGrid>
+                <ResetTrafficButton />
             </Stack>
         </Card>
     )
