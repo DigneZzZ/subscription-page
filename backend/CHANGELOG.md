@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.6.0](https://github.com/DigneZzZ/subscription-page/compare/v7.5.0...v7.6.0) (2026-06-24)
+
+
+### Features
+
+* **security:** port upstream v7.2.6 — trusted-proxy client IP + hardening ([bec8a78](https://github.com/DigneZzZ/subscription-page/commit/bec8a7853d1bb7d8445a5ecee4384be88fdb29a9))
+
 ## [7.5.0](https://github.com/DigneZzZ/subscription-page/compare/v7.4.0...v7.5.0) (2026-06-24)
 
 
