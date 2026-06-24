@@ -145,6 +145,17 @@ export const configSchema = z
                 (v) => v === undefined || (!isNaN(v) && v > 0),
                 'TRAFFIC_RESET_PRICE must be a positive number',
             ),
+
+        // Minimum traffic-usage percentage (0–100) at which the reset button is shown.
+        // 0 = always show; 100 = only when traffic is fully used (blocked). Default 0.
+        TRAFFIC_RESET_MIN_PERCENT: z
+            .string()
+            .default('0')
+            .transform((v) => (v && v.length > 0 ? parseInt(v, 10) : 0))
+            .refine(
+                (v) => Number.isInteger(v) && v >= 0 && v <= 100,
+                'TRAFFIC_RESET_MIN_PERCENT must be an integer between 0 and 100',
+            ),
     })
     .superRefine((data, ctx) => {
         if (

@@ -19,6 +19,17 @@ export const ResetTrafficButton = () => {
         return null
     }
 
+    const { user } = subscription
+    const limitBytes = Number(user.trafficLimitBytes ?? 0)
+    const usedBytes = Number(user.trafficUsedBytes ?? 0)
+    // Unlimited plans (limit 0) have no meaningful percentage → treated as 0%,
+    // so they only show the button when the threshold is 0 (always show).
+    const usagePercent = limitBytes > 0 ? (usedBytes / limitBytes) * 100 : 0
+
+    if (usagePercent < reset.minPercent) {
+        return null
+    }
+
     const s = getResetStrings(currentLang)
     const priceLabel = formatAmount(reset.amount, reset.currency)
 
@@ -30,7 +41,7 @@ export const ResetTrafficButton = () => {
             children: <Text size="sm">{s.confirmBody(priceLabel)}</Text>,
             labels: { confirm: s.pay, cancel: s.cancel },
             onConfirm: () => {
-                const { shortUuid } = subscription.user
+                const { shortUuid } = user
                 const url = `/api/pay/reset?shortUuid=${encodeURIComponent(shortUuid)}`
                 window.open(url, '_blank', 'noopener,noreferrer')
             }

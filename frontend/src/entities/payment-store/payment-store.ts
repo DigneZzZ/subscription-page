@@ -9,6 +9,7 @@ export interface IPaymentTariff {
 export interface IPaymentReset {
     amount: number
     currency: string
+    minPercent: number
 }
 
 interface IState {

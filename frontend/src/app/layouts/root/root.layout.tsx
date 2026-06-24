@@ -77,7 +77,12 @@ export function RootLayout() {
                         typeof reset.amount === 'number' &&
                         typeof reset.currency === 'string'
                     ) {
-                        paymentActions.setReset(reset)
+                        paymentActions.setReset({
+                            amount: reset.amount,
+                            currency: reset.currency,
+                            minPercent:
+                                typeof reset.minPercent === 'number' ? reset.minPercent : 0
+                        })
                     }
                 } catch {
                     consola.error('Failed to parse payment reset config')

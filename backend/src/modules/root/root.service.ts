@@ -533,6 +533,8 @@ export class RootService {
                       JSON.stringify({
                           amount: this.configService.get<number>('TRAFFIC_RESET_PRICE'),
                           currency: this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB',
+                          minPercent:
+                              this.configService.get<number>('TRAFFIC_RESET_MIN_PERCENT') ?? 0,
                       }),
                   ).toString('base64')
                 : '';
