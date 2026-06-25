@@ -1,12 +1,20 @@
 name: Build edge image (GHCR)
 
 # Builds the rolling "edge" image from the latest main commit.
-# Versioned/tagged release images (:X.Y.Z, :latest) are built by release-please.yml.
+# Versioned/tagged release images (:X.Y.Z, :latest) are normally built by
+# release-please.yml. As a manual fallback (e.g. when release-please fails to
+# tag), dispatch this workflow with the `version` input to publish the
+# versioned + :latest images instead of :edge.
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version to publish as :X.Y.Z, :X.Y, :X and :latest (leave empty to build the rolling :edge image).'
+        required: false
+        default: ''
 
 env:
   REGISTRY: ghcr.io
@@ -53,7 +61,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=edge
+            type=raw,value=edge,enable=${{ inputs.version == '' }}
+            type=semver,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=raw,value=latest,enable=${{ inputs.version != '' }}
             type=sha,format=short,prefix=sha-
 
       - name: Build and push
