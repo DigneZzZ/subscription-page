@@ -51,7 +51,6 @@
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
     text-decoration: none;
     cursor: pointer;
-    min-height: 80px;
 }
 
 .tariffName {
@@ -67,4 +66,59 @@
 
 .tariffCard:active {
     transform: translateY(0);
+}
+
+.radio {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tariffCard:hover .radio {
+    border-color: #22d3ee;
+    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.12);
+}
+
+.cardDivider {
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin: 10px 0 8px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.groupIcon {
+    color: #22d3ee;
+}
+
+.priceBadge {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 600;
+    text-transform: none;
+}
+
+.accItem {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--mantine-radius-md);
+}
+
+.accItem[data-active] {
+    border-color: rgba(34, 211, 238, 0.35);
+}
+
+.accControl {
+    border-radius: var(--mantine-radius-md);
+}
+
+.accControl:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.accChevron {
+    color: rgba(255, 255, 255, 0.5);
 }

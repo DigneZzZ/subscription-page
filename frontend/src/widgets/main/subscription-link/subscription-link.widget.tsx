@@ -1,14 +1,29 @@
 import {
+    IconBolt,
     IconBrandDiscord,
     IconBrandTelegram,
     IconBrandVk,
+    IconClock,
     IconCopy,
     IconCreditCard,
     IconLink,
     IconMail,
-    IconMessageChatbot
+    IconMessageChatbot,
+    IconWorld
 } from '@tabler/icons-react'
-import { ActionIcon, Button, Group, Image, SimpleGrid, Stack, Text, UnstyledButton } from '@mantine/core'
+import {
+    Accordion,
+    ActionIcon,
+    Badge,
+    Box,
+    Button,
+    Group,
+    Image,
+    SimpleGrid,
+    Stack,
+    Text,
+    UnstyledButton
+} from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useClipboard } from '@mantine/hooks'
 import { modals } from '@mantine/modals'
@@ -37,12 +52,29 @@ const PERIOD_LABELS: Record<number, { en: string; ru: string; }> = {
     12: { ru: '12 месяцев', en: '12 months' }
 }
 
-function getPeriodLabel(months: number, lang: string): string {
-    const labels = PERIOD_LABELS[months]
-    if (!labels) {
-        return lang === 'ru' ? `${months} мес.` : `${months} mo.`
+function getPeriodLabel(months: number, days: number, lang: string): string {
+    const ru = lang === 'ru'
+    if (months > 0) {
+        const labels = PERIOD_LABELS[months]
+        if (labels) {
+            return ru ? labels.ru : labels.en
+        }
+        return ru ? `${months} мес.` : `${months} mo.`
     }
-    return lang === 'ru' ? labels.ru : labels.en
+    if (days > 0) {
+        return ru ? `${days} дн.` : `${days} d.`
+    }
+    return ru ? '0 дн.' : '0 d.'
+}
+
+function renderDescIcon(line: string) {
+    const isConnections = /подключ|connection|устройств|device/i.test(line)
+
+    return isConnections ? (
+        <IconWorld color="#22d3ee" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
+    ) : (
+        <IconBolt color="#facc15" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
+    )
 }
 
 export const SubscriptionLinkWidget = ({
@@ -188,28 +220,39 @@ export const SubscriptionLinkWidget = ({
         return (
             <UnstyledButton
                 className={classes.tariffCard}
-                key={tariff.id ?? tariff.months}
+                key={tariff.id ?? `${tariff.months}-${tariff.amount}`}
                 onClick={() => handleTariffClick(tariff)}
             >
-                <Text className={classes.tariffName} c="white" fw={700} size="sm">
-                    {tariff.name ?? getPeriodLabel(tariff.months, currentLang)}
-                </Text>
-                {tariff.name ? (
-                    <Text c="dimmed" size="xs">
-                        {getPeriodLabel(tariff.months, currentLang)}
-                    </Text>
-                ) : null}
-                <Text c="cyan" fw={700} mt={6} size="xl">
-                    {formatAmount(tariff.amount, tariff.currency)}
-                </Text>
+                <Group align="flex-start" gap="sm" justify="space-between" w="100%" wrap="nowrap">
+                    <Box style={{ minWidth: 0 }}>
+                        <Text className={classes.tariffName} c="white" fw={700} size="sm">
+                            {tariff.name ?? getPeriodLabel(tariff.months, tariff.days ?? 0, currentLang)}
+                        </Text>
+                        <Text c="dimmed" mt={2} size="xs">
+                            {getPeriodLabel(tariff.months, tariff.days ?? 0, currentLang)}
+                        </Text>
+                    </Box>
+                    <Group gap={10} wrap="nowrap">
+                        <Text c="white" fw={700} size="lg" style={{ whiteSpace: 'nowrap' }}>
+                            {formatAmount(tariff.amount, tariff.currency)}
+                        </Text>
+                        <span className={classes.radio} />
+                    </Group>
+                </Group>
                 {descLines.length > 0 ? (
-                    <Stack gap={2} mt={8}>
-                        {descLines.map((line, index) => (
-                            <Text c="dimmed" key={index} lh={1.3} size="xs">
-                                {line}
-                            </Text>
-                        ))}
-                    </Stack>
+                    <>
+                        <span className={classes.cardDivider} />
+                        <SimpleGrid cols={{ base: 1, xs: 2 }} spacing={8} verticalSpacing={4} w="100%">
+                            {descLines.map((line, index) => (
+                                <Group align="flex-start" gap={6} key={index} wrap="nowrap">
+                                    {renderDescIcon(line)}
+                                    <Text c="dimmed" lh={1.3} size="xs">
+                                        {line}
+                                    </Text>
+                                </Group>
+                            ))}
+                        </SimpleGrid>
+                    </>
                 ) : null}
             </UnstyledButton>
         )
@@ -223,6 +266,27 @@ export const SubscriptionLinkWidget = ({
             return
         }
 
+        const dayTariffs = tariffs
+            .filter((tariff) => tariff.months <= 0)
+            .sort((a, b) => a.amount - b.amount)
+
+        const groupsMap = new Map<number, IPaymentTariff[]>()
+        for (const tariff of tariffs) {
+            if (tariff.months <= 0) continue
+            const list = groupsMap.get(tariff.months) ?? []
+            list.push(tariff)
+            groupsMap.set(tariff.months, list)
+        }
+
+        const monthGroups = [...groupsMap.entries()]
+            .map(([months, items]) => ({
+                currency: items[0].currency,
+                items: [...items].sort((a, b) => a.amount - b.amount),
+                minPrice: Math.min(...items.map((item) => item.amount)),
+                months
+            }))
+            .sort((a, b) => a.months - b.months)
+
         modals.open({
             centered: true,
             title: isRu ? 'Выберите тариф' : 'Choose a plan',
@@ -232,12 +296,51 @@ export const SubscriptionLinkWidget = ({
                 title: classes.modalTitle
             },
             children: (
-                <Stack>
-                    <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
-                        {[...tariffs]
-                            .sort((a, b) => a.months - b.months || a.amount - b.amount)
-                            .map(renderTariffCard)}
-                    </SimpleGrid>
+                <Stack gap="md">
+                    {dayTariffs.length > 0 ? (
+                        <Stack gap="xs">
+                            <Group c="dimmed" gap={6}>
+                                <IconClock size={15} />
+                                <Text c="dimmed" fw={700} size="xs" tt="uppercase">
+                                    {isRu ? 'Посуточные тарифы' : 'Daily plans'}
+                                </Text>
+                            </Group>
+                            {dayTariffs.map(renderTariffCard)}
+                        </Stack>
+                    ) : null}
+
+                    {monthGroups.length > 0 ? (
+                        <Accordion
+                            classNames={{
+                                chevron: classes.accChevron,
+                                control: classes.accControl,
+                                item: classes.accItem
+                            }}
+                            defaultValue={String(monthGroups[0].months)}
+                            variant="separated"
+                        >
+                            {monthGroups.map((group) => (
+                                <Accordion.Item key={group.months} value={String(group.months)}>
+                                    <Accordion.Control
+                                        icon={<IconClock className={classes.groupIcon} size={18} />}
+                                    >
+                                        <Group gap="xs" justify="space-between" pr="sm" wrap="nowrap">
+                                            <Text c="white" fw={600}>
+                                                {getPeriodLabel(group.months, 0, currentLang)}
+                                            </Text>
+                                            <Badge className={classes.priceBadge} variant="light">
+                                                {isRu ? 'от' : 'from'}{' '}
+                                                {formatAmount(group.minPrice, group.currency)}
+                                            </Badge>
+                                        </Group>
+                                    </Accordion.Control>
+                                    <Accordion.Panel>
+                                        <Stack gap="xs">{group.items.map(renderTariffCard)}</Stack>
+                                    </Accordion.Panel>
+                                </Accordion.Item>
+                            ))}
+                        </Accordion>
+                    ) : null}
                 </Stack>
             )
         })

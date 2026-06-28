@@ -7,6 +7,7 @@ export interface ITariff {
     months: number;
     amount: number;
     currency: string;
+    days?: number;
     id?: number;
     name?: string;
     description?: string;
@@ -56,13 +57,14 @@ export class ShmTariffsService {
                     (t): t is Record<string, unknown> =>
                         !!t &&
                         typeof (t as Record<string, unknown>).period_months === 'number' &&
-                        ((t as Record<string, unknown>).period_months as number) > 0 &&
                         typeof (t as Record<string, unknown>).cost === 'number' &&
                         // Hide free / 0 ₽ services (promo, ambassador, internal) — not buyable here.
+                        // Day-based / hourly tariffs (period_months = 0) are kept.
                         ((t as Record<string, unknown>).cost as number) > 0,
                 )
                 .map((t) => ({
                     months: t.period_months as number,
+                    days: t.period_days as number | undefined,
                     amount: t.cost as number,
                     currency: (t.currency as string) ?? 'RUB',
                     id: t.id as number | undefined,

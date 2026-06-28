@@ -59,7 +59,12 @@ export function RootLayout() {
             const tariffsData = paymentDiv.dataset.tariffs ?? ''
             if (tariffsData) {
                 try {
-                    const tariffs = JSON.parse(atob(tariffsData))
+                    // atob yields a Latin1 byte-string; decode as UTF-8 so Cyrillic
+                    // tariff names/descriptions don't become mojibake.
+                    const tariffsJson = new TextDecoder('utf-8').decode(
+                        Uint8Array.from(atob(tariffsData), (ch) => ch.charCodeAt(0))
+                    )
+                    const tariffs = JSON.parse(tariffsJson)
                     if (Array.isArray(tariffs)) {
                         paymentActions.setTariffs(tariffs)
                     }
