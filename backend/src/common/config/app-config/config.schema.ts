@@ -215,17 +215,20 @@ export const configSchema = z
                 });
             }
         }
+        const shmTariffsConfigured = Boolean(data.SHM_TARIFFS_URL && data.SHM_TARIFF_CATEGORY);
         if (
             (data.WATA_API_KEY || data.PLATEGA_MERCHANT_ID || data.CARDLINK_API_KEY) &&
             !data.TARIFF_1M &&
             !data.TARIFF_3M &&
             !data.TARIFF_6M &&
-            !data.TARIFF_12M
+            !data.TARIFF_12M &&
+            !shmTariffsConfigured
         ) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message:
-                    'At least one TARIFF (1M, 3M, 6M, or 12M) is required when a payment provider is enabled',
+                    'At least one TARIFF (1M, 3M, 6M, or 12M), or SHM tariffs ' +
+                    '(SHM_TARIFFS_URL + SHM_TARIFF_CATEGORY), is required when a payment provider is enabled',
                 path: ['TARIFF_1M'],
             });
         }
