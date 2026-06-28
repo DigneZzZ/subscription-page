@@ -237,7 +237,9 @@ export class RootService {
         // SHM-owned reset: hand off to the public SHM reset page (dynamic price computed by
         // charge-and-reset-traffic, balance check, and top-up flow). The existing env/gateway
         // reset below is unchanged and stays as the fallback when SHM is not configured.
-        const shmResetUrl = this.shmTariffsService.buildResetUrl(shortUuid);
+        // Forward TRAFFIC_RESET_MIN_PERCENT so the SHM reset enforces the same usage threshold.
+        const minPercent = this.configService.get<number>('TRAFFIC_RESET_MIN_PERCENT');
+        const shmResetUrl = this.shmTariffsService.buildResetUrl(shortUuid, minPercent);
         if (shmResetUrl) {
             return { ok: true, url: shmResetUrl };
         }

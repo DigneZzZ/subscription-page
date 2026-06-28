@@ -54,12 +54,18 @@ export class ShmTariffsService {
     }
 
     // URL of the public SHM traffic-reset page (dynamic price + balance check + top-up).
-    public buildResetUrl(shortUuid: string): string | undefined {
+    // minPercent (TRAFFIC_RESET_MIN_PERCENT) is forwarded so the SHM reset enforces the same
+    // usage threshold the page uses for button visibility.
+    public buildResetUrl(shortUuid: string, minPercent?: number): string | undefined {
         const base = this.normalizedBase();
         if (!this.isEnabled || !base) {
             return undefined;
         }
-        return `${base}/reset?shortUuid=${encodeURIComponent(shortUuid)}&format=html`;
+        let url = `${base}/reset?shortUuid=${encodeURIComponent(shortUuid)}&format=html`;
+        if (minPercent !== undefined && Number.isFinite(minPercent)) {
+            url += `&min_percent=${minPercent}`;
+        }
+        return url;
     }
 
     public async getTariffs(): Promise<ITariff[] | null> {
