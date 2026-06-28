@@ -39,7 +39,10 @@ export class ShmTariffsService {
         }
 
         try {
-            const url = `${this.baseUrl.replace(/\/+$/, '')}/tariffs`;
+            // Accept either the public base (.../shm/v1/public) or a URL that already
+            // ends in /tariffs — normalize so we always hit exactly <base>/tariffs.
+            const base = this.baseUrl.replace(/\/+$/, '').replace(/\/tariffs$/i, '');
+            const url = `${base}/tariffs`;
             const response = await axios.get(url, {
                 params: { category: this.category },
                 timeout: 8_000,
