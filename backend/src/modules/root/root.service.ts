@@ -180,7 +180,10 @@ export class RootService {
     }
 
     public hasAnyPaymentProvider(): boolean {
+        // In SHM mode the payment is handled by SHM (no subscription-page gateway creds needed),
+        // so the SHM integration itself counts as a payment provider for button visibility.
         return (
+            this.shmTariffsService.isEnabled ||
             this.wataService.isEnabled ||
             this.plategaService.isEnabled ||
             this.cardLinkService.isEnabled
