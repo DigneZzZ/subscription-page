@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
 import { createHash, createHmac, randomInt } from 'node:crypto';
+import { Request, Response } from 'express';
 import { nanoid } from 'nanoid';
 import axios from 'axios';
 
@@ -10,12 +10,13 @@ import { Logger } from '@nestjs/common';
 
 import { TRequestTemplateTypeKeys } from '@remnawave/backend-contract';
 
-import { AxiosService } from '@common/axios/axios.service';
 import { CardLinkService } from '@common/cardlink/cardlink.service';
 import { PlategaService } from '@common/platega/platega.service';
+import { AxiosService } from '@common/axios/axios.service';
 import { WataService } from '@common/wata/wata.service';
 import { IGNORED_HEADERS } from '@common/constants';
 import { sanitizeUsername } from '@common/utils';
+import { ShmTariffsService } from '@common/shm';
 
 import { SubpageConfigService } from './subpage-config.service';
 
@@ -41,6 +42,7 @@ export class RootService {
         private readonly wataService: WataService,
         private readonly plategaService: PlategaService,
         private readonly cardLinkService: CardLinkService,
+        private readonly shmTariffsService: ShmTariffsService,
     ) {
         this.isMarzbanLegacyLinkEnabled = this.configService.getOrThrow<boolean>(
             'MARZBAN_LEGACY_LINK_ENABLED',
@@ -161,6 +163,24 @@ export class RootService {
             .filter(Boolean) as Array<{ months: number; amount: number; currency: string }>;
     }
 
+    // Tariffs come from SHM when configured; otherwise fall back to the TARIFF_* env values.
+    public async getTariffs(): Promise<
+        Array<{ months: number; amount: number; currency: string; id?: number; name?: string }>
+    > {
+        if (this.shmTariffsService.isEnabled) {
+            const shm = await this.shmTariffsService.getTariffs();
+            if (shm && shm.length > 0) {
+                return shm;
+            }
+        }
+        return this.listAvailableTariffs();
+    }
+
+    public async getTariffAmount(months: number): Promise<number | undefined> {
+        const tariffs = await this.getTariffs();
+        return tariffs.find((t) => t.months === months)?.amount;
+    }
+
     public hasAnyPaymentProvider(): boolean {
         return (
             this.wataService.isEnabled ||
@@ -174,7 +194,7 @@ export class RootService {
         months: number,
         sessionId: string,
     ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
-        if (!this.isValidTariffMonths(months)) {
+        if (!(await this.isValidTariffMonths(months))) {
             return { ok: false, reason: 'invalid_months' };
         }
 
@@ -211,7 +231,9 @@ export class RootService {
         let months: number | undefined;
 
         if (product.kind === 'subscription') {
-            amount = this.configService.get<number>(`TARIFF_${product.months}M`);
+            amount =
+                (await this.getTariffAmount(product.months)) ??
+                this.configService.get<number>(`TARIFF_${product.months}M`);
             if (amount === undefined) {
                 return { ok: false, reason: 'tariff_not_configured' };
             }
@@ -323,9 +345,7 @@ export class RootService {
                     shortUuid,
                     username,
                     cardLinkBillId,
-                }).catch((e) =>
-                    this.logger.error(`Webhook dispatch failed for ${orderId}: ${e}`),
-                );
+                }).catch((e) => this.logger.error(`Webhook dispatch failed for ${orderId}: ${e}`));
                 return { ok: true, url };
             }
         }
@@ -373,9 +393,12 @@ export class RootService {
         return true;
     }
 
-    public isValidTariffMonths(months: number): boolean {
-        const envKey = `TARIFF_${months}M`;
-        return this.configService.get<number>(envKey) !== undefined;
+    public async isValidTariffMonths(months: number): Promise<boolean> {
+        const tariffs = await this.getTariffs();
+        if (tariffs.length > 0) {
+            return tariffs.some((t) => t.months === months);
+        }
+        return this.configService.get<number>(`TARIFF_${months}M`) !== undefined;
     }
 
     public isValidTariffAmount(months: number, amount: number): boolean {
@@ -521,12 +544,11 @@ export class RootService {
                 subscriptionData.response.ssConfLinks = {};
             }
 
-            const tariffs = this.hasAnyPaymentProvider() ? this.listAvailableTariffs() : [];
+            const tariffs = this.hasAnyPaymentProvider() ? await this.getTariffs() : [];
 
             const paymentUrl = baseSettings.paymentUrl;
-            const paymentTariffs = tariffs.length > 0
-                ? Buffer.from(JSON.stringify(tariffs)).toString('base64')
-                : '';
+            const paymentTariffs =
+                tariffs.length > 0 ? Buffer.from(JSON.stringify(tariffs)).toString('base64') : '';
 
             const paymentReset = this.isTrafficResetEnabled()
                 ? Buffer.from(
@@ -570,7 +592,8 @@ export class RootService {
                 paymentReset,
                 supportEmail: baseSettings.supportEmail,
                 chatwootBaseUrl: this.configService.get<string>('CHATWOOT_BASE_URL') || '',
-                chatwootWebsiteToken: this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',
+                chatwootWebsiteToken:
+                    this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',
                 chatwootIdentifierHash: cwIdentifierHash,
             });
         } catch (error) {
