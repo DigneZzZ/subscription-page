@@ -113,6 +113,17 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
 
+        // SHM billing integration (optional). When both are set, tariffs/pricing are
+        // sourced from SHM instead of TARIFF_* (which remain the fallback).
+        SHM_TARIFFS_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        SHM_TARIFF_CATEGORY: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+
         // Wata payment gateway
         WATA_API_KEY: z
             .string()
