@@ -4,6 +4,7 @@ export interface IPaymentTariff {
     amount: number
     currency: string
     months: number
+    days?: number
     id?: number
     name?: string
     description?: string
