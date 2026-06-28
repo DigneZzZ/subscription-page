@@ -70,8 +70,7 @@ export const configSchema = z
             .string()
             .optional()
             .refine(
-                (v: string | undefined) =>
-                    !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+                (v: string | undefined) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
                 'SUPPORT_EMAIL must be a valid email address',
             )
             .transform((v: string | undefined) => (v && v.length > 0 ? v : undefined)),
@@ -96,10 +95,7 @@ export const configSchema = z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
-            .refine(
-                (v) => v === undefined || !isNaN(v),
-                'TARIFF_12M must be a valid number',
-            ),
+            .refine((v) => v === undefined || !isNaN(v), 'TARIFF_12M must be a valid number'),
         TARIFF_CURRENCY: z
             .string()
             .optional()
