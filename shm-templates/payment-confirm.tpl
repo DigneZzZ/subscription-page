@@ -7,9 +7,26 @@
 #   token in 1m|3m|6m|12m (подписка) | reset (сброс трафика)
 #}}
 
-{{ ps = request.params.ps || '' }}
+{{# ps/dry_run приходят в QUERY STRING. На POST SHM наполняет request.params из ТЕЛА,
+#   а query-параметры туда НЕ попадают. Парсим их прямо из $ENV{QUERY_STRING}
+#   (без CGI, чтобы не трогать чтение тела/POSTDATA для верификации WATA). #}}
+{{ PERL }}
+  my $qs = $ENV{QUERY_STRING} // '';
+  my %q;
+  for my $pair ( split /&/, $qs ) {
+      my ($k, $v) = split /=/, $pair, 2;
+      next unless defined $k && length $k;
+      $v = '' unless defined $v;
+      $v =~ tr/+/ /;
+      $v =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/ge;
+      $q{$k} = $v;
+  }
+  $stash->set('ps_query', $q{ps} // '');
+  $stash->set('dry_run_query', $q{dry_run} // '');
+{{ END }}
+{{ ps = ps_query || request.params.ps || '' }}
 {{ debug = config.payment_confirm.debug || 0 }}
-{{ dry_run = request.params.dry_run || 0 }}
+{{ dry_run = dry_run_query || request.params.dry_run || 0 }}
 {{ admin_chat_id = config.payment_confirm.admin_chat_id || '' }}
 {{ bot_token = config.telegram.bot_token || config.telegram.telegram_bot.token || '' }}
 
@@ -21,6 +38,17 @@
 {{ END }}
 
 {{# --- 1. provider gate --- #}}
+{{# Fallback-автоопределение ПС по форме пейлоада: на form-urlencoded POST (cardlink)
+#   query ?ps= в request.params не попадает, поэтому определяем по характерным полям. #}}
+{{ IF ps != 'platega' && ps != 'wata' && ps != 'cardlink' }}
+    {{ IF request.params.SignatureValue || request.params.InvId }}
+        {{ ps = 'cardlink' }}
+    {{ ELSIF request.params.transactionStatus }}
+        {{ ps = 'wata' }}
+    {{ ELSIF request.params.payload || request.params.paymentMethod }}
+        {{ ps = 'platega' }}
+    {{ END }}
+{{ END }}
 {{ IF ps != 'platega' && ps != 'wata' && ps != 'cardlink' }}
 {{ toJson({ error => 'unknown ps', code => 400 }) }}{{ STOP }}
 {{ END }}
