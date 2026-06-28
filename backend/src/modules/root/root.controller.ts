@@ -36,22 +36,15 @@ export class RootController {
         @Res() response: Response,
         @Query('shortUuid') shortUuid: string,
         @Query('months') monthsRaw: string,
+        @Query('id') idRaw: string,
     ) {
         if (!user) {
             response.socket?.destroy();
             return;
         }
 
-        if (!shortUuid || !monthsRaw) {
+        if (!shortUuid || (!idRaw && !monthsRaw)) {
             response.status(400).send('Bad Request');
-            return;
-        }
-
-        const months = parseInt(monthsRaw, 10);
-        // Authoritative validation happens in createPaymentForTariff (SHM-aware tariff set);
-        // here we only reject obviously invalid input.
-        if (!Number.isFinite(months) || months <= 0) {
-            response.status(400).send('Invalid months');
             return;
         }
 
@@ -62,17 +55,37 @@ export class RootController {
             return;
         }
 
-        const result = await this.rootService.createPaymentForTariff(
-            shortUuid,
-            months,
-            user.sessionId,
-        );
-        if (!result.ok) {
-            this.logger.warn(
-                `Payment creation failed for ${shortUuid} (${months}m): ${result.reason}`,
+        // Prefer the explicit SHM tariff id (disambiguates several tariffs of the same period);
+        // fall back to months (env-tariff mode).
+        let result: { ok: true; url: string } | { ok: false; reason: string };
+        if (idRaw) {
+            const id = parseInt(idRaw, 10);
+            if (!Number.isFinite(id) || id <= 0) {
+                response.status(400).send('Invalid tariff');
+                return;
+            }
+            result = await this.rootService.createPaymentForTariffById(
+                shortUuid,
+                id,
+                user.sessionId,
             );
-            if (result.reason === 'invalid_months') {
+        } else {
+            const months = parseInt(monthsRaw, 10);
+            if (!Number.isFinite(months) || months <= 0) {
                 response.status(400).send('Invalid months');
+                return;
+            }
+            result = await this.rootService.createPaymentForTariff(
+                shortUuid,
+                months,
+                user.sessionId,
+            );
+        }
+
+        if (!result.ok) {
+            this.logger.warn(`Payment creation failed for ${shortUuid}: ${result.reason}`);
+            if (result.reason === 'invalid_months' || result.reason === 'invalid_tariff') {
+                response.status(400).send('Invalid tariff');
             } else {
                 response
                     .status(result.reason === 'rate_limited' ? 429 : 502)

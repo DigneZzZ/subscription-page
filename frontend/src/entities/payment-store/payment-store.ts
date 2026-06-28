@@ -4,6 +4,9 @@ export interface IPaymentTariff {
     amount: number
     currency: string
     months: number
+    id?: number
+    name?: string
+    description?: string
 }
 
 export interface IPaymentReset {

@@ -9,6 +9,7 @@ export interface ITariff {
     currency: string;
     id?: number;
     name?: string;
+    description?: string;
 }
 
 @Injectable()
@@ -56,7 +57,9 @@ export class ShmTariffsService {
                         !!t &&
                         typeof (t as Record<string, unknown>).period_months === 'number' &&
                         ((t as Record<string, unknown>).period_months as number) > 0 &&
-                        typeof (t as Record<string, unknown>).cost === 'number',
+                        typeof (t as Record<string, unknown>).cost === 'number' &&
+                        // Hide free / 0 ₽ services (promo, ambassador, internal) — not buyable here.
+                        ((t as Record<string, unknown>).cost as number) > 0,
                 )
                 .map((t) => ({
                     months: t.period_months as number,
@@ -64,6 +67,7 @@ export class ShmTariffsService {
                     currency: (t.currency as string) ?? 'RUB',
                     id: t.id as number | undefined,
                     name: t.name as string | undefined,
+                    description: t.descr as string | undefined,
                 }));
 
             this.cache = { at: now, tariffs };

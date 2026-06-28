@@ -172,25 +172,48 @@ export const SubscriptionLinkWidget = ({
 
     const handleTariffClick = (tariff: IPaymentTariff) => {
         const { shortUuid } = subscription.user
-        const url = `/api/pay?shortUuid=${encodeURIComponent(shortUuid)}&months=${tariff.months}`
+        // Prefer the explicit tariff id (several tariffs can share a period); fall back to months.
+        const param = tariff.id != null ? `id=${tariff.id}` : `months=${tariff.months}`
+        const url = `/api/pay?shortUuid=${encodeURIComponent(shortUuid)}&${param}`
         window.open(url, '_blank', 'noopener,noreferrer')
         modals.closeAll()
     }
 
-    const renderTariffCard = (tariff: IPaymentTariff) => (
-        <UnstyledButton
-            className={classes.tariffCard}
-            key={tariff.months}
-            onClick={() => handleTariffClick(tariff)}
-        >
-            <Text c="white" fw={600} size="sm">
-                {getPeriodLabel(tariff.months, currentLang)}
-            </Text>
-            <Text c="cyan" fw={700} mt={4} size="lg">
-                {formatAmount(tariff.amount, tariff.currency)}
-            </Text>
-        </UnstyledButton>
-    )
+    const renderTariffCard = (tariff: IPaymentTariff) => {
+        const descLines = (tariff.description ?? '')
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean)
+
+        return (
+            <UnstyledButton
+                className={classes.tariffCard}
+                key={tariff.id ?? tariff.months}
+                onClick={() => handleTariffClick(tariff)}
+            >
+                <Text className={classes.tariffName} c="white" fw={700} size="sm">
+                    {tariff.name ?? getPeriodLabel(tariff.months, currentLang)}
+                </Text>
+                {tariff.name ? (
+                    <Text c="dimmed" size="xs">
+                        {getPeriodLabel(tariff.months, currentLang)}
+                    </Text>
+                ) : null}
+                <Text c="cyan" fw={700} mt={6} size="xl">
+                    {formatAmount(tariff.amount, tariff.currency)}
+                </Text>
+                {descLines.length > 0 ? (
+                    <Stack gap={2} mt={8}>
+                        {descLines.map((line, index) => (
+                            <Text c="dimmed" key={index} lh={1.3} size="xs">
+                                {line}
+                            </Text>
+                        ))}
+                    </Stack>
+                ) : null}
+            </UnstyledButton>
+        )
+    }
 
     const handlePayment = () => {
         vibrate('tap')
@@ -211,7 +234,9 @@ export const SubscriptionLinkWidget = ({
             children: (
                 <Stack>
                     <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
-                        {tariffs.map(renderTariffCard)}
+                        {[...tariffs]
+                            .sort((a, b) => a.months - b.months || a.amount - b.amount)
+                            .map(renderTariffCard)}
                     </SimpleGrid>
                 </Stack>
             )

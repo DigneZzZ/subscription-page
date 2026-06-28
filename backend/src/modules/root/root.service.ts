@@ -13,10 +13,10 @@ import { TRequestTemplateTypeKeys } from '@remnawave/backend-contract';
 import { CardLinkService } from '@common/cardlink/cardlink.service';
 import { PlategaService } from '@common/platega/platega.service';
 import { AxiosService } from '@common/axios/axios.service';
+import { ITariff, ShmTariffsService } from '@common/shm';
 import { WataService } from '@common/wata/wata.service';
 import { IGNORED_HEADERS } from '@common/constants';
 import { sanitizeUsername } from '@common/utils';
-import { ShmTariffsService } from '@common/shm';
 
 import { SubpageConfigService } from './subpage-config.service';
 
@@ -164,9 +164,7 @@ export class RootService {
     }
 
     // Tariffs come from SHM when configured; otherwise fall back to the TARIFF_* env values.
-    public async getTariffs(): Promise<
-        Array<{ months: number; amount: number; currency: string; id?: number; name?: string }>
-    > {
+    public async getTariffs(): Promise<ITariff[]> {
         if (this.shmTariffsService.isEnabled) {
             const shm = await this.shmTariffsService.getTariffs();
             if (shm && shm.length > 0) {
@@ -201,6 +199,26 @@ export class RootService {
         return this.createPayment(shortUuid, sessionId, { kind: 'subscription', months });
     }
 
+    // Pick a specific tariff by its SHM service id (used when several tariffs share a period).
+    public async createPaymentForTariffById(
+        shortUuid: string,
+        serviceId: number,
+        sessionId: string,
+    ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
+        const tariffs = await this.getTariffs();
+        const tariff = tariffs.find((t) => t.id === serviceId);
+        if (!tariff) {
+            return { ok: false, reason: 'invalid_tariff' };
+        }
+
+        return this.createPayment(shortUuid, sessionId, {
+            kind: 'subscription',
+            months: tariff.months,
+            amount: tariff.amount,
+            serviceId: tariff.id,
+        });
+    }
+
     public async createTrafficResetPayment(
         shortUuid: string,
         sessionId: string,
@@ -220,7 +238,9 @@ export class RootService {
     private async createPayment(
         shortUuid: string,
         sessionId: string,
-        product: { kind: 'subscription'; months: number } | { kind: 'reset' },
+        product:
+            | { kind: 'subscription'; months: number; amount?: number; serviceId?: number }
+            | { kind: 'reset' },
     ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
         const currency = this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB';
 
@@ -232,10 +252,17 @@ export class RootService {
         let serviceId: number | undefined;
 
         if (product.kind === 'subscription') {
-            const tariffs = await this.getTariffs();
-            const tariff = tariffs.find((t) => t.months === product.months);
-            amount = tariff?.amount ?? this.configService.get<number>(`TARIFF_${product.months}M`);
-            serviceId = tariff?.id;
+            if (product.amount !== undefined) {
+                // Specific tariff chosen by id — amount/serviceId already resolved.
+                amount = product.amount;
+                serviceId = product.serviceId;
+            } else {
+                const tariffs = await this.getTariffs();
+                const tariff = tariffs.find((t) => t.months === product.months);
+                amount =
+                    tariff?.amount ?? this.configService.get<number>(`TARIFF_${product.months}M`);
+                serviceId = tariff?.id;
+            }
             if (amount === undefined) {
                 return { ok: false, reason: 'tariff_not_configured' };
             }
