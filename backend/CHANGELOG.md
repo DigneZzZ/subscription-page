@@ -1,5 +1,15 @@
 # Changelog
 
+## [7.7.0](https://github.com/DigneZzZ/subscription-page/compare/v7.6.0...v7.7.0) (2026-06-28)
+
+
+### Features
+
+* **config:** add SHM_TARIFFS_URL and SHM_TARIFF_CATEGORY env ([ceef326](https://github.com/DigneZzZ/subscription-page/commit/ceef326a01ea4f55d4d4191c13a533256f3effc5))
+* **root:** source tariffs and pricing from SHM with env fallback ([2457705](https://github.com/DigneZzZ/subscription-page/commit/24577054abfde8d4035228220496894e257112be))
+* SHM billing integration (tariffs source + payment-confirm webhooks) ([7bf40ec](https://github.com/DigneZzZ/subscription-page/commit/7bf40ec26210ead036e4a264cc993ef077764e2f))
+* **shm:** add ShmTariffsService to source tariffs from SHM ([f1b534e](https://github.com/DigneZzZ/subscription-page/commit/f1b534e365de3f8016d98b77cadfd7cfc359bf0a))
+
 ## [7.6.0](https://github.com/DigneZzZ/subscription-page/compare/v7.5.0...v7.6.0) (2026-06-24)
 
 
