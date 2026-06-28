@@ -211,6 +211,14 @@ export class RootService {
             return { ok: false, reason: 'invalid_tariff' };
         }
 
+        // SHM owns the payment: redirect to the public SHM pay page, which assigns the next
+        // tariff and initiates payment via SHM's native pay_systems (so SHM sees & confirms it).
+        const shmPayUrl = this.shmTariffsService.buildPayUrl(shortUuid, serviceId);
+        if (shmPayUrl) {
+            return { ok: true, url: shmPayUrl };
+        }
+
+        // Fallback (no SHM base configured) — env/gateway mode.
         return this.createPayment(shortUuid, sessionId, {
             kind: 'subscription',
             months: tariff.months,

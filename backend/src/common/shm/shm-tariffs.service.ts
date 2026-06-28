@@ -30,6 +30,25 @@ export class ShmTariffsService {
         return !!this.baseUrl && !!this.category;
     }
 
+    // Normalized public SHM base (.../shm/v1/public), tolerant of a trailing /tariffs.
+    private normalizedBase(): string | undefined {
+        if (!this.baseUrl) {
+            return undefined;
+        }
+        return this.baseUrl.replace(/\/+$/, '').replace(/\/tariffs$/i, '');
+    }
+
+    // URL of the public SHM payment page for a subscription + chosen tariff.
+    // SHM resolves the user, assigns the next tariff and initiates payment via its own
+    // pay_systems (so the gateway callback returns to SHM and it confirms the payment).
+    public buildPayUrl(shortUuid: string, serviceId: number): string | undefined {
+        const base = this.normalizedBase();
+        if (!base) {
+            return undefined;
+        }
+        return `${base}/pay?shortUuid=${encodeURIComponent(shortUuid)}&serviceId=${serviceId}&format=html`;
+    }
+
     public async getTariffs(): Promise<ITariff[] | null> {
         if (!this.baseUrl || !this.category) {
             return null;
@@ -41,10 +60,7 @@ export class ShmTariffsService {
         }
 
         try {
-            // Accept either the public base (.../shm/v1/public) or a URL that already
-            // ends in /tariffs — normalize so we always hit exactly <base>/tariffs.
-            const base = this.baseUrl.replace(/\/+$/, '').replace(/\/tariffs$/i, '');
-            const url = `${base}/tariffs`;
+            const url = `${this.normalizedBase()}/tariffs`;
             const response = await axios.get(url, {
                 params: { category: this.category },
                 timeout: 8_000,
