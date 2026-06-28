@@ -229,11 +229,13 @@ export class RootService {
         let description: string | undefined;
         let webhookType: 'SUBSCRIPTION' | 'TRAFFIC_RESET';
         let months: number | undefined;
+        let serviceId: number | undefined;
 
         if (product.kind === 'subscription') {
-            amount =
-                (await this.getTariffAmount(product.months)) ??
-                this.configService.get<number>(`TARIFF_${product.months}M`);
+            const tariffs = await this.getTariffs();
+            const tariff = tariffs.find((t) => t.months === product.months);
+            amount = tariff?.amount ?? this.configService.get<number>(`TARIFF_${product.months}M`);
+            serviceId = tariff?.id;
             if (amount === undefined) {
                 return { ok: false, reason: 'tariff_not_configured' };
             }
@@ -340,6 +342,7 @@ export class RootService {
                     type: webhookType,
                     orderId,
                     months,
+                    serviceId,
                     amount,
                     currency,
                     shortUuid,
@@ -411,6 +414,7 @@ export class RootService {
         type: 'SUBSCRIPTION' | 'TRAFFIC_RESET';
         orderId: string;
         months?: number;
+        serviceId?: number;
         amount: number;
         currency: string;
         shortUuid: string;
@@ -422,10 +426,11 @@ export class RootService {
             return { ok: false, reason: 'webhook_disabled' };
         }
 
-        const { months, ...rest } = data;
+        const { months, serviceId, ...rest } = data;
         const payload = {
             ...rest,
             ...(months !== undefined ? { months } : {}),
+            ...(serviceId !== undefined ? { serviceId } : {}),
             timestamp: new Date().toISOString(),
         };
 
