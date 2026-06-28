@@ -21,6 +21,9 @@ export class ShmTariffsService {
     private readonly category: string | undefined;
     private readonly TTL_MS = 60_000;
     private cache: { at: number; tariffs: ITariff[] } | undefined;
+    // Traffic-reset usage threshold (%), sourced from SHM config.subscription_page and exposed
+    // by the tariffs endpoint — single source of truth for both reset enforcement and button visibility.
+    private resetMinPercent: number | undefined;
 
     constructor(private readonly configService: ConfigService) {
         this.integrationEnabled =
@@ -32,6 +35,11 @@ export class ShmTariffsService {
     // Master switch: SHM mode requires the explicit flag AND the base/category.
     public get isEnabled(): boolean {
         return this.integrationEnabled && !!this.baseUrl && !!this.category;
+    }
+
+    // Reset usage threshold (%) reported by SHM; undefined until tariffs have been fetched.
+    public getResetMinPercent(): number | undefined {
+        return this.resetMinPercent;
     }
 
     // Normalized public SHM base (.../shm/v1/public), tolerant of a trailing /tariffs.
@@ -84,6 +92,10 @@ export class ShmTariffsService {
                 params: { category: this.category },
                 timeout: 8_000,
             });
+
+            const rmp = (response.data as Record<string, unknown> | undefined)
+                ?.reset_min_usage_percent;
+            this.resetMinPercent = typeof rmp === 'number' ? rmp : undefined;
 
             const raw: unknown = response.data?.tariffs;
             const list = Array.isArray(raw) ? raw : [];

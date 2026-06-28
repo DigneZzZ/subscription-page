@@ -616,8 +616,14 @@ export class RootService {
                               ? 0
                               : this.configService.get<number>('TRAFFIC_RESET_PRICE'),
                           currency: this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB',
-                          minPercent:
-                              this.configService.get<number>('TRAFFIC_RESET_MIN_PERCENT') ?? 0,
+                          // SHM mode: button-visibility threshold comes from SHM
+                          // (config.subscription_page.reset_min_usage_percent, via the tariffs
+                          // endpoint) — single source of truth. Falls back to env if absent.
+                          minPercent: shmDynamicReset
+                              ? (this.shmTariffsService.getResetMinPercent() ??
+                                this.configService.get<number>('TRAFFIC_RESET_MIN_PERCENT') ??
+                                0)
+                              : (this.configService.get<number>('TRAFFIC_RESET_MIN_PERCENT') ?? 0),
                           dynamic: shmDynamicReset,
                       }),
                   ).toString('base64')
