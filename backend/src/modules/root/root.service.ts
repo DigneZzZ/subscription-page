@@ -231,6 +231,14 @@ export class RootService {
         shortUuid: string,
         sessionId: string,
     ): Promise<{ ok: true; url: string } | { ok: false; reason: string }> {
+        // SHM-owned reset: hand off to the public SHM reset page (dynamic price computed by
+        // charge-and-reset-traffic, balance check, and top-up flow). The existing env/gateway
+        // reset below is unchanged and stays as the fallback when SHM is not configured.
+        const shmResetUrl = this.shmTariffsService.buildResetUrl(shortUuid);
+        if (shmResetUrl) {
+            return { ok: true, url: shmResetUrl };
+        }
+
         if (!this.isTrafficResetEnabled()) {
             return { ok: false, reason: 'reset_disabled' };
         }

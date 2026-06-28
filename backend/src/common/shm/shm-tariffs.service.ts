@@ -49,6 +49,15 @@ export class ShmTariffsService {
         return `${base}/pay?shortUuid=${encodeURIComponent(shortUuid)}&serviceId=${serviceId}&format=html`;
     }
 
+    // URL of the public SHM traffic-reset page (dynamic price + balance check + top-up).
+    public buildResetUrl(shortUuid: string): string | undefined {
+        const base = this.normalizedBase();
+        if (!base) {
+            return undefined;
+        }
+        return `${base}/reset?shortUuid=${encodeURIComponent(shortUuid)}&format=html`;
+    }
+
     public async getTariffs(): Promise<ITariff[] | null> {
         if (!this.baseUrl || !this.category) {
             return null;
