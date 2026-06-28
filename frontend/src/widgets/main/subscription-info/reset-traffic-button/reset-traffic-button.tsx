@@ -33,18 +33,26 @@ export const ResetTrafficButton = () => {
     const s = getResetStrings(currentLang)
     const priceLabel = formatAmount(reset.amount, reset.currency)
 
+    const openReset = () => {
+        const { shortUuid } = user
+        const url = `/api/pay/reset?shortUuid=${encodeURIComponent(shortUuid)}`
+        window.open(url, '_blank', 'noopener,noreferrer')
+    }
+
     const handleClick = () => {
         vibrate('tap')
+        // In SHM (dynamic) mode the SHM reset page shows the real price and its own
+        // confirmation, so skip the local confirm modal and go straight there.
+        if (reset.dynamic) {
+            openReset()
+            return
+        }
         modals.openConfirmModal({
             centered: true,
             title: s.confirmTitle,
             children: <Text size="sm">{s.confirmBody(priceLabel)}</Text>,
             labels: { confirm: s.pay, cancel: s.cancel },
-            onConfirm: () => {
-                const { shortUuid } = user
-                const url = `/api/pay/reset?shortUuid=${encodeURIComponent(shortUuid)}`
-                window.open(url, '_blank', 'noopener,noreferrer')
-            }
+            onConfirm: openReset
         })
     }
 
@@ -58,7 +66,7 @@ export const ResetTrafficButton = () => {
             size="md"
             variant="light"
         >
-            {`${s.resetTraffic} · ${priceLabel}`}
+            {reset.dynamic ? s.resetTraffic : `${s.resetTraffic} · ${priceLabel}`}
         </Button>
     )
 }

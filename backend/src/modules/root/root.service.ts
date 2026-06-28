@@ -252,6 +252,11 @@ export class RootService {
     }
 
     public isTrafficResetEnabled(): boolean {
+        // In SHM mode the reset price is computed dynamically by SHM; the button only needs to be
+        // available (its visibility is gated by TRAFFIC_RESET_MIN_PERCENT on the page).
+        if (this.shmTariffsService.isEnabled) {
+            return true;
+        }
         const price = this.configService.get<number>('TRAFFIC_RESET_PRICE');
         return price !== undefined && price > 0 && this.hasAnyPaymentProvider();
     }
@@ -603,13 +608,17 @@ export class RootService {
             const paymentTariffs =
                 tariffs.length > 0 ? Buffer.from(JSON.stringify(tariffs)).toString('base64') : '';
 
+            const shmDynamicReset = this.shmTariffsService.isEnabled;
             const paymentReset = this.isTrafficResetEnabled()
                 ? Buffer.from(
                       JSON.stringify({
-                          amount: this.configService.get<number>('TRAFFIC_RESET_PRICE'),
+                          amount: shmDynamicReset
+                              ? 0
+                              : this.configService.get<number>('TRAFFIC_RESET_PRICE'),
                           currency: this.configService.get<string>('TARIFF_CURRENCY') ?? 'RUB',
                           minPercent:
                               this.configService.get<number>('TRAFFIC_RESET_MIN_PERCENT') ?? 0,
+                          dynamic: shmDynamicReset,
                       }),
                   ).toString('base64')
                 : '';

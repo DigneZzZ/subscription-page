@@ -86,7 +86,8 @@ export function RootLayout() {
                             amount: reset.amount,
                             currency: reset.currency,
                             minPercent:
-                                typeof reset.minPercent === 'number' ? reset.minPercent : 0
+                                typeof reset.minPercent === 'number' ? reset.minPercent : 0,
+                            dynamic: reset.dynamic === true
                         })
                     }
                 } catch {

@@ -14,6 +14,7 @@ export interface IPaymentReset {
     amount: number
     currency: string
     minPercent: number
+    dynamic?: boolean
 }
 
 interface IState {
