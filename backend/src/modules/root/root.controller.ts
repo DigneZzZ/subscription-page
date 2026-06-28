@@ -48,7 +48,9 @@ export class RootController {
         }
 
         const months = parseInt(monthsRaw, 10);
-        if (!Number.isFinite(months) || ![1, 3, 6, 12].includes(months)) {
+        // Authoritative validation happens in createPaymentForTariff (SHM-aware tariff set);
+        // here we only reject obviously invalid input.
+        if (!Number.isFinite(months) || months <= 0) {
             response.status(400).send('Invalid months');
             return;
         }
@@ -66,8 +68,16 @@ export class RootController {
             user.sessionId,
         );
         if (!result.ok) {
-            this.logger.warn(`Payment creation failed for ${shortUuid} (${months}m): ${result.reason}`);
-            response.status(result.reason === 'rate_limited' ? 429 : 502).send('Payment unavailable');
+            this.logger.warn(
+                `Payment creation failed for ${shortUuid} (${months}m): ${result.reason}`,
+            );
+            if (result.reason === 'invalid_months') {
+                response.status(400).send('Invalid months');
+            } else {
+                response
+                    .status(result.reason === 'rate_limited' ? 429 : 502)
+                    .send('Payment unavailable');
+            }
             return;
         }
 
