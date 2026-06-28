@@ -16,18 +16,22 @@ export interface ITariff {
 @Injectable()
 export class ShmTariffsService {
     private readonly logger = new Logger(ShmTariffsService.name);
+    private readonly integrationEnabled: boolean;
     private readonly baseUrl: string | undefined;
     private readonly category: string | undefined;
     private readonly TTL_MS = 60_000;
     private cache: { at: number; tariffs: ITariff[] } | undefined;
 
     constructor(private readonly configService: ConfigService) {
+        this.integrationEnabled =
+            this.configService.get<boolean>('SHM_INTEGRATION_ENABLED') === true;
         this.baseUrl = this.configService.get<string>('SHM_TARIFFS_URL');
         this.category = this.configService.get<string>('SHM_TARIFF_CATEGORY');
     }
 
+    // Master switch: SHM mode requires the explicit flag AND the base/category.
     public get isEnabled(): boolean {
-        return !!this.baseUrl && !!this.category;
+        return this.integrationEnabled && !!this.baseUrl && !!this.category;
     }
 
     // Normalized public SHM base (.../shm/v1/public), tolerant of a trailing /tariffs.
@@ -43,7 +47,7 @@ export class ShmTariffsService {
     // pay_systems (so the gateway callback returns to SHM and it confirms the payment).
     public buildPayUrl(shortUuid: string, serviceId: number): string | undefined {
         const base = this.normalizedBase();
-        if (!base) {
+        if (!this.isEnabled || !base) {
             return undefined;
         }
         return `${base}/pay?shortUuid=${encodeURIComponent(shortUuid)}&serviceId=${serviceId}&format=html`;
@@ -52,7 +56,7 @@ export class ShmTariffsService {
     // URL of the public SHM traffic-reset page (dynamic price + balance check + top-up).
     public buildResetUrl(shortUuid: string): string | undefined {
         const base = this.normalizedBase();
-        if (!base) {
+        if (!this.isEnabled || !base) {
             return undefined;
         }
         return `${base}/reset?shortUuid=${encodeURIComponent(shortUuid)}&format=html`;

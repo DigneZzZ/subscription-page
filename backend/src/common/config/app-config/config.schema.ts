@@ -109,8 +109,14 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
 
-        // SHM billing integration (optional). When both are set, tariffs/pricing are
-        // sourced from SHM instead of TARIFF_* (which remain the fallback).
+        // SHM billing integration. Master switch: when false (default), the legacy flow is used
+        // (env TARIFF_* tariffs, gateway payment + PAYMENT_WEBHOOK_URL webhook, gateway reset).
+        // When true (and SHM_TARIFFS_URL + SHM_TARIFF_CATEGORY are set), tariffs/payment/reset
+        // are handled by SHM.
+        SHM_INTEGRATION_ENABLED: z
+            .string()
+            .default('false')
+            .transform((val) => val === 'true'),
         SHM_TARIFFS_URL: z
             .string()
             .optional()
@@ -215,7 +221,9 @@ export const configSchema = z
                 });
             }
         }
-        const shmTariffsConfigured = Boolean(data.SHM_TARIFFS_URL && data.SHM_TARIFF_CATEGORY);
+        const shmTariffsConfigured = Boolean(
+            data.SHM_INTEGRATION_ENABLED && data.SHM_TARIFFS_URL && data.SHM_TARIFF_CATEGORY,
+        );
         if (
             (data.WATA_API_KEY || data.PLATEGA_MERCHANT_ID || data.CARDLINK_API_KEY) &&
             !data.TARIFF_1M &&
