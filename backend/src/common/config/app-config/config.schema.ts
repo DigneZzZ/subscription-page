@@ -70,8 +70,7 @@ export const configSchema = z
             .string()
             .optional()
             .refine(
-                (v: string | undefined) =>
-                    !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+                (v: string | undefined) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
                 'SUPPORT_EMAIL must be a valid email address',
             )
             .transform((v: string | undefined) => (v && v.length > 0 ? v : undefined)),
@@ -96,10 +95,7 @@ export const configSchema = z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? parseFloat(v) : undefined))
-            .refine(
-                (v) => v === undefined || !isNaN(v),
-                'TARIFF_12M must be a valid number',
-            ),
+            .refine((v) => v === undefined || !isNaN(v), 'TARIFF_12M must be a valid number'),
         TARIFF_CURRENCY: z
             .string()
             .optional()
@@ -109,6 +105,17 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
         PAYMENT_FAIL_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+
+        // SHM billing integration (optional). When both are set, tariffs/pricing are
+        // sourced from SHM instead of TARIFF_* (which remain the fallback).
+        SHM_TARIFFS_URL: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        SHM_TARIFF_CATEGORY: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
