@@ -142,3 +142,5 @@ docker-compose-local.yml
 /backend/.env
 
 /frontend/public/assets/.app-config-v2.json
+# Локальные SHM-шаблоны — НЕ хранить в репозитории
+shm-templates/
