@@ -14,6 +14,8 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import {
+    DeleteAllUserHwidDevicesCommand,
+    DeleteUserHwidDeviceCommand,
     GetMetadataCommand,
     GetSubpageConfigByShortUuidCommand,
     GetSubscriptionInfoByShortUuidCommand,
@@ -21,6 +23,7 @@ import {
     GetSubscriptionPageConfigsCommand,
     GetUserByShortUuidCommand,
     GetUserByUsernameCommand,
+    GetUserHwidDevicesCommand,
     REMNAWAVE_REAL_IP_HEADER,
     TRequestTemplateTypeKeys,
 } from '@remnawave/backend-contract';
@@ -365,6 +368,69 @@ export class AxiosService implements OnModuleInit {
             }
 
             return null;
+        }
+    }
+
+    public async getUserHwidDevices(
+        userUuid: string,
+    ): Promise<ICommandResponse<GetUserHwidDevicesCommand.Response>> {
+        try {
+            const response = await this.axiosInstance.request<GetUserHwidDevicesCommand.Response>({
+                method: GetUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
+                url: GetUserHwidDevicesCommand.url(encodeURIComponent(userUuid)),
+            });
+            return { isOk: true, response: response.data };
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                this.logger.error('Error in GetUserHwidDevices Request:', error.message);
+            } else {
+                this.logger.error('Error in GetUserHwidDevices Request:', error);
+            }
+            return { isOk: false };
+        }
+    }
+
+    public async deleteUserHwidDevice(
+        userUuid: string,
+        hwid: string,
+    ): Promise<ICommandResponse<DeleteUserHwidDeviceCommand.Response>> {
+        try {
+            const response = await this.axiosInstance.request<DeleteUserHwidDeviceCommand.Response>(
+                {
+                    method: DeleteUserHwidDeviceCommand.endpointDetails.REQUEST_METHOD,
+                    url: DeleteUserHwidDeviceCommand.url,
+                    data: { userUuid, hwid },
+                },
+            );
+            return { isOk: true, response: response.data };
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                this.logger.error('Error in DeleteUserHwidDevice Request:', error.message);
+            } else {
+                this.logger.error('Error in DeleteUserHwidDevice Request:', error);
+            }
+            return { isOk: false };
+        }
+    }
+
+    public async deleteAllUserHwidDevices(
+        userUuid: string,
+    ): Promise<ICommandResponse<DeleteAllUserHwidDevicesCommand.Response>> {
+        try {
+            const response =
+                await this.axiosInstance.request<DeleteAllUserHwidDevicesCommand.Response>({
+                    method: DeleteAllUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
+                    url: DeleteAllUserHwidDevicesCommand.url,
+                    data: { userUuid },
+                });
+            return { isOk: true, response: response.data };
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                this.logger.error('Error in DeleteAllUserHwidDevices Request:', error.message);
+            } else {
+                this.logger.error('Error in DeleteAllUserHwidDevices Request:', error);
+            }
+            return { isOk: false };
         }
     }
 }
