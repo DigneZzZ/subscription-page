@@ -29,7 +29,8 @@ export default defineConfig({
                     supportEmail: '<%- supportEmail %>',
                     chatwootBaseUrl: '<%- chatwootBaseUrl %>',
                     chatwootWebsiteToken: '<%- chatwootWebsiteToken %>',
-                    chatwootIdentifierHash: '<%- chatwootIdentifierHash %>'
+                    chatwootIdentifierHash: '<%- chatwootIdentifierHash %>',
+                    hwidData: '<%- hwidData %>'
                 }
             }
             return {
