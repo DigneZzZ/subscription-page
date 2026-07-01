@@ -7,6 +7,7 @@ import { useTranslation } from '@shared/hooks'
 
 import { ResetTrafficButton } from './reset-traffic-button'
 import classes from './subscription-info-cards.module.css'
+import { DevicesButton } from '../devices'
 
 type ColorVariant = 'blue' | 'cyan' | 'green' | 'orange' | 'red' | 'teal' | 'violet' | 'yellow'
 
@@ -113,6 +114,7 @@ export const SubscriptionInfoCardsWidget = ({ isMobile: _ }: IProps) => {
             </SimpleGrid>
 
             <ResetTrafficButton />
+            <DevicesButton />
         </Stack>
     )
 }
