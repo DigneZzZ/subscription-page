@@ -13,6 +13,7 @@ import {
     useSubscriptionInfoStoreInfo
 } from '@entities/subscription-info-store'
 import { useAppConfigStoreActions, useIsConfigLoaded } from '@entities/app-config-store'
+import { useDevicesStoreActions } from '@entities/devices-store'
 import { usePaymentStoreActions } from '@entities/payment-store'
 import { useSupportStoreActions } from '@entities/support-store'
 import { LoadingScreen } from '@shared/ui'
@@ -24,6 +25,7 @@ export function RootLayout() {
     const configActions = useAppConfigStoreActions()
     const paymentActions = usePaymentStoreActions()
     const supportActions = useSupportStoreActions()
+    const devicesActions = useDevicesStoreActions()
 
     const { subscription } = useSubscriptionInfoStoreInfo()
     const isConfigLoaded = useIsConfigLoaded()
@@ -85,8 +87,7 @@ export function RootLayout() {
                         paymentActions.setReset({
                             amount: reset.amount,
                             currency: reset.currency,
-                            minPercent:
-                                typeof reset.minPercent === 'number' ? reset.minPercent : 0,
+                            minPercent: typeof reset.minPercent === 'number' ? reset.minPercent : 0,
                             dynamic: reset.dynamic === true
                         })
                     }
@@ -103,6 +104,20 @@ export function RootLayout() {
             const supportEmail = supportDiv.dataset.email ?? ''
             supportActions.setSupportEmail(supportEmail)
             supportDiv.remove()
+        }
+
+        const hwidDiv = document.getElementById('hwid')
+        if (hwidDiv) {
+            const hwidData = hwidDiv.dataset.hwid ?? ''
+            if (hwidData) {
+                try {
+                    const parsed = JSON.parse(atob(hwidData))
+                    devicesActions.setEnabled(parsed?.enabled === true)
+                } catch {
+                    consola.error('Failed to parse hwid config')
+                }
+            }
+            hwidDiv.remove()
         }
 
         const fetchConfig = async () => {
