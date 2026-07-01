@@ -7,5 +7,12 @@ module.exports = {
     moduleNameMapper: {
         '^@common/(.*)$': '<rootDir>/common/$1',
     },
-    transform: { '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json' }] },
+    transform: {
+        '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json' }],
+        'node_modules/nanoid/.+\\.js$': [
+            'ts-jest',
+            { tsconfig: 'tsconfig.json', isolatedModules: true },
+        ],
+    },
+    transformIgnorePatterns: ['node_modules/(?!(nanoid)/)'],
 };
