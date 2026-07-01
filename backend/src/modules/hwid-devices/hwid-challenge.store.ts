@@ -96,6 +96,7 @@ export class HwidChallengeStore {
             const n = this.pushWindow(this.ipFails, ip, now);
             const activeUntil = this.ipBlockUntil.get(ip) ?? 0;
             if (n >= HWID.FAIL_THRESHOLD && activeUntil <= now) {
+                // Transitively bounded: only reachable inside the gated ipFails branch above.
                 this.ipBlockUntil.set(ip, now + HWID.BLOCK_MS);
                 triggered = true;
             }
@@ -104,6 +105,7 @@ export class HwidChallengeStore {
             const n = this.pushWindow(this.subFails, shortUuid, now);
             const activeUntil = this.subBlockUntil.get(shortUuid) ?? 0;
             if (n >= HWID.FAIL_THRESHOLD && activeUntil <= now) {
+                // Transitively bounded: only reachable inside the gated subFails branch above.
                 this.subBlockUntil.set(shortUuid, now + HWID.BLOCK_MS);
                 triggered = true;
             }
@@ -147,6 +149,13 @@ export class HwidChallengeStore {
 
         // Success: consume the challenge, mint a management session.
         this.challenges.delete(shortUuid);
+        // Bound the sessions map (global constraint: all in-memory maps are capacity-gated).
+        // At capacity we refuse to mint a session rather than grow unbounded; the natural
+        // TTL sweep frees slots. Reaching MAP_MAX_KEYS live sessions requires that many
+        // successful verifications within the 10-min TTL, so this is a defensive backstop.
+        if (this.sessions.size >= HWID.MAP_MAX_KEYS) {
+            return { ok: false, reason: 'no_challenge', blockTriggered: false };
+        }
         const token = nanoid(32);
         this.sessions.set(token, {
             shortUuid,
