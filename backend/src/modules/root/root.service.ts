@@ -649,6 +649,12 @@ export class RootService {
                     ? createHmac('sha256', cwHmacSecret).update(cwIdentifier).digest('hex')
                     : '';
 
+            const hwidData = Buffer.from(
+                JSON.stringify({
+                    enabled: Boolean(this.configService.get<string>('TELEGRAM_BOT_TOKEN')),
+                }),
+            ).toString('base64');
+
             res.render('index', {
                 metaTitle: baseSettings.metaTitle,
                 metaDescription: baseSettings.metaDescription,
@@ -661,6 +667,7 @@ export class RootService {
                 chatwootWebsiteToken:
                     this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',
                 chatwootIdentifierHash: cwIdentifierHash,
+                hwidData,
             });
         } catch (error) {
             this.logger.error(`Error in returnWebpage: ${error}`);
