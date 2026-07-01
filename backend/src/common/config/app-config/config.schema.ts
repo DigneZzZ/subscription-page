@@ -180,6 +180,13 @@ export const configSchema = z
         INTERNAL_JWT_SECRET: z.string(),
         EGAMES_COOKIE: z.optional(z.string()),
 
+        // Telegram bot for HWID device-management confirmation codes.
+        // Presence enables the "Devices" section on the subscription page.
+        TELEGRAM_BOT_TOKEN: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+
         // Price to reset a user's traffic. Presence (+ an enabled provider) shows the button.
         TRAFFIC_RESET_PRICE: z
             .string()
@@ -260,6 +267,14 @@ export const configSchema = z
                 message: 'CARDLINK_API_KEY is required when CARDLINK_SHOP_ID is set',
                 path: ['CARDLINK_API_KEY'],
             });
+        }
+        if (data.TELEGRAM_BOT_TOKEN && data.INTERNAL_JWT_SECRET.length < 32) {
+            // Not a hard failure (would break existing installs on upgrade), but the
+            // HWID code HMAC key is HKDF-derived from this secret — short secrets weaken it.
+            console.warn(
+                '[SECURITY] INTERNAL_JWT_SECRET is shorter than 32 chars; use a longer secret ' +
+                    'for stronger HWID verification-code hashing.',
+            );
         }
     });
 
