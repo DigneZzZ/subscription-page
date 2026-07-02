@@ -6,50 +6,64 @@ import { useDevicesEnabled } from '@entities/devices-store'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
 
+import { DeviceMode, fetchStatus } from './devices-api'
 import { openDevicesModal } from './devices-modal'
 import { getDeviceStrings } from './devices.i18n'
-import { fetchStatus } from './devices-api'
+
+interface DeviceStatus {
+    deviceCount: number
+    deviceLimit: null | number
+    mode: DeviceMode
+    telegramLinked: boolean
+}
 
 export const DevicesButton = () => {
     const enabled = useDevicesEnabled()
     const { currentLang } = useTranslation()
     const s = getDeviceStrings(currentLang)
 
-    const [telegramLinked, setTelegramLinked] = useState<boolean | null>(null)
-    const [deviceCount, setDeviceCount] = useState<number>(0)
-    const [deviceLimit, setDeviceLimit] = useState<null | number>(null)
+    const [status, setStatus] = useState<DeviceStatus | null>(null)
 
     useEffect(() => {
         if (!enabled) return undefined
         let cancelled = false
         fetchStatus()
-            .then((status) => {
+            .then((st) => {
                 if (cancelled) return
-                setTelegramLinked(status.telegramLinked)
-                setDeviceCount(status.deviceCount)
-                setDeviceLimit(status.deviceLimit)
+                setStatus({
+                    mode: st.mode,
+                    telegramLinked: st.telegramLinked,
+                    deviceCount: st.deviceCount,
+                    deviceLimit: st.deviceLimit
+                })
             })
             .catch(() => {
-                if (!cancelled) setTelegramLinked(false)
+                if (!cancelled) setStatus(null)
             })
         return () => {
             cancelled = true
         }
     }, [enabled])
 
-    if (!enabled) return null
+    // Render nothing until we know the mode. Then:
+    //  - disabled → never (defensive; the div flag already gates this)
+    //  - telegram + not linked → hidden entirely (no "link Telegram" stub)
+    //  - telegram + linked → shown (opens the code flow)
+    //  - open → always shown (opens the device list directly)
+    if (!enabled || !status) return null
+    if (status.mode === 'disabled') return null
+    if (status.mode === 'telegram' && !status.telegramLinked) return null
 
     const handleClick = () => {
         vibrate('tap')
-        openDevicesModal(currentLang)
+        openDevicesModal(currentLang, status.mode)
     }
 
-    const countLabel = s.devicesCount(deviceCount, deviceLimit)
+    const countLabel = s.devicesCount(status.deviceCount, status.deviceLimit)
 
     return (
         <Button
             color="cyan"
-            disabled={telegramLinked === false}
             fullWidth
             leftSection={<IconDevices size={18} />}
             onClick={handleClick}
@@ -59,7 +73,7 @@ export const DevicesButton = () => {
         >
             <Group gap="xs" justify="space-between" w="100%" wrap="nowrap">
                 <Text fw={600} size="sm">
-                    {telegramLinked === false ? s.linkTelegramHint : `${s.manage} · ${countLabel}`}
+                    {`${s.manage} · ${countLabel}`}
                 </Text>
             </Group>
         </Button>

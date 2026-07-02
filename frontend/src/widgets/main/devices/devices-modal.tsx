@@ -9,6 +9,7 @@ import { IDevice } from '@entities/devices-store'
 import {
     deleteAllDevices,
     deleteDevice,
+    DeviceMode,
     fetchDevices,
     requestChallenge,
     verifyCode
@@ -25,8 +26,8 @@ function mmss(total: number): string {
 
 type Step = 'code' | 'intro' | 'list'
 
-function DevicesFlow({ s }: { s: IDeviceStrings }) {
-    const [step, setStep] = useState<Step>('intro')
+function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
+    const [step, setStep] = useState<Step>(mode === 'open' ? 'list' : 'intro')
     const [busy, setBusy] = useState(false)
     const [cooldown, setCooldown] = useState(0)
     const [code, setCode] = useState('')
@@ -103,6 +104,14 @@ function DevicesFlow({ s }: { s: IDeviceStrings }) {
         return false
     }
 
+    useEffect(() => {
+        if (mode !== 'open') return
+        // eslint-disable-next-line no-void
+        void loadDevices().then((ok) => {
+            if (!ok) notifications.show({ color: 'red', message: s.errorGeneric })
+        })
+    }, [])
+
     const onVerify = async (value: string) => {
         setBusy(true)
         try {
@@ -132,7 +141,8 @@ function DevicesFlow({ s }: { s: IDeviceStrings }) {
                 setDevices(res.devices)
                 setLimit(res.limit)
             } else if (res.status === 403) {
-                setStep('intro')
+                if (mode === 'telegram') setStep('intro')
+                else notifications.show({ color: 'red', message: s.errorGeneric })
             } else {
                 notifications.show({ color: 'red', message: s.errorGeneric })
             }
@@ -156,7 +166,8 @@ function DevicesFlow({ s }: { s: IDeviceStrings }) {
                         setDevices(res.devices)
                         setLimit(res.limit)
                     } else if (res.status === 403) {
-                        setStep('intro')
+                        if (mode === 'telegram') setStep('intro')
+                        else notifications.show({ color: 'red', message: s.errorGeneric })
                     } else {
                         notifications.show({ color: 'red', message: s.errorGeneric })
                     }
@@ -205,11 +216,13 @@ function DevicesFlow({ s }: { s: IDeviceStrings }) {
 
     return (
         <Stack gap="sm">
-            <Group justify="flex-end">
-                <Badge color="cyan" variant="light">
-                    {s.sessionEndsIn(mmss(sessionLeft))}
-                </Badge>
-            </Group>
+            {mode === 'telegram' && (
+                <Group justify="flex-end">
+                    <Badge color="cyan" variant="light">
+                        {s.sessionEndsIn(mmss(sessionLeft))}
+                    </Badge>
+                </Group>
+            )}
             {devices.length === 0 ? (
                 <Text c="dimmed" size="sm" ta="center">
                     {s.empty}
@@ -257,12 +270,12 @@ function DevicesFlow({ s }: { s: IDeviceStrings }) {
     )
 }
 
-export function openDevicesModal(lang: string): void {
+export function openDevicesModal(lang: string, mode: DeviceMode): void {
     const s = getDeviceStrings(lang)
     modals.open({
         title: s.title,
         centered: true,
         fullScreen: window.matchMedia('(max-width: 30rem)').matches,
-        children: <DevicesFlow s={s} />
+        children: <DevicesFlow mode={mode} s={s} />
     })
 }
