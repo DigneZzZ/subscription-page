@@ -19,6 +19,7 @@ import { IGNORED_HEADERS } from '@common/constants';
 import { sanitizeUsername } from '@common/utils';
 
 import { SubpageConfigService } from './subpage-config.service';
+import { resolveHwidMode } from '../hwid-devices/hwid-mode';
 
 @Injectable()
 export class RootService {
@@ -649,11 +650,14 @@ export class RootService {
                     ? createHmac('sha256', cwHmacSecret).update(cwIdentifier).digest('hex')
                     : '';
 
-            const hwidData = Buffer.from(
-                JSON.stringify({
-                    enabled: Boolean(this.configService.get<string>('TELEGRAM_BOT_TOKEN')),
-                }),
-            ).toString('base64');
+            const hwidEnabled =
+                resolveHwidMode(
+                    this.configService.get<string>('HWID_MANAGEMENT_MODE'),
+                    Boolean(this.configService.get<string>('TELEGRAM_BOT_TOKEN')),
+                ) !== 'disabled';
+            const hwidData = Buffer.from(JSON.stringify({ enabled: hwidEnabled })).toString(
+                'base64',
+            );
 
             res.render('index', {
                 metaTitle: baseSettings.metaTitle,
