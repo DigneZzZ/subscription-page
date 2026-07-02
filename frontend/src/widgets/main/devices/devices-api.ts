@@ -2,6 +2,8 @@ import { ofetch } from 'ofetch'
 
 import { IDevice } from '@entities/devices-store'
 
+export type DeviceMode = 'disabled' | 'open' | 'telegram'
+
 // Same-origin requests; the session cookie and hwid_mgmt cookie ride along automatically.
 const base = '/api/devices'
 
@@ -26,6 +28,7 @@ export async function fetchStatus() {
         deviceCount: number
         deviceLimit: null | number
         enabled: boolean
+        mode: DeviceMode
         telegramLinked: boolean
     }>(`${base}/status?v=${Date.now()}`, { credentials: 'same-origin' })
 }
