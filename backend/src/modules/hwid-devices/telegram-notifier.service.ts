@@ -5,6 +5,17 @@ import { ConfigService } from '@nestjs/config';
 
 import { sanitizeUsername } from '@common/utils';
 
+// Escape values interpolated into an HTML-parse_mode Telegram message. `sanitizeUsername`
+// already restricts usernames to [a-zA-Z0-9_-] (HTML-safe), but panel-supplied device
+// fields are not — they must be escaped to avoid breaking the HTML parse / injection.
+function escapeHtml(value: string): string {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 @Injectable()
 export class TelegramNotifierService {
     private readonly logger = new Logger(TelegramNotifierService.name);
@@ -28,7 +39,7 @@ export class TelegramNotifierService {
             await this.http.post(`https://api.telegram.org/bot${this.token}/sendMessage`, {
                 chat_id: chatId,
                 text,
-                // Plain text: no parse_mode. Username is also sanitized as defense-in-depth.
+                parse_mode: 'HTML',
                 disable_web_page_preview: true,
             });
             return true;
@@ -48,10 +59,8 @@ export class TelegramNotifierService {
     sendCode(chatId: string, username: string, ip: string, code: string): Promise<boolean> {
         const u = sanitizeUsername(username);
         const text =
-            `🔐 Запрос на управление устройствами подписки ${u}.\n` +
-            `IP: ${ip}\nКод: ${code}\nДействителен 5 минут. Если это не вы — проигнорируйте.\n\n` +
-            `🔐 Device management requested for ${u}.\n` +
-            `IP: ${ip}\nCode: ${code}\nValid for 5 minutes. If this wasn't you, ignore this message.`;
+            `🔐 Device management for <b>${u}</b> · IP ${ip}\n` +
+            `Code (valid 5 min):\n<pre>${code}</pre>`;
         return this.send(chatId, text);
     }
 
@@ -62,9 +71,7 @@ export class TelegramNotifierService {
         deviceLabel: string,
     ): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text =
-            `📱 Устройство удалено (${u}): ${deviceLabel}. IP инициатора: ${ip}.\n\n` +
-            `📱 Device removed (${u}): ${deviceLabel}. Initiator IP: ${ip}.`;
+        const text = `📱 Device removed for <b>${u}</b>: ${escapeHtml(deviceLabel)} · IP ${ip}`;
         return this.send(chatId, text);
     }
 
@@ -75,18 +82,13 @@ export class TelegramNotifierService {
         count: number,
     ): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text =
-            `📱 Удалены все устройства (${u}): ${count} шт. IP инициатора: ${ip}.\n\n` +
-            `📱 All devices removed (${u}): ${count}. Initiator IP: ${ip}.`;
+        const text = `📱 All devices removed for <b>${u}</b> (${count}) · IP ${ip}`;
         return this.send(chatId, text);
     }
 
     notifyBlocked(chatId: string, username: string, ip: string): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text =
-            `⚠️ Неудачные попытки управления устройствами подписки ${u}. ` +
-            `IP ${ip} заблокирован на 10 минут.\n\n` +
-            `⚠️ Failed device-management attempts for ${u}. IP ${ip} blocked for 10 minutes.`;
+        const text = `⚠️ Failed device-management attempts for <b>${u}</b> — IP ${ip} blocked 10 min`;
         return this.send(chatId, text);
     }
 }
