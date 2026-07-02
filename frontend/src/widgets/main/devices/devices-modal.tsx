@@ -116,19 +116,26 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
         // Probe on open: a live hwid_mgmt session (telegram) resumes straight to the list
         // with the real remaining TTL; no session → the send-code step. Open mode always lists.
         // eslint-disable-next-line no-void
-        void loadDevices().then((res) => {
-            if (cancelled) return
-            if (res.ok) {
-                setStep('list')
-                if (mode === 'telegram' && typeof res.sessionTtlSec === 'number') {
-                    startSessionCountdown(res.sessionTtlSec)
+        void loadDevices()
+            .then((res) => {
+                if (cancelled) return
+                if (res.ok) {
+                    setStep('list')
+                    if (mode === 'telegram' && typeof res.sessionTtlSec === 'number') {
+                        startSessionCountdown(res.sessionTtlSec)
+                    }
+                } else if (mode === 'open') {
+                    notifications.show({ color: 'red', message: s.errorGeneric })
+                } else {
+                    setStep('intro')
                 }
-            } else if (mode === 'open') {
-                notifications.show({ color: 'red', message: s.errorGeneric })
-            } else {
-                setStep('intro')
-            }
-        })
+            })
+            .catch(() => {
+                // Network-layer failure (ofetch rejects only here; HTTP errors are captured
+                // above). Leave 'loading' → fall back so the modal is never stuck on the spinner.
+                if (cancelled) return
+                setStep(mode === 'open' ? 'list' : 'intro')
+            })
         return () => {
             cancelled = true
         }
