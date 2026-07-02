@@ -59,8 +59,11 @@ export class TelegramNotifierService {
     sendCode(chatId: string, username: string, ip: string, code: string): Promise<boolean> {
         const u = sanitizeUsername(username);
         const text =
-            `🔐 Device management for <b>${u}</b> · IP ${escapeHtml(ip)}\n` +
-            `Code (valid 5 min):\n<pre>${escapeHtml(code)}</pre>`;
+            `🔐 <b>Device management</b>\n` +
+            `👤 ${u}\n` +
+            `🌐 ${escapeHtml(ip)}\n\n` +
+            `Confirmation code · valid 5 min:\n` +
+            `<pre>${escapeHtml(code)}</pre>`;
         return this.send(chatId, text);
     }
 
@@ -71,7 +74,11 @@ export class TelegramNotifierService {
         deviceLabel: string,
     ): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text = `📱 Device removed for <b>${u}</b>: ${escapeHtml(deviceLabel)} · IP ${escapeHtml(ip)}`;
+        const text =
+            `📱 <b>Device removed</b>\n` +
+            `👤 ${u}\n` +
+            `📟 ${escapeHtml(deviceLabel)}\n` +
+            `🌐 ${escapeHtml(ip)}`;
         return this.send(chatId, text);
     }
 
@@ -82,13 +89,20 @@ export class TelegramNotifierService {
         count: number,
     ): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text = `📱 All devices removed for <b>${u}</b> (${count}) · IP ${escapeHtml(ip)}`;
+        const text =
+            `📱 <b>All devices removed</b>\n` +
+            `👤 ${u}\n` +
+            `🔢 ${count} devices\n` +
+            `🌐 ${escapeHtml(ip)}`;
         return this.send(chatId, text);
     }
 
     notifyBlocked(chatId: string, username: string, ip: string): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text = `⚠️ Failed device-management attempts for <b>${u}</b> — IP ${escapeHtml(ip)} blocked 10 min`;
+        const text =
+            `⚠️ <b>Failed device-management attempts</b>\n` +
+            `👤 ${u}\n` +
+            `🌐 ${escapeHtml(ip)} — blocked for 10 min`;
         return this.send(chatId, text);
     }
 }
