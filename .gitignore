@@ -144,3 +144,7 @@ docker-compose-local.yml
 /frontend/public/assets/.app-config-v2.json
 # Локальные SHM-шаблоны — НЕ хранить в репозитории
 shm-templates/
+.claude
+docs
+.superpowers
+.vscode
