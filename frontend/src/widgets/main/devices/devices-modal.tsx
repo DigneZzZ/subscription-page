@@ -181,7 +181,7 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
     if (step === 'intro') {
         return (
             <Stack gap="md">
-                <Text size="sm">{s.codeSentTo}</Text>
+                <Text size="sm">{s.sendCodePrompt}</Text>
                 <Button color="cyan" loading={busy} onClick={onSendCode} radius="md" size="md">
                     {s.sendCode}
                 </Button>
@@ -192,6 +192,9 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
     if (step === 'code') {
         return (
             <Stack align="center" gap="md">
+                <Text size="sm" ta="center">
+                    {s.codeSentTo}
+                </Text>
                 <Text size="sm">{s.enterCode}</Text>
                 <PinInput
                     inputType="tel"

@@ -20,6 +20,7 @@ export interface IDeviceStrings {
     manage: string
     resend: (sec: number) => string
     sendCode: string
+    sendCodePrompt: string
     sessionEndsIn: (mmss: string) => string
     title: string
     verify: string
@@ -32,6 +33,7 @@ const STRINGS: Record<Lang, IDeviceStrings> = {
         linkTelegramHint: 'Link Telegram to your subscription to manage devices',
         devicesCount: (n, limit) => (limit ? `${n} of ${limit} devices` : `${n} devices`),
         sendCode: 'Send code to Telegram',
+        sendCodePrompt: "We'll send a 6-digit code to your Telegram to confirm it's you.",
         codeSentTo: 'We sent a 6-digit code to your Telegram.',
         enterCode: 'Enter the code',
         verify: 'Confirm',
@@ -56,6 +58,7 @@ const STRINGS: Record<Lang, IDeviceStrings> = {
         linkTelegramHint: 'Привяжите Telegram к подписке, чтобы управлять устройствами',
         devicesCount: (n, limit) => (limit ? `${n} из ${limit} устройств` : `${n} устройств`),
         sendCode: 'Отправить код в Telegram',
+        sendCodePrompt: 'Отправим 6-значный код в ваш Telegram для подтверждения.',
         codeSentTo: 'Мы отправили 6-значный код в ваш Telegram.',
         enterCode: 'Введите код',
         verify: 'Подтвердить',
@@ -80,6 +83,7 @@ const STRINGS: Record<Lang, IDeviceStrings> = {
         linkTelegramHint: '请将 Telegram 绑定到订阅以管理设备',
         devicesCount: (n, limit) => (limit ? `${n} / ${limit} 台设备` : `${n} 台设备`),
         sendCode: '发送验证码到 Telegram',
+        sendCodePrompt: '我们将向您的 Telegram 发送 6 位验证码以确认您的身份。',
         codeSentTo: '我们已向您的 Telegram 发送 6 位验证码。',
         enterCode: '输入验证码',
         verify: '确认',
@@ -104,6 +108,7 @@ const STRINGS: Record<Lang, IDeviceStrings> = {
         linkTelegramHint: 'برای مدیریت دستگاه‌ها تلگرام را به اشتراک خود متصل کنید',
         devicesCount: (n, limit) => (limit ? `${n} از ${limit} دستگاه` : `${n} دستگاه`),
         sendCode: 'ارسال کد به تلگرام',
+        sendCodePrompt: 'برای تأیید هویت، کد ۶ رقمی به تلگرام شما ارسال می‌کنیم.',
         codeSentTo: 'کد ۶ رقمی به تلگرام شما ارسال شد.',
         enterCode: 'کد را وارد کنید',
         verify: 'تأیید',
@@ -128,6 +133,7 @@ const STRINGS: Record<Lang, IDeviceStrings> = {
         linkTelegramHint: 'Liez Telegram à votre abonnement pour gérer les appareils',
         devicesCount: (n, limit) => (limit ? `${n} sur ${limit} appareils` : `${n} appareils`),
         sendCode: 'Envoyer le code sur Telegram',
+        sendCodePrompt: 'Nous enverrons un code à 6 chiffres sur votre Telegram pour confirmer.',
         codeSentTo: 'Nous avons envoyé un code à 6 chiffres sur votre Telegram.',
         enterCode: 'Saisissez le code',
         verify: 'Confirmer',
