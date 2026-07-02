@@ -187,6 +187,17 @@ export const configSchema = z
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
 
+        // HWID management mode: telegram | open | disabled (off = disabled). Case-insensitive.
+        // Unset → telegram if TELEGRAM_BOT_TOKEN is set, else disabled (see resolveHwidMode).
+        HWID_MANAGEMENT_MODE: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v.trim().toLowerCase() : undefined))
+            .refine(
+                (v) => v === undefined || ['disabled', 'off', 'open', 'telegram'].includes(v),
+                'HWID_MANAGEMENT_MODE must be one of: telegram, open, disabled (or off)',
+            ),
+
         // Price to reset a user's traffic. Presence (+ an enabled provider) shows the button.
         TRAFFIC_RESET_PRICE: z
             .string()
@@ -275,6 +286,13 @@ export const configSchema = z
                 '[SECURITY] INTERNAL_JWT_SECRET is shorter than 32 chars; use a longer secret ' +
                     'for stronger HWID verification-code hashing.',
             );
+        }
+        if (data.HWID_MANAGEMENT_MODE === 'telegram' && !data.TELEGRAM_BOT_TOKEN) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'HWID_MANAGEMENT_MODE=telegram requires TELEGRAM_BOT_TOKEN',
+                path: ['HWID_MANAGEMENT_MODE'],
+            });
         }
     });
 

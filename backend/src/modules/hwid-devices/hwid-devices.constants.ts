@@ -12,4 +12,6 @@ export const HWID = {
     SWEEP_INTERVAL_MS: 60_000,
     COOKIE_NAME: 'hwid_mgmt',
     HKDF_INFO: 'hwid-code-hmac',
+    OPEN_ACTION_LIMIT: 10, // open-mode delete calls allowed per window per IP+sub
+    OPEN_ACTION_WINDOW_MS: 60_000,
 } as const;
