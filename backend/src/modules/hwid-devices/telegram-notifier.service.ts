@@ -59,8 +59,8 @@ export class TelegramNotifierService {
     sendCode(chatId: string, username: string, ip: string, code: string): Promise<boolean> {
         const u = sanitizeUsername(username);
         const text =
-            `🔐 Device management for <b>${u}</b> · IP ${ip}\n` +
-            `Code (valid 5 min):\n<pre>${code}</pre>`;
+            `🔐 Device management for <b>${u}</b> · IP ${escapeHtml(ip)}\n` +
+            `Code (valid 5 min):\n<pre>${escapeHtml(code)}</pre>`;
         return this.send(chatId, text);
     }
 
@@ -71,7 +71,7 @@ export class TelegramNotifierService {
         deviceLabel: string,
     ): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text = `📱 Device removed for <b>${u}</b>: ${escapeHtml(deviceLabel)} · IP ${ip}`;
+        const text = `📱 Device removed for <b>${u}</b>: ${escapeHtml(deviceLabel)} · IP ${escapeHtml(ip)}`;
         return this.send(chatId, text);
     }
 
@@ -82,13 +82,13 @@ export class TelegramNotifierService {
         count: number,
     ): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text = `📱 All devices removed for <b>${u}</b> (${count}) · IP ${ip}`;
+        const text = `📱 All devices removed for <b>${u}</b> (${count}) · IP ${escapeHtml(ip)}`;
         return this.send(chatId, text);
     }
 
     notifyBlocked(chatId: string, username: string, ip: string): Promise<boolean> {
         const u = sanitizeUsername(username);
-        const text = `⚠️ Failed device-management attempts for <b>${u}</b> — IP ${ip} blocked 10 min`;
+        const text = `⚠️ Failed device-management attempts for <b>${u}</b> — IP ${escapeHtml(ip)} blocked 10 min`;
         return this.send(chatId, text);
     }
 }
