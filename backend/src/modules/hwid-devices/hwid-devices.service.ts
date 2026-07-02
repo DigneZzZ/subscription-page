@@ -5,10 +5,12 @@ import { AxiosService } from '@common/axios/axios.service';
 
 import { TelegramNotifierService } from './telegram-notifier.service';
 import { HwidChallengeStore } from './hwid-challenge.store';
+import { HwidMode, resolveHwidMode } from './hwid-mode';
 import { HWID } from './hwid-devices.constants';
 
 interface StatusResult {
     enabled: boolean;
+    mode: HwidMode;
     telegramLinked: boolean;
     deviceCount: number;
     deviceLimit: number | null;
@@ -39,6 +41,7 @@ export class HwidDevicesService {
     private readonly logger = new Logger(HwidDevicesService.name);
     private readonly store: HwidChallengeStore;
     private readonly statusCache = new Map<string, StatusCacheEntry>();
+    private readonly openActionRate = new Map<string, number[]>();
 
     constructor(
         private readonly configService: ConfigService,
@@ -50,8 +53,15 @@ export class HwidDevicesService {
         );
     }
 
+    get mode(): HwidMode {
+        return resolveHwidMode(
+            this.configService.get<string>('HWID_MANAGEMENT_MODE'),
+            this.telegram.isEnabled,
+        );
+    }
+
     get isEnabled(): boolean {
-        return this.telegram.isEnabled;
+        return this.mode !== 'disabled';
     }
 
     private now(): number {
@@ -102,6 +112,7 @@ export class HwidDevicesService {
             // Uniform "not linked, zero devices" shape — do not reveal whether the user exists.
             const value: StatusResult = {
                 enabled: true,
+                mode: this.mode,
                 telegramLinked: false,
                 deviceCount: 0,
                 deviceLimit: null,
@@ -117,6 +128,7 @@ export class HwidDevicesService {
 
         const value: StatusResult = {
             enabled: true,
+            mode: this.mode,
             telegramLinked: user.telegramId !== null,
             deviceCount,
             deviceLimit: user.hwidDeviceLimit,
@@ -195,6 +207,40 @@ export class HwidDevicesService {
         }
     }
 
+    // Bounded per-IP+sub rate limit for open-mode device actions (no session gate there).
+    // Mirrors applyPaymentRateLimit: cap total keys, reject new keys at capacity.
+    private allowOpenAction(ip: string, sub: string): boolean {
+        const now = this.now();
+        const key = `${ip}:${sub}`;
+        const existing = this.openActionRate.get(key);
+        if (existing === undefined && this.openActionRate.size >= HWID.MAP_MAX_KEYS) {
+            return false;
+        }
+        const recent = (existing ?? []).filter((ts) => now - ts < HWID.OPEN_ACTION_WINDOW_MS);
+        if (recent.length >= HWID.OPEN_ACTION_LIMIT) {
+            return false;
+        }
+        recent.push(now);
+        this.openActionRate.set(key, recent);
+        return true;
+    }
+
+    // Resolves the target userUuid for a device action, per mode.
+    // open: authorized by the session-JWT sub alone (bound by the controller's IDOR guard).
+    // telegram: requires a valid hwid_mgmt session bound to sub + sessionId.
+    private async authorize(
+        token: string,
+        sessionId: string,
+        sub: string,
+    ): Promise<{ userUuid: string } | null> {
+        if (this.mode === 'open') {
+            const user = await this.fetchUser(sub);
+            return user ? { userUuid: user.uuid } : null;
+        }
+        const session = this.resolveSession(token, sessionId, sub);
+        return session ? { userUuid: session.userUuid } : null;
+    }
+
     private resolveSession(token: string, sessionId: string, sub: string) {
         const session = this.store.getSession(token, this.now());
         if (!session) return null;
@@ -203,22 +249,25 @@ export class HwidDevicesService {
     }
 
     async listDevices(token: string, sessionId: string, sub: string) {
-        const session = this.resolveSession(token, sessionId, sub);
-        if (!session) return { ok: false as const, status: 403 };
-        const res = await this.axiosService.getUserHwidDevices(session.userUuid);
+        const auth = await this.authorize(token, sessionId, sub);
+        if (!auth) return { ok: false as const, status: 403 };
+        const res = await this.axiosService.getUserHwidDevices(auth.userUuid);
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
         return this.buildListResult(sub, res.response.response);
     }
 
     async deleteDevice(token: string, sessionId: string, sub: string, hwid: string, ip: string) {
-        const session = this.resolveSession(token, sessionId, sub);
-        if (!session) return { ok: false as const, status: 403 };
+        const auth = await this.authorize(token, sessionId, sub);
+        if (!auth) return { ok: false as const, status: 403 };
+        if (this.mode === 'open' && !this.allowOpenAction(ip, sub)) {
+            return { ok: false as const, status: 429 };
+        }
         // Label for the owner notification, resolved from the pre-delete list.
-        const before = await this.axiosService.getUserHwidDevices(session.userUuid);
+        const before = await this.axiosService.getUserHwidDevices(auth.userUuid);
         const target = before.isOk
             ? before.response?.response.devices.find((d) => d.hwid === hwid)
             : undefined;
-        const res = await this.axiosService.deleteUserHwidDevice(session.userUuid, hwid);
+        const res = await this.axiosService.deleteUserHwidDevice(auth.userUuid, hwid);
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
         this.statusCache.delete(sub);
         void this.notifyDeviceRemoved(sub, ip, target);
@@ -226,9 +275,12 @@ export class HwidDevicesService {
     }
 
     async deleteAll(token: string, sessionId: string, sub: string, ip: string) {
-        const session = this.resolveSession(token, sessionId, sub);
-        if (!session) return { ok: false as const, status: 403 };
-        const res = await this.axiosService.deleteAllUserHwidDevices(session.userUuid);
+        const auth = await this.authorize(token, sessionId, sub);
+        if (!auth) return { ok: false as const, status: 403 };
+        if (this.mode === 'open' && !this.allowOpenAction(ip, sub)) {
+            return { ok: false as const, status: 429 };
+        }
+        const res = await this.axiosService.deleteAllUserHwidDevices(auth.userUuid);
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
         this.statusCache.delete(sub);
         const remaining = res.response.response.total;
