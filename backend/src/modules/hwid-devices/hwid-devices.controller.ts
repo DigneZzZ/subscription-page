@@ -46,6 +46,10 @@ export class HwidDevicesController {
     ): Promise<void> {
         this.noStore(res);
         if (!this.guard(user, res)) return;
+        if (this.service.mode !== 'telegram') {
+            res.status(404).send('Not Found');
+            return;
+        }
         const result = await this.service.requestChallenge(user.sub!, ip);
         if (!result.ok) {
             const status = result.reason === 'blocked' || result.reason === 'cooldown' ? 429 : 502;
@@ -68,6 +72,10 @@ export class HwidDevicesController {
     ): Promise<void> {
         this.noStore(res);
         if (!this.guard(user, res)) return;
+        if (this.service.mode !== 'telegram') {
+            res.status(404).send('Not Found');
+            return;
+        }
         const code = typeof body?.code === 'string' ? body.code.trim() : '';
         if (!new RegExp(`^\\d{${HWID.CODE_LENGTH}}$`).test(code)) {
             // Uniform failure — do not distinguish "malformed" from "wrong".
