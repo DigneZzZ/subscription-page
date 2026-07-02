@@ -174,13 +174,18 @@ export class HwidChallengeStore {
     getSession(
         token: string,
         now: number,
-    ): { shortUuid: string; userUuid: string; sessionId: string } | null {
+    ): { shortUuid: string; userUuid: string; sessionId: string; expiresAt: number } | null {
         const s = this.sessions.get(token);
         if (!s || s.expiresAt <= now) {
             if (s) this.sessions.delete(token);
             return null;
         }
-        return { shortUuid: s.shortUuid, userUuid: s.userUuid, sessionId: s.sessionId };
+        return {
+            shortUuid: s.shortUuid,
+            userUuid: s.userUuid,
+            sessionId: s.sessionId,
+            expiresAt: s.expiresAt,
+        };
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Group, PinInput, Stack, Text } from '@mantine/core'
+import { ActionIcon, Badge, Button, Group, Loader, PinInput, Stack, Text } from '@mantine/core'
 import { IconDeviceMobile, IconTrash } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { useEffect, useRef, useState } from 'react'
@@ -24,10 +24,12 @@ function mmss(total: number): string {
     return `${m}:${String(s).padStart(2, '0')}`
 }
 
-type Step = 'code' | 'intro' | 'list'
+type Step = 'code' | 'intro' | 'list' | 'loading'
 
 function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
-    const [step, setStep] = useState<Step>(mode === 'open' ? 'list' : 'intro')
+    // Telegram mode starts in a short 'loading' probe (resume a live session if any);
+    // open mode has no session and goes straight to the list.
+    const [step, setStep] = useState<Step>(mode === 'open' ? 'list' : 'loading')
     const [busy, setBusy] = useState(false)
     const [cooldown, setCooldown] = useState(0)
     const [code, setCode] = useState('')
@@ -55,9 +57,15 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
         }, 1000)
     }
 
-    const startSessionCountdown = () => {
-        setSessionLeft(SESSION_SECONDS)
+    // Starts (or restarts) the visible session countdown from the server's real remaining TTL.
+    const startSessionCountdown = (fromSec: number) => {
+        const start = Math.max(0, Math.floor(fromSec))
+        setSessionLeft(start)
         if (sessionTimer.current) clearInterval(sessionTimer.current)
+        if (start <= 0) {
+            setStep('intro')
+            return
+        }
         sessionTimer.current = setInterval(() => {
             setSessionLeft((v) => {
                 if (v <= 1) {
@@ -99,17 +107,31 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
         if (res.ok) {
             setDevices(res.devices)
             setLimit(res.limit)
-            return true
         }
-        return false
+        return res
     }
 
     useEffect(() => {
-        if (mode !== 'open') return
+        let cancelled = false
+        // Probe on open: a live hwid_mgmt session (telegram) resumes straight to the list
+        // with the real remaining TTL; no session → the send-code step. Open mode always lists.
         // eslint-disable-next-line no-void
-        void loadDevices().then((ok) => {
-            if (!ok) notifications.show({ color: 'red', message: s.errorGeneric })
+        void loadDevices().then((res) => {
+            if (cancelled) return
+            if (res.ok) {
+                setStep('list')
+                if (mode === 'telegram' && typeof res.sessionTtlSec === 'number') {
+                    startSessionCountdown(res.sessionTtlSec)
+                }
+            } else if (mode === 'open') {
+                notifications.show({ color: 'red', message: s.errorGeneric })
+            } else {
+                setStep('intro')
+            }
         })
+        return () => {
+            cancelled = true
+        }
     }, [])
 
     const onVerify = async (value: string) => {
@@ -122,9 +144,13 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
                 return
             }
             const loaded = await loadDevices()
-            if (loaded) {
+            if (loaded.ok) {
                 setStep('list')
-                startSessionCountdown()
+                startSessionCountdown(
+                    typeof loaded.sessionTtlSec === 'number'
+                        ? loaded.sessionTtlSec
+                        : SESSION_SECONDS
+                )
             } else {
                 notifications.show({ color: 'red', message: s.errorGeneric })
             }
@@ -176,6 +202,14 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
                 }
             }
         })
+    }
+
+    if (step === 'loading') {
+        return (
+            <Stack align="center" gap="md" py="lg">
+                <Loader color="cyan" />
+            </Stack>
+        )
     }
 
     if (step === 'intro') {

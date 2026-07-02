@@ -11,6 +11,7 @@ interface ListPayload {
     devices?: IDevice[]
     limit?: null | number
     ok: boolean
+    sessionTtlSec?: null | number
     status?: number
     total?: number
 }
@@ -20,6 +21,7 @@ const normalizeList = (payload: ListPayload, status: number) => ({
     devices: Array.isArray(payload?.devices) ? payload.devices : [],
     total: typeof payload?.total === 'number' ? payload.total : 0,
     limit: typeof payload?.limit === 'number' ? payload.limit : null,
+    sessionTtlSec: typeof payload?.sessionTtlSec === 'number' ? payload.sessionTtlSec : null,
     status
 })
 

@@ -232,13 +232,14 @@ export class HwidDevicesService {
         token: string,
         sessionId: string,
         sub: string,
-    ): Promise<{ userUuid: string } | null> {
+    ): Promise<{ userUuid: string; sessionExpiresAt: number | null } | null> {
         if (this.mode === 'open') {
+            // No ephemeral session in open mode → no countdown.
             const user = await this.fetchUser(sub);
-            return user ? { userUuid: user.uuid } : null;
+            return user ? { userUuid: user.uuid, sessionExpiresAt: null } : null;
         }
         const session = this.resolveSession(token, sessionId, sub);
-        return session ? { userUuid: session.userUuid } : null;
+        return session ? { userUuid: session.userUuid, sessionExpiresAt: session.expiresAt } : null;
     }
 
     private resolveSession(token: string, sessionId: string, sub: string) {
@@ -253,7 +254,7 @@ export class HwidDevicesService {
         if (!auth) return { ok: false as const, status: 403 };
         const res = await this.axiosService.getUserHwidDevices(auth.userUuid);
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
-        return this.buildListResult(sub, res.response.response);
+        return this.buildListResult(sub, res.response.response, auth.sessionExpiresAt);
     }
 
     async deleteDevice(token: string, sessionId: string, sub: string, hwid: string, ip: string) {
@@ -271,7 +272,7 @@ export class HwidDevicesService {
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
         this.statusCache.delete(sub);
         void this.notifyDeviceRemoved(sub, ip, target);
-        return this.buildListResult(sub, res.response.response);
+        return this.buildListResult(sub, res.response.response, auth.sessionExpiresAt);
     }
 
     async deleteAll(token: string, sessionId: string, sub: string, ip: string) {
@@ -285,7 +286,7 @@ export class HwidDevicesService {
         this.statusCache.delete(sub);
         const remaining = res.response.response.total;
         void this.notifyAllRemoved(sub, ip, remaining);
-        return this.buildListResult(sub, res.response.response);
+        return this.buildListResult(sub, res.response.response, auth.sessionExpiresAt);
     }
 
     private async buildListResult(
@@ -300,13 +301,21 @@ export class HwidDevicesService {
                 createdAt: Date;
             }[];
         },
+        sessionExpiresAt: number | null,
     ) {
         const user = await this.fetchUser(sub);
+        // Remaining seconds of the telegram-mode hwid_mgmt session (for the client
+        // countdown); null in open mode where there is no ephemeral session.
+        const sessionTtlSec =
+            sessionExpiresAt === null
+                ? null
+                : Math.max(0, Math.round((sessionExpiresAt - this.now()) / 1000));
         return {
             ok: true as const,
             devices: this.toDeviceDtos(payload.devices),
             total: payload.total,
             limit: user?.hwidDeviceLimit ?? null,
+            sessionTtlSec,
         };
     }
 

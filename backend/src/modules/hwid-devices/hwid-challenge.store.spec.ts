@@ -116,4 +116,14 @@ describe('HwidChallengeStore', () => {
         const s = store.getSession(token, T0 + 2);
         expect(s?.sessionId).toBe('jwt-session-abc');
     });
+
+    it('getSession exposes the absolute expiry so callers can compute remaining TTL', () => {
+        const store = mkStore();
+        const c = store.createChallenge('sub1', 'uuid1', T0);
+        const v = store.verifyCode('sub1', c.ok ? c.code : '', T0 + 1);
+        const token = v.ok ? v.token : '';
+        const s = store.getSession(token, T0 + 1);
+        // Session created at T0 + 1 with a SESSION_TTL_MS lifetime.
+        expect(s?.expiresAt).toBe(T0 + 1 + HWID.SESSION_TTL_MS);
+    });
 });

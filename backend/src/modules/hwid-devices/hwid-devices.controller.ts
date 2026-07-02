@@ -115,6 +115,7 @@ export class HwidDevicesController {
             devices: result.devices,
             total: result.total,
             limit: result.limit,
+            sessionTtlSec: result.sessionTtlSec,
         });
     }
 
@@ -144,6 +145,7 @@ export class HwidDevicesController {
             devices: result.devices,
             total: result.total,
             limit: result.limit,
+            sessionTtlSec: result.sessionTtlSec,
         });
     }
 
@@ -167,6 +169,7 @@ export class HwidDevicesController {
             devices: result.devices,
             total: result.total,
             limit: result.limit,
+            sessionTtlSec: result.sessionTtlSec,
         });
     }
 }
