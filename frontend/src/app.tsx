@@ -14,7 +14,7 @@ import { ModalsProvider } from '@mantine/modals'
 import { useMediaQuery } from '@mantine/hooks'
 
 import { initDayjs } from '@shared/utils/time-utils'
-import { theme } from '@shared/constants'
+import { cssVariablesResolver, theme } from '@shared/constants'
 
 import { Router } from './app/router/router'
 
@@ -29,7 +29,11 @@ export function App() {
 
     return (
         <DirectionProvider>
-            <MantineProvider defaultColorScheme="dark" theme={theme}>
+            <MantineProvider
+                cssVariablesResolver={cssVariablesResolver}
+                defaultColorScheme="dark"
+                theme={theme}
+            >
                 <ModalsProvider>
                     <Notifications position={mq ? 'top-right' : 'bottom-right'} />
                     <NavigationProgress />

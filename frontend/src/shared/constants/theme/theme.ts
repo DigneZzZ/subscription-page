@@ -1,13 +1,29 @@
-import { createTheme } from '@mantine/core'
+import { createTheme, CSSVariablesResolver } from '@mantine/core'
 
 import components from './overrides'
 
+/**
+ * Geolog VPN brand theme for the Remnawave subscription page.
+ *
+ * STRATEGY — recolor with (almost) zero component edits:
+ * The stock container uses `cyan` as its single accent token everywhere
+ * (`color="cyan"`, `c="cyan"`, `var(--mantine-color-cyan-*)`). We REDEFINE the
+ * `cyan` palette here as the Geolog green (#5fe9a4 at index 4), so every one of
+ * those references turns brand-green automatically. `blue`/`teal`/`green` are
+ * mapped to the same green for the monochrome look; `orange`/`yellow`/`red`
+ * stay semantic for "expiring" / "inactive" states.
+ *
+ * The `dark` palette is retuned to the near-black geological surfaces
+ * (dark[6] = cards). The page background itself is pinned in global.css.
+ *
+ * Fonts: Golos Text (body) · Oswald (headings) · JetBrains Mono (mono).
+ */
 export const theme = createTheme({
     components,
     cursorType: 'pointer',
     fontFamily:
-        'Montserrat, Vazirmatn, Apple Color Emoji, Noto Sans SC, Twemoji Country Flags, sans-serif',
-    fontFamilyMonospace: 'Fira Mono, monospace',
+        'Golos Text, Vazirmatn, Apple Color Emoji, Noto Sans SC, Twemoji Country Flags, sans-serif',
+    fontFamilyMonospace: 'JetBrains Mono, Fira Mono, monospace',
     breakpoints: {
         xs: '25em',
         sm: '30em',
@@ -21,57 +37,84 @@ export const theme = createTheme({
     scale: 1,
     fontSmoothing: true,
     focusRing: 'never',
-    white: '#ffffff',
-    black: '#24292f',
+    white: '#e7efe9',
+    black: '#070a09',
     colors: {
+        // Near-black geological surfaces. dark[6] = card/paper, dark[2] = dimmed text.
         dark: [
-            '#c9d1d9',
-            '#b1bac4',
-            '#8b949e',
-            '#6e7681',
-            '#484f58',
-            '#30363d',
-            '#21262d',
-            '#161b22',
-            '#0d1117',
-            '#010409'
+            '#c8d6cc',
+            '#aebcb2',
+            '#8fa793',
+            '#6a8271',
+            '#4a5b50',
+            '#141c18',
+            '#0e1513',
+            '#0b100e',
+            '#080b0a',
+            '#050706'
         ],
-
+        // Geolog green — REPLACES the stock cyan accent app-wide. index 4 = #5fe9a4.
+        cyan: [
+            '#e7fdf2',
+            '#c3f8df',
+            '#9bf2ca',
+            '#74ecb5',
+            '#5fe9a4',
+            '#41c586',
+            '#2fa06c',
+            '#237c54',
+            '#18583b',
+            '#0c3623'
+        ],
+        // Monochrome brand: map blue / teal / green to the same green ramp.
         blue: [
-            '#ddf4ff',
-            '#b6e3ff',
-            '#80ccff',
-            '#54aeff',
-            '#218bff',
-            '#0969da',
-            '#0550ae',
-            '#033d8b',
-            '#0a3069',
-            '#002155'
+            '#e7fdf2',
+            '#c3f8df',
+            '#9bf2ca',
+            '#74ecb5',
+            '#5fe9a4',
+            '#41c586',
+            '#2fa06c',
+            '#237c54',
+            '#18583b',
+            '#0c3623'
+        ],
+        teal: [
+            '#e7fdf2',
+            '#c3f8df',
+            '#9bf2ca',
+            '#74ecb5',
+            '#5fe9a4',
+            '#41c586',
+            '#2fa06c',
+            '#237c54',
+            '#18583b',
+            '#0c3623'
         ],
         green: [
-            '#dafbe1',
-            '#aceebb',
-            '#6fdd8b',
-            '#4ac26b',
-            '#2da44e',
-            '#1a7f37',
-            '#116329',
-            '#044f1e',
-            '#003d16',
-            '#002d11'
+            '#e7fdf2',
+            '#c3f8df',
+            '#9bf2ca',
+            '#74ecb5',
+            '#5fe9a4',
+            '#41c586',
+            '#2fa06c',
+            '#237c54',
+            '#18583b',
+            '#0c3623'
         ],
-        yellow: [
-            '#fff8c5',
-            '#fae17d',
-            '#eac54f',
-            '#d4a72c',
-            '#bf8700',
-            '#9a6700',
-            '#7d4e00',
-            '#633c01',
-            '#4d2d00',
-            '#3b2300'
+        // Semantic — kept warm so "expiring soon" / "inactive" still read clearly.
+        red: [
+            '#ffe9e9',
+            '#ffd0d0',
+            '#ffb0b0',
+            '#ff8f8f',
+            '#f56b6b',
+            '#e05656',
+            '#c74343',
+            '#a83232',
+            '#872626',
+            '#661c1c'
         ],
         orange: [
             '#fff1e5',
@@ -84,15 +127,52 @@ export const theme = createTheme({
             '#762c00',
             '#5c2200',
             '#471700'
+        ],
+        yellow: [
+            '#fff8c5',
+            '#fae17d',
+            '#eac54f',
+            '#d4a72c',
+            '#bf8700',
+            '#9a6700',
+            '#7d4e00',
+            '#633c01',
+            '#4d2d00',
+            '#3b2300'
         ]
     },
-    primaryShade: 8,
+    // Bright accent used for filled buttons (was 8 = dark cyan in stock).
+    primaryShade: 4,
     primaryColor: 'cyan',
     autoContrast: true,
-    luminanceThreshold: 0.3,
+    luminanceThreshold: 0.45,
     headings: {
-        fontFamily: 'Unbounded, Vazirmatn, Apple Color Emoji, Noto Sans SC, sans-serif',
+        fontFamily: 'Oswald, Vazirmatn, Apple Color Emoji, Noto Sans SC, sans-serif',
         fontWeight: '600'
     },
     defaultRadius: 'md'
+})
+
+/**
+ * With primaryShade 4, Mantine's dark-scheme virtual vars resolve light/outline
+ * variants to pale shade-0 mint. Pin them to the brand green instead
+ * (design spec: light buttons are rgba(95,233,164,.1) + #5fe9a4 text).
+ */
+const brandVariantVars = (color: string) => ({
+    [`--mantine-color-${color}-light`]: 'rgba(95, 233, 164, 0.1)',
+    [`--mantine-color-${color}-light-hover`]: 'rgba(95, 233, 164, 0.16)',
+    [`--mantine-color-${color}-light-color`]: `var(--mantine-color-${color}-4)`,
+    [`--mantine-color-${color}-outline`]: `var(--mantine-color-${color}-4)`,
+    [`--mantine-color-${color}-outline-hover`]: 'rgba(95, 233, 164, 0.12)'
+})
+
+export const cssVariablesResolver: CSSVariablesResolver = () => ({
+    variables: {},
+    light: {},
+    dark: {
+        ...brandVariantVars('cyan'),
+        ...brandVariantVars('blue'),
+        ...brandVariantVars('teal'),
+        ...brandVariantVars('green')
+    }
 })

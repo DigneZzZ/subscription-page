@@ -5,7 +5,7 @@
 
 .accordionItem[data-active] {
     background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(34, 211, 238, 0.3);
+    border-color: rgba(95, 233, 164, 0.3);
 }
 
 .accordionControl {

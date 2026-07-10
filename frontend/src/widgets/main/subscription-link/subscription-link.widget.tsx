@@ -71,9 +71,9 @@ function renderDescIcon(line: string) {
     const isConnections = /подключ|connection|устройств|device/i.test(line)
 
     return isConnections ? (
-        <IconWorld color="#22d3ee" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
+        <IconWorld color="#5fe9a4" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
     ) : (
-        <IconBolt color="#facc15" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
+        <IconBolt color="#8bf3bd" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
     )
 }
 
@@ -125,10 +125,11 @@ export const SubscriptionLinkWidget = ({
     }
 
     const renderSupportLink = (supportUrl: string) => {
+        // Geolog: muted brand tint instead of per-platform brand colors (see design spec)
         const iconConfig = {
-            't.me': { icon: IconBrandTelegram, color: '#0088cc' },
-            'discord.com': { icon: IconBrandDiscord, color: '#5865F2' },
-            'vk.com': { icon: IconBrandVk, color: '#0077FF' }
+            't.me': { icon: IconBrandTelegram, color: '#9db89f' },
+            'discord.com': { icon: IconBrandDiscord, color: '#9db89f' },
+            'vk.com': { icon: IconBrandVk, color: '#9db89f' }
         }
 
         const matchedPlatform = Object.entries(iconConfig).find(([domain]) =>
@@ -163,8 +164,8 @@ export const SubscriptionLinkWidget = ({
         vibrate('tap')
 
         const subscriptionQrCode = renderSVG(subscriptionUrl, {
-            whiteColor: '#161B22',
-            blackColor: '#22d3ee'
+            whiteColor: '#0a0f0d',
+            blackColor: '#5fe9a4'
         })
 
         modals.open({

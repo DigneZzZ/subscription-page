@@ -1,35 +1,28 @@
+/* Geolog VPN — subscription-info card tiles */
+
 .cardItem {
     padding: var(--mantine-spacing-sm);
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(159, 184, 159, 0.08);
     border-radius: var(--mantine-radius-md);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
-.iconBlue {
-    background: linear-gradient(135deg, rgba(34, 139, 230, 0.2) 0%, rgba(28, 126, 214, 0.1) 100%);
-    border: 1px solid rgba(34, 139, 230, 0.3);
+/* Neutral tiles → monochrome brand green */
+.iconBlue,
+.iconCyan,
+.iconGreen,
+.iconTeal,
+.iconViolet {
+    background: linear-gradient(135deg, rgba(95, 233, 164, 0.2) 0%, rgba(95, 233, 164, 0.08) 100%);
+    border: 1px solid rgba(95, 233, 164, 0.3);
 }
 
-.iconCyan {
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%);
-    border: 1px solid rgba(34, 211, 238, 0.3);
-}
-
-.iconGreen {
-    background: linear-gradient(135deg, rgba(64, 192, 87, 0.2) 0%, rgba(55, 178, 77, 0.1) 100%);
-    border: 1px solid rgba(64, 192, 87, 0.3);
-}
-
-.iconTeal {
-    background: linear-gradient(135deg, rgba(32, 201, 151, 0.2) 0%, rgba(18, 184, 134, 0.1) 100%);
-    border: 1px solid rgba(32, 201, 151, 0.3);
-}
-
+/* Semantic tiles kept warm */
 .iconRed {
-    background: linear-gradient(135deg, rgba(250, 82, 82, 0.2) 0%, rgba(224, 49, 49, 0.1) 100%);
-    border: 1px solid rgba(250, 82, 82, 0.3);
+    background: linear-gradient(135deg, rgba(245, 107, 107, 0.2) 0%, rgba(224, 86, 86, 0.1) 100%);
+    border: 1px solid rgba(245, 107, 107, 0.3);
 }
 
 .iconYellow {
@@ -40,11 +33,6 @@
 .iconOrange {
     background: linear-gradient(135deg, rgba(253, 126, 20, 0.2) 0%, rgba(247, 103, 7, 0.1) 100%);
     border: 1px solid rgba(253, 126, 20, 0.3);
-}
-
-.iconViolet {
-    background: linear-gradient(135deg, rgba(151, 117, 250, 0.2) 0%, rgba(132, 94, 247, 0.1) 100%);
-    border: 1px solid rgba(151, 117, 250, 0.3);
 }
 
 .label {

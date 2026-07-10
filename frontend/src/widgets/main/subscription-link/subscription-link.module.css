@@ -1,8 +1,10 @@
+/* Geolog VPN — header link/pay widget, tariff & QR modals */
+
 .modalContent {
-    background: rgba(22, 27, 35, 0.95);
+    background: linear-gradient(160deg, rgba(16, 36, 27, 0.97) 0%, rgba(12, 21, 18, 0.97) 100%);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(95, 233, 164, 0.3);
 }
 
 .modalHeader {
@@ -10,27 +12,32 @@
 }
 
 .modalTitle {
+    font-family: 'Oswald', sans-serif;
     font-weight: 600;
-    color: white;
+    letter-spacing: 0.02em;
+    color: #e7efe9;
 }
 
 .actionIcon {
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(159, 184, 159, 0.16);
 }
 
 .payButton {
-    background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
-    color: #0a0e14;
-    font-weight: 700;
+    background: #5fe9a4;
+    color: #06110b;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.03em;
     border: none;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     white-space: nowrap;
 }
 
 .payButton:hover {
+    background: #8bf3bd;
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(34, 211, 238, 0.35);
+    box-shadow: 0 4px 16px rgba(95, 233, 164, 0.35);
 }
 
 .payButton:active {
@@ -47,7 +54,7 @@
     padding: 0.85rem 1rem;
     border-radius: var(--mantine-radius-md);
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(159, 184, 159, 0.12);
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
     text-decoration: none;
     cursor: pointer;
@@ -59,8 +66,8 @@
 }
 
 .tariffCard:hover {
-    border-color: rgba(34, 211, 238, 0.5);
-    background: rgba(34, 211, 238, 0.06);
+    border-color: rgba(95, 233, 164, 0.5);
+    background: rgba(95, 233, 164, 0.06);
     transform: translateY(-2px);
 }
 
@@ -73,13 +80,13 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(159, 184, 159, 0.25);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .tariffCard:hover .radio {
-    border-color: #22d3ee;
-    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.12);
+    border-color: #5fe9a4;
+    box-shadow: 0 0 0 4px rgba(95, 233, 164, 0.12);
 }
 
 .cardDivider {
@@ -87,28 +94,28 @@
     width: 100%;
     height: 1px;
     margin: 10px 0 8px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(159, 184, 159, 0.1);
 }
 
 .groupIcon {
-    color: #22d3ee;
+    color: #5fe9a4;
 }
 
 .priceBadge {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.65);
+    background: rgba(95, 233, 164, 0.1);
+    color: #8bf3bd;
     font-weight: 600;
     text-transform: none;
 }
 
 .accItem {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(159, 184, 159, 0.1);
     border-radius: var(--mantine-radius-md);
 }
 
 .accItem[data-active] {
-    border-color: rgba(34, 211, 238, 0.35);
+    border-color: rgba(95, 233, 164, 0.35);
 }
 
 .accControl {
@@ -120,5 +127,5 @@
 }
 
 .accChevron {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(159, 184, 159, 0.5);
 }

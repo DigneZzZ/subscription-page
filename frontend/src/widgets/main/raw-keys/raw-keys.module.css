@@ -1,8 +1,10 @@
+/* Geolog VPN — connection keys card + QR modal */
+
 .modalContent {
-    background: rgba(22, 27, 35, 0.95);
+    background: linear-gradient(160deg, rgba(16, 36, 27, 0.97) 0%, rgba(12, 21, 18, 0.97) 100%);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(95, 233, 164, 0.3);
 }
 
 .modalHeader {
@@ -10,13 +12,15 @@
 }
 
 .modalTitle {
+    font-family: 'Oswald', sans-serif;
     font-weight: 600;
-    color: white;
+    letter-spacing: 0.02em;
+    color: #e7efe9;
 }
 
 .keyBox {
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(159, 184, 159, 0.08);
     border-radius: var(--mantine-radius-md);
 }
 

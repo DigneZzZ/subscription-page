@@ -1,16 +1,18 @@
+/* Geolog brand: neutral names (cyan/teal/green/violet/blue) collapse to the
+   brand green — same monochrome mapping as global.css; warm names stay semantic. */
 const COLORS: Record<string, [number, number, number]> = {
-    cyan: [34, 211, 238],
-    teal: [32, 201, 151],
-    green: [64, 192, 87],
+    cyan: [95, 233, 164],
+    teal: [95, 233, 164],
+    green: [95, 233, 164],
     lime: [130, 201, 30],
     yellow: [250, 176, 5],
     orange: [253, 126, 20],
     red: [250, 82, 82],
     pink: [230, 73, 128],
     grape: [190, 75, 219],
-    violet: [151, 117, 250],
+    violet: [95, 233, 164],
     indigo: [92, 124, 250],
-    blue: [34, 139, 230],
+    blue: [95, 233, 164],
     gray: [134, 142, 150],
     dark: [55, 58, 64]
 }
@@ -41,8 +43,8 @@ export const getColorGradient = (color: string): ColorGradientStyle => {
 
 export const getColorGradientSolid = (color: string): ColorGradientStyle => {
     const [r, g, b] = getRgb(color)
-    const dark1 = [22 + r * 0.08, 27 + g * 0.08, 35 + b * 0.08].map(Math.floor)
-    const dark2 = [20 + r * 0.05, 24 + g * 0.05, 30 + b * 0.05].map(Math.floor)
+    const dark1 = [14 + r * 0.08, 21 + g * 0.08, 19 + b * 0.08].map(Math.floor)
+    const dark2 = [11 + r * 0.05, 16 + g * 0.05, 14 + b * 0.05].map(Math.floor)
 
     return {
         background: `linear-gradient(135deg, rgb(${dark1}) 0%, rgb(${dark2}) 100%)`,
