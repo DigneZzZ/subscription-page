@@ -5,10 +5,13 @@ name: Build edge image (GHCR)
 # release-please.yml. As a manual fallback (e.g. when release-please fails to
 # tag), dispatch this workflow with the `version` input to publish the
 # versioned + :latest images instead of :edge.
+# Pushes to the design branch below publish a branch-named image
+# (:geolog) instead — :edge and :latest are never touched from branches.
 on:
   push:
     branches:
       - main
+      - geolog
   workflow_dispatch:
     inputs:
       version:
@@ -61,7 +64,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=edge,enable=${{ inputs.version == '' }}
+            type=raw,value=edge,enable=${{ inputs.version == '' && github.ref_name == 'main' }}
+            type=raw,value=${{ github.ref_name }},enable=${{ inputs.version == '' && github.ref_name != 'main' }}
             type=semver,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
