@@ -91,7 +91,7 @@ export const SubscriptionInfoCardsWidget = ({ isMobile: _ }: IProps) => {
 
     return (
         <Stack gap="xs">
-            <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="xs" verticalSpacing="xs">
+            <SimpleGrid cols={{ base: 1, xs: 1, sm: 2 }} spacing="xs" verticalSpacing="xs">
                 <CardItem
                     color="blue"
                     icon={<IconUserScan size={18} />}
