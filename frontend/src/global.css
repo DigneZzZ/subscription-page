@@ -54,6 +54,17 @@ body {
     color: #e7efe9;
 }
 
+/* ---- footer ---- */
+.page-footer {
+    border-top: 1px solid rgba(159, 184, 159, 0.1);
+    padding-top: var(--mantine-spacing-md);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #3f4f47;
+}
+
 /* ---- info cards ---- */
 /* Monochrome brand-green for the neutral cards … */
 .info-card-cyan,

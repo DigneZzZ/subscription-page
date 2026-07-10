@@ -1,5 +1,5 @@
 import { IconArrowsUpDown, IconCalendar, IconCheck, IconUserScan, IconX } from '@tabler/icons-react'
-import { Box, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core'
+import { Box, Group, Progress, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core'
 
 import { useSubscription } from '@entities/subscription-info-store'
 import { formatDate } from '@shared/utils/config-parser'
@@ -81,9 +81,17 @@ export const SubscriptionInfoCardsWidget = ({ isMobile: _ }: IProps) => {
             ? `${user.trafficUsed} / ∞`
             : `${user.trafficUsed} / ${user.trafficLimit}`
 
+    // Survey-style traffic bar (design spec) — only when a finite limit is set.
+    const usedBytes = Number(user.trafficUsedBytes)
+    const limitBytes = Number(user.trafficLimitBytes)
+    const trafficPercent =
+        Number.isFinite(usedBytes) && Number.isFinite(limitBytes) && limitBytes > 0
+            ? Math.min(100, Math.round((usedBytes / limitBytes) * 100))
+            : null
+
     return (
         <Stack gap="xs">
-            <SimpleGrid cols={{ base: 1, xs: 1, sm: 2 }} spacing="xs" verticalSpacing="xs">
+            <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="xs" verticalSpacing="xs">
                 <CardItem
                     color="blue"
                     icon={<IconUserScan size={18} />}
@@ -112,6 +120,26 @@ export const SubscriptionInfoCardsWidget = ({ isMobile: _ }: IProps) => {
                     value={bandwidthValue}
                 />
             </SimpleGrid>
+
+            {trafficPercent !== null && (
+                <Box className={classes.trafficCard}>
+                    <Group gap="xs" justify="space-between" mb={8} wrap="nowrap">
+                        <Text className={classes.trafficLabel} span>
+                            {t(baseTranslations.bandwidth)} · {bandwidthValue}
+                        </Text>
+                        <Text className={classes.trafficPercent} span>
+                            {trafficPercent}%
+                        </Text>
+                    </Group>
+                    <Progress
+                        aria-label={t(baseTranslations.bandwidth)}
+                        classNames={{ root: classes.trafficTrack, section: classes.trafficBar }}
+                        radius="xl"
+                        size={8}
+                        value={trafficPercent}
+                    />
+                </Box>
+            )}
 
             <ResetTrafficButton />
             <DevicesButton />

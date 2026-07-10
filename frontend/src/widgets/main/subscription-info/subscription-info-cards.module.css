@@ -35,10 +35,52 @@
     border: 1px solid rgba(253, 126, 20, 0.3);
 }
 
+/* Survey-style mono labels (design spec) */
 .label {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+}
+
+/* ---- traffic bar ---- */
+.trafficCard {
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(159, 184, 159, 0.08);
+    border-radius: var(--mantine-radius-md);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.trafficLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8fa793;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.trafficPercent {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: #5fe9a4;
+    flex-shrink: 0;
+}
+
+.trafficTrack {
+    background: #0a0f0d;
+}
+
+.trafficBar {
+    background: linear-gradient(90deg, #2f7d59 0%, #5fe9a4 100%);
+    box-shadow: 0 0 12px rgba(95, 233, 164, 0.35);
 }
 
 .value {

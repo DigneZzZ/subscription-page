@@ -194,7 +194,7 @@ export const SubscriptionLinkWidget = ({
                         leftSection={<IconCopy />}
                         onClick={handleCopy}
                         radius="md"
-                        variant="light"
+                        variant="filled"
                     >
                         {t(baseTranslations.copyLink)}
                     </Button>

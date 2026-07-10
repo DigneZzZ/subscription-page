@@ -52,6 +52,7 @@ export const ResetTrafficButton = () => {
             title: s.confirmTitle,
             children: <Text size="sm">{s.confirmBody(priceLabel)}</Text>,
             labels: { confirm: s.pay, cancel: s.cancel },
+            confirmProps: { variant: 'filled' },
             onConfirm: openReset
         })
     }

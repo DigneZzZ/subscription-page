@@ -1,3 +1,13 @@
 .root:hover {
     background: rgba(255, 255, 255, 0.04);
 }
+
+/* Geolog: mono step counter before the step title (design spec) */
+.stepIndex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: #5fe9a4;
+    margin-right: 10px;
+}

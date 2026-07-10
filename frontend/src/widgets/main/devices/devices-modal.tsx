@@ -190,7 +190,7 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
             title: s.confirmDeleteAllTitle,
             children: <Text size="sm">{s.confirmDeleteAllBody}</Text>,
             labels: { confirm: s.deleteAll, cancel: s.cancel },
-            confirmProps: { color: 'red' },
+            confirmProps: { color: 'red', variant: 'filled' },
             onConfirm: async () => {
                 setBusy(true)
                 try {

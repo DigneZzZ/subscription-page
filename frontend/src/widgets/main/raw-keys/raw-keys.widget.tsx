@@ -2,6 +2,7 @@ import {
     ActionIcon,
     Badge,
     Box,
+    Button,
     Card,
     CopyButton,
     Group,
@@ -82,6 +83,26 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
                     <Text c="dimmed" size="sm" ta="center">
                         {t(baseTranslations.scanToImport)}
                     </Text>
+                    <CopyButton value={link.fullLink}>
+                        {({ copied, copy }) => (
+                            <Button
+                                fullWidth
+                                leftSection={
+                                    copied ? <IconCheck size={18} /> : <IconCopy size={18} />
+                                }
+                                onClick={() => {
+                                    vibrate('drop')
+                                    copy()
+                                }}
+                                radius="md"
+                                variant="filled"
+                            >
+                                {copied
+                                    ? t(baseTranslations.linkCopied)
+                                    : t(baseTranslations.copyLink)}
+                            </Button>
+                        )}
+                    </CopyButton>
                 </Stack>
             )
         })

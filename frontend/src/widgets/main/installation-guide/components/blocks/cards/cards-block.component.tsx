@@ -40,6 +40,9 @@ export const CardsBlockRenderer = ({
                                     order={6}
                                     style={{ wordBreak: 'break-word' }}
                                 >
+                                    <span aria-hidden className={classes.stepIndex}>
+                                        {String(index + 1).padStart(2, '0')}
+                                    </span>
                                     <span
                                         dangerouslySetInnerHTML={{
                                             __html: getLocalizedText(block.title, currentLang)

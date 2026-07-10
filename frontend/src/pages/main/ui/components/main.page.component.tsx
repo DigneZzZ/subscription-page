@@ -17,7 +17,7 @@ import { useAppConfig, useAppConfigStoreActions, useCurrentLang } from '@entitie
 import { LanguagePicker } from '@shared/ui/language-picker/language-picker.shared'
 import { usePaymentUrl } from '@entities/payment-store'
 import { useSupportEmail } from '@entities/support-store'
-import { Page, RemnawaveLogo } from '@shared/ui'
+import { Page } from '@shared/ui'
 
 interface IMainPageComponentProps {
     isMobile: boolean
@@ -46,6 +46,11 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     const supportEmail = useSupportEmail()
 
     const brandName = config.brandingSettings.title
+    // Geolog wordmark: last word of the brand title gets the green accent
+    // («GEOLOG VPN» → GEOLOG white + VPN green), per the design spec.
+    const brandWords = brandName.trim().split(/\s+/)
+    const brandHead = brandWords.slice(0, -1).join(' ')
+    const brandTail = brandWords[brandWords.length - 1]
     let hasCustomLogo = !!config.brandingSettings.logoUrl
 
     if (hasCustomLogo) {
@@ -87,15 +92,30 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                                     }}
                                 />
                             ) : (
-                                <RemnawaveLogo c="cyan" size={32} />
+                                // Geolog diamond drill-bit mark (design spec: 16px, rotate 45°, green glow)
+                                <Box
+                                    aria-hidden
+                                    style={{
+                                        width: 16,
+                                        height: 16,
+                                        flexShrink: 0,
+                                        margin: '0 8px',
+                                        background: 'var(--mantine-color-cyan-4)',
+                                        transform: 'rotate(45deg)',
+                                        boxShadow: '0 0 16px rgba(95, 233, 164, 0.6)'
+                                    }}
+                                />
                             )}
                             <Title
-                                c={hasCustomLogo ? 'white' : 'cyan'}
-                                fw={700}
+                                fw={600}
                                 order={4}
                                 size="lg"
+                                style={{ letterSpacing: '0.16em', textTransform: 'uppercase' }}
                             >
-                                {brandName}
+                                {brandHead && (
+                                    <span className="logo-text-normal">{brandHead} </span>
+                                )}
+                                <span className="logo-text-highlight">{brandTail}</span>
                             </Title>
                         </Group>
 
@@ -140,6 +160,13 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                             onLanguageChange={setLanguage}
                         />
                     </Center>
+
+                    <Group className="page-footer" gap="xs" justify="space-between">
+                        <span>
+                            {brandName} © {new Date().getFullYear()}
+                        </span>
+                        <span>{window.location.hostname}</span>
+                    </Group>
                 </Stack>
             </Container>
         </Page>
