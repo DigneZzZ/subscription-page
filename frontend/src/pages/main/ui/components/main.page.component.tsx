@@ -4,9 +4,11 @@ import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types
 import {
     AccordionBlockRenderer,
     CardsBlockRenderer,
+    DevicesButton,
     InstallationGuideConnector,
     MinimalBlockRenderer,
     RawKeysWidget,
+    ResetTrafficButton,
     SubscriptionInfoCardsWidget,
     SubscriptionInfoCollapsedWidget,
     SubscriptionInfoExpandedWidget,
@@ -15,8 +17,8 @@ import {
 } from '@widgets/main'
 import { useAppConfig, useAppConfigStoreActions, useCurrentLang } from '@entities/app-config-store'
 import { LanguagePicker } from '@shared/ui/language-picker/language-picker.shared'
-import { usePaymentUrl } from '@entities/payment-store'
 import { useSupportEmail } from '@entities/support-store'
+import { usePaymentUrl } from '@entities/payment-store'
 import { Page, RemnawaveLogo } from '@shared/ui'
 
 interface IMainPageComponentProps {
@@ -116,9 +118,15 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                 style={{ position: 'relative', zIndex: 1 }}
             >
                 <Stack gap="xl">
-                    {SubscriptionInfoBlockRenderer && (
-                        <SubscriptionInfoBlockRenderer isMobile={isMobile} />
-                    )}
+                    {/* Page-level mount: these buttons must be reachable regardless of the
+                        subscriptionInfoBlockType variant (cards/collapsed/expanded/hidden). */}
+                    <Stack gap="xs">
+                        {SubscriptionInfoBlockRenderer && (
+                            <SubscriptionInfoBlockRenderer isMobile={isMobile} />
+                        )}
+                        <ResetTrafficButton />
+                        <DevicesButton />
+                    </Stack>
 
                     {atLeastOnePlatformApp && (
                         <InstallationGuideConnector
