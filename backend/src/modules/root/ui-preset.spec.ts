@@ -33,15 +33,15 @@ describe('resolveLayoutPreset', () => {
         expect(resolveLayoutPreset('HERO')).toBe('hero');
         expect(resolveLayoutPreset(' Tiles ')).toBe('tiles');
     });
-    it('falls back to banner on invalid input (incl. reserved d)', () => {
-        expect(resolveLayoutPreset(undefined)).toBe('banner');
-        expect(resolveLayoutPreset('')).toBe('banner');
-        expect(resolveLayoutPreset('d')).toBe('banner');
-        expect(resolveLayoutPreset('grid')).toBe('banner');
+    it('falls back to hero on invalid input (incl. reserved d)', () => {
+        expect(resolveLayoutPreset(undefined)).toBe('hero');
+        expect(resolveLayoutPreset('')).toBe('hero');
+        expect(resolveLayoutPreset('d')).toBe('hero');
+        expect(resolveLayoutPreset('grid')).toBe('hero');
     });
     it('ignores inherited Object.prototype keys', () => {
-        expect(resolveLayoutPreset('constructor')).toBe('banner');
-        expect(resolveLayoutPreset('toString')).toBe('banner');
+        expect(resolveLayoutPreset('constructor')).toBe('hero');
+        expect(resolveLayoutPreset('toString')).toBe('hero');
     });
 });
 

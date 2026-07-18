@@ -15,7 +15,7 @@ interface IUiPresetState {
 const LAYOUTS: TLayoutPreset[] = ['banner', 'classic', 'columns', 'hero', 'tiles']
 
 const readInitialPreset = (): { layout: TLayoutPreset; preview: boolean; theme: number } => {
-    const fallback = { layout: 'banner' as TLayoutPreset, preview: false, theme: 2 }
+    const fallback = { layout: 'hero' as TLayoutPreset, preview: false, theme: 2 }
     try {
         const div = document.getElementById('ui')
         if (!div?.dataset.preset) return fallback
