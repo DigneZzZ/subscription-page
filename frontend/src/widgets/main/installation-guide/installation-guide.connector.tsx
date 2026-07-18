@@ -9,7 +9,6 @@ import {
     ButtonVariant,
     Card,
     Group,
-    NativeSelect,
     Stack,
     Title,
     UnstyledButton
@@ -20,6 +19,7 @@ import { useState } from 'react'
 import clsx from 'clsx'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
+import { getLayoutStrings } from '@pages/main/ui/layouts/layouts.i18n'
 import { useSubscription } from '@entities/subscription-info-store'
 import { getIconFromLibrary } from '@shared/utils/config-parser'
 import { TemplateEngine } from '@shared/utils/template-engine'
@@ -48,6 +48,8 @@ export const InstallationGuideConnector = (props: IProps) => {
     const { copy } = useClipboard({ timeout: 2_000 })
     const subscription = useSubscription()
 
+    const s = getLayoutStrings(currentLang)
+
     const [selectedAppIndex, setSelectedAppIndex] = useState(0)
     const [selectedPlatform, setSelectedPlatform] = useState<TSubscriptionPagePlatformKey>(() => {
         if (platform && hasPlatformApps[platform]) {
@@ -61,7 +63,10 @@ export const InstallationGuideConnector = (props: IProps) => {
     })
 
     const platformApps = platforms[selectedPlatform]!.apps
-    const selectedApp = platformApps[selectedAppIndex] ?? platformApps[0]
+    // Featured apps surface first — everything below (selection, render, BlockRenderer
+    // source) reads from this sorted array so `selectedAppIndex` always maps consistently.
+    const sortedApps = [...platformApps].sort((a, b) => Number(b.featured) - Number(a.featured))
+    const selectedApp = sortedApps[selectedAppIndex] ?? sortedApps[0]
 
     const availablePlatforms = (
         Object.entries(hasPlatformApps) as [TSubscriptionPagePlatformKey, boolean][]
@@ -71,8 +76,7 @@ export const InstallationGuideConnector = (props: IProps) => {
             const platformConfig = platforms[platform]!
             return {
                 value: platform,
-                label: t(platformConfig.displayName),
-                icon: getIconFromLibrary(platformConfig.svgIconKey, svgLibrary)
+                label: t(platformConfig.displayName)
             }
         })
 
@@ -153,60 +157,22 @@ export const InstallationGuideConnector = (props: IProps) => {
     return (
         <Card p={{ base: 'sm', xs: 'md', sm: 'lg', md: 'xl' }} radius="lg">
             <Stack gap="md">
-                <Group gap="sm" justify="space-between">
-                    <Title c="white" fw={600} order={4}>
-                        {t(baseTranslations.installationGuideHeader)}
-                    </Title>
+                <Title c="white" fw={600} order={4}>
+                    {t(baseTranslations.installationGuideHeader)}
+                </Title>
 
-                    {availablePlatforms.length > 1 && (
-                        <NativeSelect
-                            data={availablePlatforms.map((opt) => ({
-                                value: opt.value,
-                                label: opt.label
-                            }))}
-                            leftSection={
-                                <span
-                                    dangerouslySetInnerHTML={{
-                                        __html: availablePlatforms.find(
-                                            (opt) => opt.value === selectedPlatform
-                                        )!.icon
-                                    }}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        width: 20,
-                                        height: 20
-                                    }}
-                                />
-                            }
-                            onChange={(event) => {
-                                vibrate([80])
-                                const value = event.target
-                                    .value as unknown as TSubscriptionPagePlatformKey
-                                setSelectedPlatform(value)
-                                setSelectedAppIndex(0)
-                            }}
-                            radius="md"
-                            size="sm"
-                            value={selectedPlatform}
-                            w={150}
-                        />
-                    )}
-                </Group>
-
-                {platformApps.length > 0 && (
+                {sortedApps.length > 0 && (
                     <Box>
-                        <div className={classes.appsGrid}>
-                            {platformApps.map((app: TSubscriptionPageAppConfig, index: number) => {
+                        <div className={classes.appGrid}>
+                            {sortedApps.map((app: TSubscriptionPageAppConfig, index: number) => {
                                 const isActive = index === selectedAppIndex
                                 const hasIcon = Boolean(app.svgIconKey)
 
                                 return (
                                     <UnstyledButton
                                         className={clsx(
-                                            classes.appButton,
-                                            isActive && classes.appButtonActive,
-                                            app.featured && classes.appButtonFeatured
+                                            classes.appChoice,
+                                            isActive && classes.appChoiceActive
                                         )}
                                         key={app.name}
                                         onClick={() => {
@@ -214,13 +180,9 @@ export const InstallationGuideConnector = (props: IProps) => {
                                             setSelectedAppIndex(index)
                                         }}
                                     >
-                                        {app.featured && <span className={classes.featuredBadge} />}
                                         {hasIcon && (
                                             <span
-                                                className={clsx(
-                                                    classes.bgIcon,
-                                                    isActive && classes.bgIconActive
-                                                )}
+                                                className={classes.appIcon}
                                                 dangerouslySetInnerHTML={{
                                                     __html: getIconFromLibrary(
                                                         app.svgIconKey!,
@@ -229,11 +191,38 @@ export const InstallationGuideConnector = (props: IProps) => {
                                                 }}
                                             />
                                         )}
-                                        <span className={classes.appName}>{app.name}</span>
+                                        <span className={classes.appInfo}>
+                                            <span className={classes.appName}>{app.name}</span>
+                                            <span className={classes.appBadge}>
+                                                {app.featured ? s.recommended : s.alternative}
+                                            </span>
+                                        </span>
                                     </UnstyledButton>
                                 )
                             })}
                         </div>
+
+                        {availablePlatforms.length > 1 && (
+                            <div className={classes.osRow}>
+                                <span className={classes.osNote}>{s.platform}</span>
+                                {availablePlatforms.map((opt) => (
+                                    <UnstyledButton
+                                        className={clsx(
+                                            classes.osChip,
+                                            opt.value === selectedPlatform && classes.osChipActive
+                                        )}
+                                        key={opt.value}
+                                        onClick={() => {
+                                            vibrate([80])
+                                            setSelectedPlatform(opt.value)
+                                            setSelectedAppIndex(0)
+                                        }}
+                                    >
+                                        {opt.label}
+                                    </UnstyledButton>
+                                ))}
+                            </div>
+                        )}
 
                         {selectedApp && (
                             <BlockRenderer
