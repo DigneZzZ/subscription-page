@@ -53,7 +53,7 @@ export const AccordionBlockRenderer = ({
                                 />
                                 <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                                     <Text
-                                        c="white"
+                                        c="var(--sp-text)"
                                         dangerouslySetInnerHTML={{
                                             __html: getLocalizedText(block.title, currentLang)
                                         }}

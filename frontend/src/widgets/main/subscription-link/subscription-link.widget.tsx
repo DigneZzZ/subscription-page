@@ -126,7 +126,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
                         src={`data:image/svg+xml;utf8,${encodeURIComponent(subscriptionQrCode)}`}
                         style={{ borderRadius: 'var(--mantine-radius-md)' }}
                     />
-                    <Text c="white" fw={600} size="lg" ta="center">
+                    <Text c="var(--sp-text)" fw={600} size="lg" ta="center">
                         {t(baseTranslations.scanQrCode)}
                     </Text>
                     <Text c="dimmed" size="sm" ta="center">

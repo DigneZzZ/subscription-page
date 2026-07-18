@@ -57,7 +57,7 @@ export const HeroLayout = (props: ILayoutProps) => {
 
                         <Stack gap="xs">
                             {hasPayment && <CtaButton label={s.renew} onClick={openPayment} />}
-                            <Group gap="xs" grow>
+                            <Group className={classes.btnFlush} gap="xs" grow>
                                 <DevicesButton />
                                 <ResetTrafficButton />
                             </Group>

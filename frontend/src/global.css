@@ -53,6 +53,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 10;
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     background: var(--sp-header-bg);
     border-bottom: 1px solid var(--sp-card-edge);

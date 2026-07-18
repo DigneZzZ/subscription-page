@@ -91,7 +91,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
         <Card p={{ base: 'sm', xs: 'md', sm: 'lg', md: 'xl' }} radius="lg">
             <Stack gap="md">
                 <Group gap="sm" justify="space-between">
-                    <Title c="white" fw={600} order={4}>
+                    <Title c="var(--sp-text)" fw={600} order={4}>
                         {t(baseTranslations.connectionKeysHeader)}
                     </Title>
                     {parsedLinks.length > 1 && (
@@ -116,7 +116,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
                                         />
                                         <Box className={classes.keyName}>
                                             <Text
-                                                c="white"
+                                                c="var(--sp-text)"
                                                 fw={500}
                                                 size={isMobile ? 'xs' : 'sm'}
                                                 span

@@ -11,7 +11,6 @@ export interface ILayoutStrings {
     recommended: string
     renew: string
     reset: string
-    resetsAt: (date: string) => string
     subscriptionLink: string
     subscriptionUntil: (date: string) => string
     unlimited: string
@@ -33,7 +32,6 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         recommended: 'Recommended',
         renew: 'Renew subscription',
         reset: 'Reset',
-        resetsAt: (date) => `resets ${date}`,
         subscriptionLink: 'Subscription link',
         subscriptionUntil: (date) => `Subscription until ${date}`,
         unlimited: 'Unlimited'
@@ -51,7 +49,6 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         recommended: 'Рекомендуем',
         renew: 'Продлить подписку',
         reset: 'Сброс',
-        resetsAt: (date) => `сброс ${date}`,
         subscriptionLink: 'Ссылка на подписку',
         subscriptionUntil: (date) => `Подписка до ${date}`,
         unlimited: 'Безлимит'
@@ -69,7 +66,6 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         recommended: 'پیشنهادی',
         renew: 'تمدید اشتراک',
         reset: 'بازنشانی',
-        resetsAt: (date) => `بازنشانی ${date}`,
         subscriptionLink: 'لینک اشتراک',
         subscriptionUntil: (date) => `اشتراک تا ${date}`,
         unlimited: 'نامحدود'
@@ -87,7 +83,6 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         recommended: 'Recommandé',
         renew: "Renouveler l'abonnement",
         reset: 'Réinitialiser',
-        resetsAt: (date) => `réinit. ${date}`,
         subscriptionLink: "Lien d'abonnement",
         subscriptionUntil: (date) => `Abonnement jusqu'au ${date}`,
         unlimited: 'Illimité'
@@ -105,7 +100,6 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         recommended: '推荐',
         renew: '续订订阅',
         reset: '重置',
-        resetsAt: (date) => `${date} 重置`,
         subscriptionLink: '订阅链接',
         subscriptionUntil: (date) => `订阅至 ${date}`,
         unlimited: '不限量'

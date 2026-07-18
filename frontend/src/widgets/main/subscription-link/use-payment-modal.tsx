@@ -88,7 +88,7 @@ export const usePaymentModal = (): IUsePaymentModal => {
             >
                 <Group align="flex-start" gap="sm" justify="space-between" w="100%" wrap="nowrap">
                     <Box style={{ minWidth: 0 }}>
-                        <Text c="white" className={classes.tariffName} fw={700} size="sm">
+                        <Text c="var(--sp-text)" className={classes.tariffName} fw={700} size="sm">
                             {tariff.name ?? getPeriodLabel(tariff.months, tariff.days ?? 0, currentLang)}
                         </Text>
                         <Text c="dimmed" mt={2} size="xs">
@@ -96,7 +96,7 @@ export const usePaymentModal = (): IUsePaymentModal => {
                         </Text>
                     </Box>
                     <Group gap={10} wrap="nowrap">
-                        <Text c="white" fw={700} size="lg" style={{ whiteSpace: 'nowrap' }}>
+                        <Text c="var(--sp-text)" fw={700} size="lg" style={{ whiteSpace: 'nowrap' }}>
                             {formatAmount(tariff.amount, tariff.currency)}
                         </Text>
                         <span className={classes.radio} />
@@ -189,7 +189,7 @@ export const usePaymentModal = (): IUsePaymentModal => {
                                         icon={<IconClock className={classes.groupIcon} size={18} />}
                                     >
                                         <Group gap="xs" justify="space-between" pr="sm" wrap="nowrap">
-                                            <Text c="white" fw={600}>
+                                            <Text c="var(--sp-text)" fw={600}>
                                                 {getPeriodLabel(group.months, 0, currentLang)}
                                             </Text>
                                             <Badge className={classes.priceBadge} variant="light">

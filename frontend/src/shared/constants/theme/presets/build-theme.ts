@@ -3,7 +3,7 @@ import { createTheme, CSSVariablesResolver, MantineThemeOverride } from '@mantin
 import { IThemePreset, LIGHT_GREEN, SAGE_GREEN } from './theme-presets'
 import components from '../overrides'
 
-// red/orange/yellow остаются семантикой «истекает/неактивна» — стоковые ramps из theme.ts
+// red/orange/yellow — семантика «истекает/неактивна»; свежесобранные ramps (общие для всех пресетов)
 const RED = ['#ffe9e9', '#ffd0d0', '#ffb0b0', '#ff8f8f', '#f56b6b',
     '#e05656', '#c74343', '#a83232', '#872626', '#661c1c'] as const
 const ORANGE = ['#fff1e5', '#ffe1c7', '#ffcda3', '#ffb87d', '#fca35c',

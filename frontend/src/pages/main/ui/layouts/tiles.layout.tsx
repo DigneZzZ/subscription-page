@@ -58,6 +58,9 @@ export const TilesLayout = (props: ILayoutProps) => {
                         )}
                     </Box>
 
+                    {/* Rendered directly as grid cells; `.tiles > button` makes each
+                        span two columns so the reset label fits and null (hwid-off)
+                        DevicesButton leaves no empty cell. */}
                     <DevicesButton />
                     <ResetTrafficButton />
 
@@ -78,7 +81,9 @@ export const TilesLayout = (props: ILayoutProps) => {
                                     {ctaSub}
                                 </Text>
                             </Box>
-                            <Text fz="22px">→</Text>
+                            <Text className={classes.ctaArrow} fz="22px">
+                                →
+                            </Text>
                         </UnstyledButton>
                     )}
                 </Box>

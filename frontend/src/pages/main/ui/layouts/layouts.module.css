@@ -53,6 +53,8 @@
     padding: 12px 14px;
     background: var(--sp-inset-bg);
     border-radius: 10px;
+    /* Fixed inset shadow: intentionally not tokenised — the theme system has no
+       inset-shadow token, and a token-derived value would change the depth cue. */
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
@@ -66,20 +68,12 @@
     white-space: nowrap;
 }
 
-.infoGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.trafficSpan {
-    grid-column: span 3;
-}
-
-/* Two-column info grid used inside the narrow left rail of the columns layout. */
+/* Two-column info grid used inside the narrow left rail of the columns layout.
+   minmax(0, 1fr) lets the columns shrink below their content's min-content (the
+   traffic meter row uses wrap="nowrap"), so the rail never overflows on mobile. */
 .infoGridTwo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
 }
 
@@ -107,6 +101,7 @@
     top: 92px;
     display: flex;
     flex-direction: column;
+    min-width: 0;
     gap: 10px;
 }
 
@@ -142,14 +137,30 @@
     padding: 15px 16px;
 }
 
-.tileClickable {
-    cursor: pointer;
-    transition: border-color 0.18s, transform 0.18s;
+/* Devices/Reset buttons are rendered directly as tile grid cells; span two columns
+   so their full label (e.g. «Сбросить трафик · 300 ₽ · 57.3 GB») has room instead of
+   truncating in a quarter cell, and neutralise the reset button's inline mt="xs" so it
+   aligns with the traffic tile in the same row. Targeting the button keeps a null
+   (hwid-off) DevicesButton from leaving an empty cell. */
+.tiles > button {
+    grid-column: span 2;
+    margin-top: 0 !important;
 }
 
-.tileClickable:hover {
-    transform: translateY(-1px);
-    border-color: rgba(var(--sp-acc-rgb), 0.4);
+/* Reset button carries a built-in mt="xs" applied as an inline style; neutralise it
+   (needs !important to beat the inline style) in the hero action row so it aligns with
+   the devices button beside it. */
+.btnFlush button {
+    margin-top: 0 !important;
+}
+
+/* RTL-safe CTA arrow: mirrors the glyph when the document direction is rtl. */
+.ctaArrow {
+    display: inline-block;
+}
+
+:global([dir='rtl']) .ctaArrow {
+    transform: scaleX(-1);
 }
 
 .ctaTile {
@@ -208,7 +219,7 @@
 @media (max-width: 860px) {
     .twocol,
     .twocolF {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .twocolLeft,

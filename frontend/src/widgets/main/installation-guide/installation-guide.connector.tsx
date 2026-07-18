@@ -157,7 +157,7 @@ export const InstallationGuideConnector = (props: IProps) => {
     return (
         <Card p={{ base: 'sm', xs: 'md', sm: 'lg', md: 'xl' }} radius="lg">
             <Stack gap="md">
-                <Title c="white" fw={600} order={4}>
+                <Title c="var(--sp-text)" fw={600} order={4}>
                     {t(baseTranslations.installationGuideHeader)}
                 </Title>
 

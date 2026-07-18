@@ -184,23 +184,22 @@ export const LanguageFooter = () => {
 }
 
 /**
- * Shared summary block (mockup «A-инфогрид»): Status / Expires (/ Remaining for the
- * 3-column variant) cards plus a wide traffic bar. Devices count is not sourced here
- * (it is fetched asynchronously inside DevicesButton), so its card is replaced by the
- * remaining-traffic card. Used by the columns layout with `cols={2}`.
+ * Shared summary block (mockup «A-инфогрид»): Status / Expires cards plus a wide
+ * traffic bar, laid out in two columns. Devices count is not sourced here (it is
+ * fetched asynchronously inside DevicesButton), so its card is replaced by the
+ * traffic bar. Used by the columns layout's left rail.
  */
-export const SummaryCards = ({ cols = 3 }: { cols?: 2 | 3 }) => {
+export const SummaryCards = () => {
     const summary = useSubscriptionSummary()
     const { t, currentLang, baseTranslations } = useTranslation()
     const s = getLayoutStrings(currentLang)
 
-    const two = cols === 2
     const expiresValue = summary.isIndefinite
         ? s.indefinite
         : formatDate(summary.expiresAt, currentLang, baseTranslations)
 
     return (
-        <Box className={two ? classes.infoGridTwo : classes.infoGrid}>
+        <Box className={classes.infoGridTwo}>
             <Box className={clsx(classes.card, classes.infoCard)}>
                 <Text className="sp-mono-label">{t(baseTranslations.status)}</Text>
                 <StatusBadge />
@@ -218,27 +217,7 @@ export const SummaryCards = ({ cols = 3 }: { cols?: 2 | 3 }) => {
                 )}
             </Box>
 
-            {!two && (
-                <Box className={clsx(classes.card, classes.infoCard)}>
-                    <Text className="sp-mono-label">{s.left}</Text>
-                    <Text fw={600} fz="16.5px">
-                        {summary.remainingLabel}
-                    </Text>
-                    {!summary.isUnlimited && (
-                        <Text c="var(--sp-dim)" fz="12px">
-                            {s.leftOf(summary.trafficLimit)}
-                        </Text>
-                    )}
-                </Box>
-            )}
-
-            <Box
-                className={clsx(
-                    classes.card,
-                    classes.trafficCard,
-                    two ? classes.trafficSpanTwo : classes.trafficSpan
-                )}
-            >
+            <Box className={clsx(classes.card, classes.trafficCard, classes.trafficSpanTwo)}>
                 <TrafficMeter />
             </Box>
         </Box>

@@ -34,7 +34,7 @@ export const ColumnsLayout = (props: ILayoutProps) => {
         <Box className={classes.pageWide}>
             <Box className={classes.twocol}>
                 <Box className={classes.twocolLeft}>
-                    <SummaryCards cols={2} />
+                    <SummaryCards />
                     {hasPayment && <CtaButton label={s.renew} onClick={openPayment} />}
                     <Stack gap="xs">
                         <DevicesButton />
