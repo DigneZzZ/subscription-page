@@ -233,14 +233,6 @@
 }
 
 @media (max-width: 620px) {
-    .infoGrid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .trafficSpan {
-        grid-column: span 2;
-    }
-
     .hero {
         grid-template-columns: 1fr;
         justify-items: center;
