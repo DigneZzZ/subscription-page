@@ -18,6 +18,7 @@ import { renderSVG } from 'uqr'
 import { useSubscription } from '@entities/subscription-info-store'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
+import { getQrColors } from '@shared/utils'
 
 import classes from './raw-keys.module.css'
 
@@ -60,10 +61,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
     const parsedLinks = parseLinks(subscription.links)
 
     const handleShowQr = (link: ParsedLink) => {
-        const qrCode = renderSVG(link.fullLink, {
-            whiteColor: '#161B22',
-            blackColor: '#22d3ee'
-        })
+        const qrCode = renderSVG(link.fullLink, getQrColors())
 
         modals.open({
             centered: true,

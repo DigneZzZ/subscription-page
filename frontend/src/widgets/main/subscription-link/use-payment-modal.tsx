@@ -45,7 +45,7 @@ function renderDescIcon(line: string) {
     const isConnections = /подключ|connection|устройств|device/i.test(line)
 
     return isConnections ? (
-        <IconWorld color="#22d3ee" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
+        <IconWorld color="var(--sp-acc)" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
     ) : (
         <IconBolt color="#facc15" size={15} style={{ flexShrink: 0, marginTop: 2 }} />
     )

@@ -18,6 +18,7 @@ import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-u
 import { useSubscription } from '@entities/subscription-info-store'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
+import { getQrColors } from '@shared/utils'
 
 import { usePaymentModal } from './use-payment-modal'
 import classes from './subscription-link.module.css'
@@ -107,10 +108,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
     const handleGetLink = () => {
         vibrate('tap')
 
-        const subscriptionQrCode = renderSVG(subscriptionUrl, {
-            whiteColor: '#161B22',
-            blackColor: '#22d3ee'
-        })
+        const subscriptionQrCode = renderSVG(subscriptionUrl, getQrColors())
 
         modals.open({
             centered: true,
