@@ -218,6 +218,19 @@ export const configSchema = z
                 (v) => Number.isInteger(v) && v >= 0 && v <= 100,
                 'TRAFFIC_RESET_MIN_PERCENT must be an integer between 0 and 100',
             ),
+
+        THEME_PRESET: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        LAYOUT_PRESET: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        PREVIEW: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
     })
     .superRefine((data, ctx) => {
         if (
