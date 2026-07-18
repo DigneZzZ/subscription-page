@@ -5,6 +5,7 @@ import {
     AccordionBlockRenderer,
     CardsBlockRenderer,
     MinimalBlockRenderer,
+    PreviewPanel,
     SubscriptionInfoCardsWidget,
     SubscriptionInfoCollapsedWidget,
     SubscriptionInfoExpandedWidget,
@@ -19,7 +20,7 @@ import {
     ILayoutProps,
     TilesLayout
 } from '@pages/main/ui/layouts'
-import { useLayoutPreset } from '@entities/ui-preset-store'
+import { useLayoutPreset, usePreviewMode } from '@entities/ui-preset-store'
 import { useSupportEmail } from '@entities/support-store'
 import { useAppConfig } from '@entities/app-config-store'
 import { Page, Wordmark } from '@shared/ui'
@@ -55,6 +56,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     const config = useAppConfig()
     const supportEmail = useSupportEmail()
     const layoutPreset = useLayoutPreset()
+    const preview = usePreviewMode()
 
     const brandName = config.brandingSettings.title
     let hasCustomLogo = !!config.brandingSettings.logoUrl
@@ -133,6 +135,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                 py="xl"
                 style={{ position: 'relative', zIndex: 1 }}
             >
+                {preview && <PreviewPanel />}
                 <Layout {...layoutProps} />
             </Container>
         </Page>
