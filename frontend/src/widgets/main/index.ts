@@ -1,5 +1,6 @@
 export * from './devices'
 export * from './installation-guide'
+export * from './preview-panel'
 export * from './raw-keys'
 export * from './subscription-info'
 export * from './subscription-link'

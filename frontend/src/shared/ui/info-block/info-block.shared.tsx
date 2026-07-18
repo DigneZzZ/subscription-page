@@ -16,7 +16,7 @@ export const InfoBlockShared = ({ color, icon, title, value }: IInfoBlockProps) 
                         {title}
                     </Text>
                 </Group>
-                <Text c="white" fw={600} size="sm" truncate>
+                <Text c="var(--sp-text)" fw={600} size="sm" truncate>
                     {value}
                 </Text>
             </Stack>

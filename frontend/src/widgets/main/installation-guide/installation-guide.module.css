@@ -1,110 +1,106 @@
-.appsGrid {
-    display: flex;
-    flex-wrap: wrap;
+.appGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 8px;
-    margin-bottom: var(--mantine-spacing-md);
+    margin-bottom: 10px;
 }
 
-.appButton {
-    position: relative;
+.appChoice {
     display: flex;
     align-items: center;
-    flex: 1 1 auto;
-    padding: 0 48px 0 16px;
-    height: 48px;
-    min-width: 0;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-left: 3px solid rgba(255, 255, 255, 0.08);
-    border-radius: var(--mantine-radius-md);
+    gap: 10px;
+    padding: 11px 13px;
+    border-radius: 12px;
+    background: var(--sp-card);
+    border: 1px solid var(--sp-card-border);
+    box-shadow: inset 0 1px 0 var(--sp-card-edge), var(--sp-card-shadow);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.18s;
 }
 
-.appButton:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-left-color: rgba(255, 255, 255, 0.25);
+.appChoiceActive {
+    border-color: rgba(var(--sp-acc-rgb), 0.5);
+    background: linear-gradient(
+        135deg,
+        rgba(var(--sp-acc-rgb), 0.13),
+        rgba(var(--sp-acc-rgb), 0.03)
+    );
 }
 
-.appButton:hover .bgIcon {
-    opacity: 0.3;
+.appIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    color: var(--sp-acc);
 }
 
-.appButtonActive,
-.appButtonActive:hover {
-    background: linear-gradient(90deg, rgba(34, 211, 238, 0.12) 0%, rgba(34, 211, 238, 0.04) 100%);
-    border-color: rgba(34, 211, 238, 0.2);
-    border-left-color: var(--mantine-color-cyan-5);
-    box-shadow:
-        inset 4px 0 12px -4px rgba(34, 211, 238, 0.3),
-        0 0 12px rgba(34, 211, 238, 0.1);
-}
-
-.appButtonActive .appName {
-    color: var(--mantine-color-cyan-3);
-}
-
-.appButtonActive .bgIcon,
-.appButtonActive:hover .bgIcon {
-    opacity: 0.25;
-}
-
-.bgIcon {
-    position: absolute;
-    right: -12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 56px;
-    height: 56px;
-    opacity: 0.25;
-    pointer-events: none;
-    transition: all 0.3s ease;
-    mask-image: linear-gradient(to right, transparent 0%, black 40%, black 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 40%, black 100%);
-}
-
-.bgIcon svg,
-.bgIcon svg path {
+.appIcon svg,
+.appIcon svg path {
     width: 100%;
     height: 100%;
 }
 
-.bgIconActive {
-    opacity: 0.25;
-}
-
-.bgIconActive svg,
-.bgIconActive svg path {
-    width: 100%;
-    height: 100%;
+.appInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
 }
 
 .appName {
-    position: relative;
-    z-index: 1;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: var(--mantine-font-size-md);
+    color: var(--sp-text);
+    font-size: var(--mantine-font-size-sm);
     font-weight: 600;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.featuredBadge {
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 8px;
-    height: 8px;
-    display: inline-block;
-    opacity: 1;
-    z-index: 0;
-    border-radius: 50%;
-    background: #efbf04;
-
-    box-shadow: 0 0 6px rgba(239, 191, 4, 0.6);
+.appBadge {
+    font-family: var(--mantine-font-family-monospace);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sp-dim);
 }
 
-.appButtonActive .featuredBadge {
-    opacity: 0.8;
-    box-shadow: 0 0 8px rgba(239, 191, 4, 0.4);
+.appChoiceActive .appBadge {
+    color: var(--sp-acc);
+}
+
+.osRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.osNote {
+    font-family: var(--mantine-font-family-monospace);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sp-dim);
+}
+
+.osChip {
+    font-family: var(--mantine-font-family-monospace);
+    font-size: 11px;
+    padding: 5px 11px;
+    border-radius: 7px;
+    cursor: pointer;
+    border: 1px solid rgba(127, 127, 127, 0.25);
+    color: var(--sp-dim);
+    transition: all 0.15s;
+}
+
+.osChipActive {
+    color: var(--sp-acc);
+    border-color: rgba(var(--sp-acc-rgb), 0.45);
+    background: rgba(var(--sp-acc-rgb), 0.09);
 }

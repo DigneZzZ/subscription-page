@@ -18,6 +18,7 @@ import { renderSVG } from 'uqr'
 import { useSubscription } from '@entities/subscription-info-store'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
+import { getQrColors } from '@shared/utils'
 
 import classes from './raw-keys.module.css'
 
@@ -60,10 +61,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
     const parsedLinks = parseLinks(subscription.links)
 
     const handleShowQr = (link: ParsedLink) => {
-        const qrCode = renderSVG(link.fullLink, {
-            whiteColor: '#161B22',
-            blackColor: '#22d3ee'
-        })
+        const qrCode = renderSVG(link.fullLink, getQrColors())
 
         modals.open({
             centered: true,
@@ -91,7 +89,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
         <Card p={{ base: 'sm', xs: 'md', sm: 'lg', md: 'xl' }} radius="lg">
             <Stack gap="md">
                 <Group gap="sm" justify="space-between">
-                    <Title c="white" fw={600} order={4}>
+                    <Title c="var(--sp-text)" fw={600} order={4}>
                         {t(baseTranslations.connectionKeysHeader)}
                     </Title>
                     {parsedLinks.length > 1 && (
@@ -116,7 +114,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
                                         />
                                         <Box className={classes.keyName}>
                                             <Text
-                                                c="white"
+                                                c="var(--sp-text)"
                                                 fw={500}
                                                 size={isMobile ? 'xs' : 'sm'}
                                                 span

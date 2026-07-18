@@ -3,8 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="robots" content="noindex, nofollow" />
-        <meta name="color-scheme" content="dark only" />
-        <meta name="theme-color" content="#161B23" />
+        <!-- Server-rendered from the resolved THEME_PRESET (backend
+             THEME_BACKGROUNDS map, kept in sync with the frontend theme
+             presets) so first paint matches the theme with no dark flash on the
+             light preset. applyPresetCssVars() re-applies these at runtime. -->
+        <meta name="color-scheme" content="<%- uiColorScheme %>" />
+        <meta name="theme-color" content="<%- uiThemeColor %>" />
+        <style>
+            html,
+            body {
+                background-color: <%- uiThemeColor %>;
+            }
+        </style>
         <meta
             name="viewport"
             content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
@@ -18,7 +28,7 @@
         <link rel="preconnect" crossorigin="anonymous" href="https://fonts.gstatic.com" />
 
         <link
-            href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Unbounded:wght@200..900&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Unbounded:wght@300;400;500;600;700&display=swap"
             rel="stylesheet"
         />
         <link
@@ -41,6 +51,7 @@
         <div id="pmt" data-url="<%- paymentUrl %>" data-tariffs="<%- paymentTariffs %>" data-reset="<%- paymentReset %>"></div>
         <div id="sup" data-email="<%- supportEmail %>"></div>
         <div id="hwid" data-hwid="<%- hwidData %>"></div>
+        <div id="ui" data-preset="<%- uiPreset %>"></div>
 
         <% if (chatwootBaseUrl && chatwootWebsiteToken) { %>
         <!-- Chatwoot live chat widget -->

@@ -20,8 +20,8 @@
 }
 
 .payButton {
-    background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
-    color: #0a0e14;
+    background: linear-gradient(135deg, var(--sp-acc-bright) 0%, var(--sp-acc-deep) 100%);
+    color: var(--sp-cta-text);
     font-weight: 700;
     border: none;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -30,7 +30,7 @@
 
 .payButton:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(34, 211, 238, 0.35);
+    box-shadow: 0 4px 16px rgba(var(--sp-acc-rgb), 0.35);
 }
 
 .payButton:active {
@@ -78,8 +78,8 @@
 }
 
 .tariffCard:hover .radio {
-    border-color: #22d3ee;
-    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.12);
+    border-color: var(--sp-acc);
+    box-shadow: 0 0 0 4px rgba(var(--sp-acc-rgb), 0.12);
 }
 
 .cardDivider {
@@ -91,7 +91,7 @@
 }
 
 .groupIcon {
-    color: #22d3ee;
+    color: var(--sp-acc);
 }
 
 .priceBadge {

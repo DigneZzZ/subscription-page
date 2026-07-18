@@ -12,9 +12,16 @@ import { NavigationProgress } from '@mantine/nprogress'
 import { Notifications } from '@mantine/notifications'
 import { ModalsProvider } from '@mantine/modals'
 import { useMediaQuery } from '@mantine/hooks'
+import { useEffect, useMemo } from 'react'
 
+import {
+    applyPresetCssVars,
+    buildCssVariablesResolver,
+    buildMantineTheme,
+    getThemePreset
+} from '@shared/constants'
+import { useThemePreset } from '@entities/ui-preset-store'
 import { initDayjs } from '@shared/utils/time-utils'
-import { theme } from '@shared/constants'
 
 import { Router } from './app/router/router'
 
@@ -26,10 +33,22 @@ initDayjs()
 
 export function App() {
     const mq = useMediaQuery('(min-width: 40em)')
+    const themePresetId = useThemePreset()
+    const preset = getThemePreset(themePresetId)
+    const theme = useMemo(() => buildMantineTheme(preset), [preset])
+    const cssVariablesResolver = useMemo(() => buildCssVariablesResolver(preset), [preset])
+
+    useEffect(() => {
+        applyPresetCssVars(preset)
+    }, [preset])
 
     return (
         <DirectionProvider>
-            <MantineProvider defaultColorScheme="dark" theme={theme}>
+            <MantineProvider
+                cssVariablesResolver={cssVariablesResolver}
+                forceColorScheme={preset.colorScheme}
+                theme={theme}
+            >
                 <ModalsProvider>
                     <Notifications position={mq ? 'top-right' : 'bottom-right'} />
                     <NavigationProgress />

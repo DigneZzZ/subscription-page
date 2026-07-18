@@ -1,0 +1,6 @@
+export { BannerLayout } from './banner.layout'
+export { ClassicLayout } from './classic.layout'
+export { ColumnsLayout } from './columns.layout'
+export { HeroLayout } from './hero.layout'
+export type { ILayoutProps } from './layout-props.interface'
+export { TilesLayout } from './tiles.layout'

@@ -2,6 +2,7 @@ import { IconRefresh } from '@tabler/icons-react'
 import { Button, Text } from '@mantine/core'
 import { modals } from '@mantine/modals'
 
+import { useSubscriptionSummary } from '@entities/subscription-summary'
 import { useSubscription } from '@entities/subscription-info-store'
 import { formatAmount } from '@shared/utils/format-amount'
 import { usePaymentReset } from '@entities/payment-store'
@@ -13,6 +14,7 @@ import { getResetStrings } from './reset-traffic.i18n'
 export const ResetTrafficButton = () => {
     const reset = usePaymentReset()
     const subscription = useSubscription()
+    const summary = useSubscriptionSummary()
     const { currentLang } = useTranslation()
 
     if (!reset) {
@@ -56,17 +58,29 @@ export const ResetTrafficButton = () => {
         })
     }
 
+    const baseLabel = reset.dynamic ? s.resetTraffic : `${s.resetTraffic} · ${priceLabel}`
+    const label = summary.isUnlimited ? baseLabel : `${baseLabel} · ${summary.remainingLabel}`
+
     return (
         <Button
+            color="cyan"
             fullWidth
             leftSection={<IconRefresh size={18} />}
             mt="xs"
             onClick={handleClick}
             radius="md"
             size="md"
-            variant="light"
+            style={
+                summary.isUnlimited
+                    ? undefined
+                    : {
+                        background: `linear-gradient(90deg, rgba(var(--sp-acc-rgb), 0.13) ${summary.remainingPercent}%, transparent ${summary.remainingPercent}%)`,
+                        borderColor: 'rgba(var(--sp-acc-rgb), 0.4)'
+                    }
+            }
+            variant="outline"
         >
-            {reset.dynamic ? s.resetTraffic : `${s.resetTraffic} · ${priceLabel}`}
+            {label}
         </Button>
     )
 }
