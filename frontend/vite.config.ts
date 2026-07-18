@@ -31,7 +31,9 @@ export default defineConfig({
                     chatwootWebsiteToken: '<%- chatwootWebsiteToken %>',
                     chatwootIdentifierHash: '<%- chatwootIdentifierHash %>',
                     hwidData: '<%- hwidData %>',
-                    uiPreset: '<%- uiPreset %>'
+                    uiPreset: '<%- uiPreset %>',
+                    uiThemeColor: '<%- uiThemeColor %>',
+                    uiColorScheme: '<%- uiColorScheme %>'
                 }
             }
             return {
@@ -43,7 +45,9 @@ export default defineConfig({
                     process.env.UI_PRESET ??
                     Buffer.from(
                         JSON.stringify({ theme: 2, layout: 'banner', preview: true })
-                    ).toString('base64')
+                    ).toString('base64'),
+                uiThemeColor: '#070b14',
+                uiColorScheme: 'dark'
             }
         })
         // obfuscatorPlugin({

@@ -3,8 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="robots" content="noindex, nofollow" />
-        <meta name="color-scheme" content="dark only" />
-        <meta name="theme-color" content="#070b14" />
+        <!-- Server-rendered from the resolved THEME_PRESET (backend
+             THEME_BACKGROUNDS map, kept in sync with the frontend theme
+             presets) so first paint matches the theme with no dark flash on the
+             light preset. applyPresetCssVars() re-applies these at runtime. -->
+        <meta name="color-scheme" content="<%- uiColorScheme %>" />
+        <meta name="theme-color" content="<%- uiThemeColor %>" />
+        <style>
+            html,
+            body {
+                background-color: <%- uiThemeColor %>;
+            }
+        </style>
         <meta
             name="viewport"
             content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"

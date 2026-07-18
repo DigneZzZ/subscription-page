@@ -18,7 +18,12 @@ import { WataService } from '@common/wata/wata.service';
 import { IGNORED_HEADERS } from '@common/constants';
 import { sanitizeUsername } from '@common/utils';
 
-import { resolveLayoutPreset, resolvePreviewMode, resolveThemePreset } from './ui-preset';
+import {
+    resolveLayoutPreset,
+    resolvePreviewMode,
+    resolveThemePreset,
+    THEME_BACKGROUNDS,
+} from './ui-preset';
 import { SubpageConfigService } from './subpage-config.service';
 import { resolveHwidMode } from '../hwid-devices/hwid-mode';
 
@@ -660,6 +665,13 @@ export class RootService {
                 'base64',
             );
 
+            const themePreset = resolveThemePreset(this.configService.get<string>('THEME_PRESET'));
+            const layoutPreset = resolveLayoutPreset(
+                this.configService.get<string>('LAYOUT_PRESET'),
+            );
+            const previewMode = resolvePreviewMode(this.configService.get<string>('PREVIEW'));
+            const themeBackground = THEME_BACKGROUNDS[themePreset];
+
             res.render('index', {
                 metaTitle: baseSettings.metaTitle,
                 metaDescription: baseSettings.metaDescription,
@@ -675,13 +687,15 @@ export class RootService {
                 hwidData,
                 uiPreset: Buffer.from(
                     JSON.stringify({
-                        theme: resolveThemePreset(this.configService.get<string>('THEME_PRESET')),
-                        layout: resolveLayoutPreset(
-                            this.configService.get<string>('LAYOUT_PRESET'),
-                        ),
-                        preview: resolvePreviewMode(this.configService.get<string>('PREVIEW')),
+                        theme: themePreset,
+                        layout: layoutPreset,
+                        preview: previewMode,
                     }),
                 ).toString('base64'),
+                // Server-rendered initial background so first paint matches the
+                // resolved theme (no dark flash on the light preset).
+                uiThemeColor: themeBackground.bg,
+                uiColorScheme: themeBackground.colorScheme,
             });
         } catch (error) {
             this.logger.error(`Error in returnWebpage: ${error}`);

@@ -1,4 +1,9 @@
-import { resolveLayoutPreset, resolvePreviewMode, resolveThemePreset } from './ui-preset';
+import {
+    resolveLayoutPreset,
+    resolvePreviewMode,
+    resolveThemePreset,
+    THEME_BACKGROUNDS,
+} from './ui-preset';
 
 describe('resolveThemePreset', () => {
     it('returns valid ints 1-8 as-is', () => {
@@ -33,6 +38,25 @@ describe('resolveLayoutPreset', () => {
         expect(resolveLayoutPreset('')).toBe('banner');
         expect(resolveLayoutPreset('d')).toBe('banner');
         expect(resolveLayoutPreset('grid')).toBe('banner');
+    });
+    it('ignores inherited Object.prototype keys', () => {
+        expect(resolveLayoutPreset('constructor')).toBe('banner');
+        expect(resolveLayoutPreset('toString')).toBe('banner');
+    });
+});
+
+describe('THEME_BACKGROUNDS', () => {
+    it('covers exactly theme ids 1..8', () => {
+        expect(
+            Object.keys(THEME_BACKGROUNDS)
+                .map(Number)
+                .sort((a, b) => a - b),
+        ).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    });
+    it('marks only theme 8 as light and all others dark', () => {
+        for (let id = 1; id <= 8; id++) {
+            expect(THEME_BACKGROUNDS[id].colorScheme).toBe(id === 8 ? 'light' : 'dark');
+        }
     });
 });
 
