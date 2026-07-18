@@ -120,6 +120,8 @@ export function RootLayout() {
             hwidDiv.remove()
         }
 
+        document.getElementById('ui')?.remove()
+
         const fetchConfig = async () => {
             try {
                 const tempConfig = await ofetch<unknown>(
