@@ -19,9 +19,7 @@ const LAYOUT_ALIASES: Record<string, TLayoutPreset> = {
 export function resolveThemePreset(raw: string | undefined): number {
     if (!raw) return DEFAULT_THEME_PRESET;
     const value = Number(raw);
-    return Number.isInteger(value) && value >= 1 && value <= 8
-        ? value
-        : DEFAULT_THEME_PRESET;
+    return Number.isInteger(value) && value >= 1 && value <= 8 ? value : DEFAULT_THEME_PRESET;
 }
 
 export function resolveLayoutPreset(raw: string | undefined): TLayoutPreset {
