@@ -30,14 +30,20 @@ export default defineConfig({
                     chatwootBaseUrl: '<%- chatwootBaseUrl %>',
                     chatwootWebsiteToken: '<%- chatwootWebsiteToken %>',
                     chatwootIdentifierHash: '<%- chatwootIdentifierHash %>',
-                    hwidData: '<%- hwidData %>'
+                    hwidData: '<%- hwidData %>',
+                    uiPreset: '<%- uiPreset %>'
                 }
             }
             return {
                 root: viteConfig.root,
                 panelData: process.env.PANEL_DATA,
                 metaDescription: process.env.META_DESCRIPTION,
-                metaTitle: process.env.META_TITLE
+                metaTitle: process.env.META_TITLE,
+                uiPreset:
+                    process.env.UI_PRESET ??
+                    Buffer.from(
+                        JSON.stringify({ theme: 2, layout: 'banner', preview: true })
+                    ).toString('base64'),
             }
         })
         // obfuscatorPlugin({

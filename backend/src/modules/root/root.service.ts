@@ -20,6 +20,11 @@ import { sanitizeUsername } from '@common/utils';
 
 import { SubpageConfigService } from './subpage-config.service';
 import { resolveHwidMode } from '../hwid-devices/hwid-mode';
+import {
+    resolveLayoutPreset,
+    resolvePreviewMode,
+    resolveThemePreset,
+} from './ui-preset';
 
 @Injectable()
 export class RootService {
@@ -672,6 +677,13 @@ export class RootService {
                     this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',
                 chatwootIdentifierHash: cwIdentifierHash,
                 hwidData,
+                uiPreset: Buffer.from(
+                    JSON.stringify({
+                        theme: resolveThemePreset(this.configService.get<string>('THEME_PRESET')),
+                        layout: resolveLayoutPreset(this.configService.get<string>('LAYOUT_PRESET')),
+                        preview: resolvePreviewMode(this.configService.get<string>('PREVIEW')),
+                    }),
+                ).toString('base64'),
             });
         } catch (error) {
             this.logger.error(`Error in returnWebpage: ${error}`);
