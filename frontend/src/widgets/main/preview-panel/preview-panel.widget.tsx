@@ -13,28 +13,28 @@ import { vibrate } from '@shared/utils/vibrate'
 
 import classes from './preview-panel.module.css'
 
+type TLayoutLetter = 'a' | 'b' | 'c' | 'e' | 'f'
+
 interface ILayoutChipDef {
-    label: string
     layout: TLayoutPreset
-    letter: string
+    letter: TLayoutLetter
+    name: string
 }
 
-// Order + letters mirror the backend LAYOUT_PRESET contract (a/b/c/e/f — 'd' is reserved/unused).
+// Single source of truth for the layout ↔ letter contract (mirrors the backend
+// LAYOUT_PRESET env — a/b/c/e/f, 'd' is reserved/unused). Both the visible chip
+// label and the ENV hint's letter are derived from this list, never duplicated.
 const LAYOUT_CHIPS: ILayoutChipDef[] = [
-    { letter: 'a', layout: 'classic', label: 'a · Classic' },
-    { letter: 'b', layout: 'hero', label: 'b · Hero' },
-    { letter: 'c', layout: 'columns', label: 'c · Columns' },
-    { letter: 'e', layout: 'tiles', label: 'e · Tiles' },
-    { letter: 'f', layout: 'banner', label: 'f · Banner' }
+    { letter: 'a', layout: 'classic', name: 'Classic' },
+    { letter: 'b', layout: 'hero', name: 'Hero' },
+    { letter: 'c', layout: 'columns', name: 'Columns' },
+    { letter: 'e', layout: 'tiles', name: 'Tiles' },
+    { letter: 'f', layout: 'banner', name: 'Banner' }
 ]
 
-const LAYOUT_LETTERS: Record<TLayoutPreset, string> = {
-    banner: 'f',
-    classic: 'a',
-    columns: 'c',
-    hero: 'b',
-    tiles: 'e'
-}
+const LAYOUT_LETTERS: Record<TLayoutPreset, TLayoutLetter> = Object.fromEntries(
+    LAYOUT_CHIPS.map((chip) => [chip.layout, chip.letter])
+) as Record<TLayoutPreset, TLayoutLetter>
 
 const THEME_LIST = Object.values(THEME_PRESETS).sort((a, b) => a.id - b.id)
 
@@ -66,7 +66,7 @@ export const PreviewPanel = () => {
                             }}
                             type="button"
                         >
-                            {chip.label}
+                            {chip.letter} · {chip.name}
                         </Box>
                     ))}
                 </Box>
@@ -115,6 +115,7 @@ export const PreviewPanel = () => {
                     <CopyButton value={envHint}>
                         {({ copied, copy }) => (
                             <ActionIcon
+                                aria-label="Copy env values"
                                 color={copied ? 'teal' : 'gray'}
                                 onClick={() => {
                                     vibrate('drop')
