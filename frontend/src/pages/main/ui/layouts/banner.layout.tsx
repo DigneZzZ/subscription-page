@@ -4,9 +4,11 @@ import {
     DevicesButton,
     RawKeysWidget,
     ResetTrafficButton,
-    usePaymentModal
+    usePaymentModal,
+    useResetTrafficVisible
 } from '@widgets/main'
 import { useSubscriptionSummary } from '@entities/subscription-summary'
+import { useDevicesEnabled } from '@entities/devices-store'
 import { formatDate } from '@shared/utils/config-parser'
 import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
@@ -34,17 +36,19 @@ export const BannerLayout = (props: ILayoutProps) => {
     const { currentLang, baseTranslations } = useTranslation()
     const s = getLayoutStrings(currentLang)
     const { hasPayment, openPayment } = usePaymentModal()
+    // Колонка «Управление» существует только когда в ней есть хотя бы одна
+    // кнопка; иначе гайд получает всю ширину, а ссылка встаёт под баннер.
+    const devicesEnabled = useDevicesEnabled()
+    const resetVisible = useResetTrafficVisible()
+    const hasManagement = devicesEnabled || resetVisible
 
     const titleText = summary.isIndefinite
-        ? s.indefinite
+        ? s.indefiniteSubscription
         : s.subscriptionUntil(formatDate(summary.expiresAt, currentLang, baseTranslations))
 
     const subLine = summary.isUnlimited
-        ? s.unlimited
+        ? s.unlimitedTraffic
         : `${summary.remainingLabel} ${s.leftOf(summary.trafficLimit)}`
-
-    const gaugeLabel = summary.isUnlimited ? '∞' : `${summary.remainingPercent}%`
-    const gaugeCaption = summary.isUnlimited ? s.unlimited : `${s.left} ${summary.remainingLabel}`
 
     return (
         <Box className={classes.pageWide}>
@@ -62,24 +66,34 @@ export const BannerLayout = (props: ILayoutProps) => {
                             <CtaButton fullWidth={false} label={s.renew} onClick={openPayment} />
                         )}
                     </Box>
-                    <TrafficGauge
-                        caption={gaugeCaption}
-                        label={gaugeLabel}
-                        percent={summary.remainingPercent}
-                    />
+                    {/* Полное кольцо «∞» при безлимите бессмысленно — гаугe только с лимитом */}
+                    {!summary.isUnlimited && (
+                        <TrafficGauge
+                            caption={`${s.left} ${summary.remainingLabel}`}
+                            label={`${summary.remainingPercent}%`}
+                            percent={summary.remainingPercent}
+                        />
+                    )}
                 </Box>
 
-                <Box className={classes.twocolF}>
-                    <Box>
-                        <InstallGuide {...props} />
+                {hasManagement ? (
+                    <Box className={classes.twocolF}>
+                        <Box>
+                            <InstallGuide {...props} />
+                        </Box>
+                        <Box className={classes.twocolFRight}>
+                            <SectionHead>{s.management}</SectionHead>
+                            <DevicesButton />
+                            <ResetTrafficButton />
+                            <LinkCard />
+                        </Box>
                     </Box>
-                    <Box className={classes.twocolFRight}>
-                        <SectionHead>{s.management}</SectionHead>
-                        <DevicesButton />
-                        <ResetTrafficButton />
+                ) : (
+                    <>
                         <LinkCard />
-                    </Box>
-                </Box>
+                        <InstallGuide {...props} />
+                    </>
+                )}
 
                 <RawKeysWidget isMobile={isMobile} />
 

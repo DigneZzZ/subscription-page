@@ -1,6 +1,7 @@
 export interface ILayoutStrings {
     alternative: string
     indefinite: string
+    indefiniteSubscription: string
     left: string
     leftOf: (limit: string) => string
     management: string
@@ -11,6 +12,7 @@ export interface ILayoutStrings {
     subscriptionLink: string
     subscriptionUntil: (date: string) => string
     unlimited: string
+    unlimitedTraffic: string
 }
 
 type Lang = 'en' | 'fa' | 'fr' | 'ru' | 'zh'
@@ -19,6 +21,7 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
     en: {
         alternative: 'Alternative',
         indefinite: 'Indefinite',
+        indefiniteSubscription: 'Indefinite subscription',
         left: 'left',
         leftOf: (limit) => `of ${limit}`,
         management: 'Management',
@@ -28,11 +31,13 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         renew: 'Renew subscription',
         subscriptionLink: 'Subscription link',
         subscriptionUntil: (date) => `Subscription until ${date}`,
-        unlimited: 'Unlimited'
+        unlimited: 'Unlimited',
+        unlimitedTraffic: 'Unlimited traffic'
     },
     ru: {
         alternative: 'Альтернатива',
         indefinite: 'Бессрочно',
+        indefiniteSubscription: 'Бессрочная подписка',
         left: 'осталось',
         leftOf: (limit) => `из ${limit}`,
         management: 'Управление',
@@ -42,11 +47,13 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         renew: 'Продлить подписку',
         subscriptionLink: 'Ссылка на подписку',
         subscriptionUntil: (date) => `Подписка до ${date}`,
-        unlimited: 'Безлимит'
+        unlimited: 'Безлимит',
+        unlimitedTraffic: 'Безлимитный трафик'
     },
     fa: {
         alternative: 'جایگزین',
         indefinite: 'نامحدود',
+        indefiniteSubscription: 'اشتراک دائمی',
         left: 'باقی‌مانده',
         leftOf: (limit) => `از ${limit}`,
         management: 'مدیریت',
@@ -56,11 +63,13 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         renew: 'تمدید اشتراک',
         subscriptionLink: 'لینک اشتراک',
         subscriptionUntil: (date) => `اشتراک تا ${date}`,
-        unlimited: 'نامحدود'
+        unlimited: 'نامحدود',
+        unlimitedTraffic: 'ترافیک نامحدود'
     },
     fr: {
         alternative: 'Alternative',
         indefinite: 'Illimitée',
+        indefiniteSubscription: 'Abonnement sans limite de durée',
         left: 'restant',
         leftOf: (limit) => `sur ${limit}`,
         management: 'Gestion',
@@ -70,11 +79,13 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         renew: "Renouveler l'abonnement",
         subscriptionLink: "Lien d'abonnement",
         subscriptionUntil: (date) => `Abonnement jusqu'au ${date}`,
-        unlimited: 'Illimité'
+        unlimited: 'Illimité',
+        unlimitedTraffic: 'Trafic illimité'
     },
     zh: {
         alternative: '备选',
         indefinite: '永久',
+        indefiniteSubscription: '长期有效订阅',
         left: '剩余',
         leftOf: (limit) => `共 ${limit}`,
         management: '管理',
@@ -84,7 +95,8 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         renew: '续订订阅',
         subscriptionLink: '订阅链接',
         subscriptionUntil: (date) => `订阅至 ${date}`,
-        unlimited: '不限量'
+        unlimited: '不限量',
+        unlimitedTraffic: '不限流量'
     }
 }
 

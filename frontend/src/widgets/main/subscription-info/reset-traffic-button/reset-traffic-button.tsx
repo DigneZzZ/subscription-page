@@ -11,14 +11,14 @@ import { useTranslation } from '@shared/hooks'
 
 import { getResetStrings } from './reset-traffic.i18n'
 
-export const ResetTrafficButton = () => {
+/* Видимость кнопки как отдельный хук: раскладки схлопывают колонку
+   «Управление», когда ни reset, ни devices недоступны. */
+export const useResetTrafficVisible = (): boolean => {
     const reset = usePaymentReset()
     const subscription = useSubscription()
-    const summary = useSubscriptionSummary()
-    const { currentLang } = useTranslation()
 
     if (!reset) {
-        return null
+        return false
     }
 
     const { user } = subscription
@@ -28,9 +28,21 @@ export const ResetTrafficButton = () => {
     // so they only show the button when the threshold is 0 (always show).
     const usagePercent = limitBytes > 0 ? (usedBytes / limitBytes) * 100 : 0
 
-    if (usagePercent < reset.minPercent) {
+    return usagePercent >= reset.minPercent
+}
+
+export const ResetTrafficButton = () => {
+    const reset = usePaymentReset()
+    const subscription = useSubscription()
+    const summary = useSubscriptionSummary()
+    const { currentLang } = useTranslation()
+    const visible = useResetTrafficVisible()
+
+    if (!visible || !reset) {
         return null
     }
+
+    const { user } = subscription
 
     const s = getResetStrings(currentLang)
     const priceLabel = formatAmount(reset.amount, reset.currency)

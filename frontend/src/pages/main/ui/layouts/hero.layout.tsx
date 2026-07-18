@@ -23,9 +23,6 @@ export const HeroLayout = (props: ILayoutProps) => {
     const s = getLayoutStrings(currentLang)
     const { hasPayment, openPayment } = usePaymentModal()
 
-    const gaugeLabel = summary.isUnlimited ? '∞' : `${summary.remainingPercent}%`
-    const gaugeCaption = summary.isUnlimited ? s.unlimited : `${s.left} ${summary.remainingLabel}`
-
     const expiresDate = formatDate(summary.expiresAt, currentLang, baseTranslations)
     const expiresCountdown =
         summary.daysLeft > 0 ? `${expiresDate} · ${s.perDays(summary.daysLeft)}` : expiresDate
@@ -34,12 +31,21 @@ export const HeroLayout = (props: ILayoutProps) => {
     return (
         <Box className={classes.pageMid}>
             <Stack gap="xl">
-                <Box className={clsx(classes.card, classes.hero)}>
-                    <TrafficGauge
-                        caption={gaugeCaption}
-                        label={gaugeLabel}
-                        percent={summary.remainingPercent}
-                    />
+                <Box
+                    className={clsx(
+                        classes.card,
+                        classes.hero,
+                        summary.isUnlimited && classes.heroNoGauge
+                    )}
+                >
+                    {/* Полное кольцо «∞» при безлимите бессмысленно — гаугe только с лимитом */}
+                    {!summary.isUnlimited && (
+                        <TrafficGauge
+                            caption={`${s.left} ${summary.remainingLabel}`}
+                            label={`${summary.remainingPercent}%`}
+                            percent={summary.remainingPercent}
+                        />
+                    )}
                     <Stack gap="md">
                         <Box>
                             <StatusBadge />
