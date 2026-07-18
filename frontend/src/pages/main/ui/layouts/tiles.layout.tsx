@@ -5,11 +5,9 @@ import {
     DevicesButton,
     RawKeysWidget,
     ResetTrafficButton,
-    usePaymentModal,
-    useResetTrafficVisible
+    usePaymentModal
 } from '@widgets/main'
 import { useSubscriptionSummary } from '@entities/subscription-summary'
-import { useDevicesEnabled } from '@entities/devices-store'
 import { formatDate } from '@shared/utils/config-parser'
 import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
@@ -35,11 +33,6 @@ export const TilesLayout = (props: ILayoutProps) => {
     const { t, currentLang, baseTranslations } = useTranslation()
     const s = getLayoutStrings(currentLang)
     const { hasPayment, openPayment } = usePaymentModal()
-    // Без кнопок devices/reset 4-колоночная сетка оставляет дыры в первом
-    // ряду — переключаемся на компактную 2-колоночную.
-    const devicesEnabled = useDevicesEnabled()
-    const resetVisible = useResetTrafficVisible()
-    const hasManagement = devicesEnabled || resetVisible
 
     const expiresDate = formatDate(summary.expiresAt, currentLang, baseTranslations)
     const ctaSub = summary.isIndefinite ? s.indefinite : s.subscriptionUntil(expiresDate)
@@ -49,7 +42,7 @@ export const TilesLayout = (props: ILayoutProps) => {
     return (
         <Box className={classes.pageMid}>
             <Stack gap="xl">
-                <Box className={clsx(classes.tiles, !hasManagement && classes.tilesCompact)}>
+                <Box className={classes.tiles}>
                     <Box className={clsx(classes.card, classes.tile)}>
                         <Text className="sp-mono-label">{t(baseTranslations.status)}</Text>
                         <StatusBadge />
@@ -67,15 +60,14 @@ export const TilesLayout = (props: ILayoutProps) => {
                         )}
                     </Box>
 
-                    {/* Rendered directly as grid cells; `.tiles > button` makes each
-                        span two columns so the reset label fits and null (hwid-off)
-                        DevicesButton leaves no empty cell. */}
-                    <DevicesButton />
-                    <ResetTrafficButton />
-
                     <Box className={clsx(classes.card, classes.tile, classes.tileSpan2)}>
                         <TrafficMeter />
                     </Box>
+
+                    {/* Кнопки — отдельными рядами на всю ширину сетки: в ячейках
+                        длинные метки (счётчик устройств, цена+остаток) усекаются */}
+                    <DevicesButton />
+                    <ResetTrafficButton />
 
                     {hasPayment && (
                         <UnstyledButton
