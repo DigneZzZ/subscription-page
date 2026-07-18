@@ -6,6 +6,7 @@ import {
     ResetTrafficButton,
     usePaymentModal
 } from '@widgets/main'
+import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
 
 import {
@@ -16,7 +17,6 @@ import {
     SummaryCards
 } from './summary-cards'
 import { ILayoutProps } from './layout-props.interface'
-import { getLayoutStrings } from './layouts.i18n'
 import classes from './layouts.module.css'
 
 /**

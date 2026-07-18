@@ -8,14 +8,14 @@ import {
     useCurrentLang
 } from '@entities/app-config-store'
 import { LanguagePicker } from '@shared/ui/language-picker/language-picker.shared'
+import { useSubscriptionSummary } from '@entities/subscription-summary'
 import { useSubscription } from '@entities/subscription-info-store'
 import { InstallationGuideConnector } from '@widgets/main'
 import { formatDate } from '@shared/utils/config-parser'
+import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
 
-import { useSubscriptionSummary } from './use-subscription-summary'
 import { ILayoutProps } from './layout-props.interface'
-import { getLayoutStrings } from './layouts.i18n'
 import classes from './layouts.module.css'
 
 /**
@@ -210,7 +210,7 @@ export const SummaryCards = () => {
                 <Text fw={600} fz="16.5px">
                     {expiresValue}
                 </Text>
-                {!summary.isIndefinite && (
+                {!summary.isIndefinite && summary.daysLeft > 0 && (
                     <Text c="var(--sp-dim)" fz="12px">
                         {s.perDays(summary.daysLeft)}
                     </Text>

@@ -7,7 +7,9 @@ import {
     ResetTrafficButton,
     usePaymentModal
 } from '@widgets/main'
+import { useSubscriptionSummary } from '@entities/subscription-summary'
 import { formatDate } from '@shared/utils/config-parser'
+import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
 
 import {
@@ -17,9 +19,7 @@ import {
     StatusBadge,
     TrafficMeter
 } from './summary-cards'
-import { useSubscriptionSummary } from './use-subscription-summary'
 import { ILayoutProps } from './layout-props.interface'
-import { getLayoutStrings } from './layouts.i18n'
 import classes from './layouts.module.css'
 
 /**
@@ -36,6 +36,8 @@ export const TilesLayout = (props: ILayoutProps) => {
 
     const expiresDate = formatDate(summary.expiresAt, currentLang, baseTranslations)
     const ctaSub = summary.isIndefinite ? s.indefinite : s.subscriptionUntil(expiresDate)
+    const expiresCountdown = summary.daysLeft > 0 ? s.perDays(summary.daysLeft) : expiresDate
+    const expiresPrimary = summary.isIndefinite ? s.indefinite : expiresCountdown
 
     return (
         <Box className={classes.pageMid}>
@@ -49,9 +51,9 @@ export const TilesLayout = (props: ILayoutProps) => {
                     <Box className={clsx(classes.card, classes.tile)}>
                         <Text className="sp-mono-label">{t(baseTranslations.expires)}</Text>
                         <Text fw={600} fz="15.5px">
-                            {summary.isIndefinite ? s.indefinite : s.perDays(summary.daysLeft)}
+                            {expiresPrimary}
                         </Text>
-                        {!summary.isIndefinite && (
+                        {!summary.isIndefinite && summary.daysLeft > 0 && (
                             <Text c="var(--sp-dim)" fz="11.5px">
                                 {expiresDate}
                             </Text>

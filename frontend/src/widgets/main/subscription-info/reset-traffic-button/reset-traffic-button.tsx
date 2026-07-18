@@ -2,7 +2,7 @@ import { IconRefresh } from '@tabler/icons-react'
 import { Button, Text } from '@mantine/core'
 import { modals } from '@mantine/modals'
 
-import { useSubscriptionSummary } from '@pages/main/ui/layouts/use-subscription-summary'
+import { useSubscriptionSummary } from '@entities/subscription-summary'
 import { useSubscription } from '@entities/subscription-info-store'
 import { formatAmount } from '@shared/utils/format-amount'
 import { usePaymentReset } from '@entities/payment-store'

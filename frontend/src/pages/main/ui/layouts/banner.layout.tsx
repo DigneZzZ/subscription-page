@@ -6,7 +6,9 @@ import {
     ResetTrafficButton,
     usePaymentModal
 } from '@widgets/main'
+import { useSubscriptionSummary } from '@entities/subscription-summary'
 import { formatDate } from '@shared/utils/config-parser'
+import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
 import { TrafficGauge } from '@shared/ui'
 
@@ -18,9 +20,7 @@ import {
     SectionHead,
     StatusBadge
 } from './summary-cards'
-import { useSubscriptionSummary } from './use-subscription-summary'
 import { ILayoutProps } from './layout-props.interface'
-import { getLayoutStrings } from './layouts.i18n'
 import classes from './layouts.module.css'
 
 /**

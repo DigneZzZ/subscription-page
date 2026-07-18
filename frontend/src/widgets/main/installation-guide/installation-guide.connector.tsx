@@ -19,11 +19,11 @@ import { useState } from 'react'
 import clsx from 'clsx'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
-import { getLayoutStrings } from '@pages/main/ui/layouts/layouts.i18n'
 import { useSubscription } from '@entities/subscription-info-store'
 import { getIconFromLibrary } from '@shared/utils/config-parser'
 import { TemplateEngine } from '@shared/utils/template-engine'
 import { useAppConfig } from '@entities/app-config-store'
+import { getLayoutStrings } from '@shared/i18n'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
 

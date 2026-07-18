@@ -2,14 +2,14 @@ import { Box, Group, Stack, Text } from '@mantine/core'
 import clsx from 'clsx'
 
 import { DevicesButton, RawKeysWidget, ResetTrafficButton, usePaymentModal } from '@widgets/main'
+import { useSubscriptionSummary } from '@entities/subscription-summary'
 import { formatDate } from '@shared/utils/config-parser'
+import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
 import { TrafficGauge } from '@shared/ui'
 
 import { CtaButton, InstallGuide, LanguageFooter, LinkCard, StatusBadge } from './summary-cards'
-import { useSubscriptionSummary } from './use-subscription-summary'
 import { ILayoutProps } from './layout-props.interface'
-import { getLayoutStrings } from './layouts.i18n'
 import classes from './layouts.module.css'
 
 /**
@@ -26,11 +26,10 @@ export const HeroLayout = (props: ILayoutProps) => {
     const gaugeLabel = summary.isUnlimited ? '∞' : `${summary.remainingPercent}%`
     const gaugeCaption = summary.isUnlimited ? s.unlimited : `${s.left} ${summary.remainingLabel}`
 
-    const expiresValue = summary.isIndefinite
-        ? s.indefinite
-        : `${formatDate(summary.expiresAt, currentLang, baseTranslations)} · ${s.perDays(
-            summary.daysLeft
-        )}`
+    const expiresDate = formatDate(summary.expiresAt, currentLang, baseTranslations)
+    const expiresCountdown =
+        summary.daysLeft > 0 ? `${expiresDate} · ${s.perDays(summary.daysLeft)}` : expiresDate
+    const expiresValue = summary.isIndefinite ? s.indefinite : expiresCountdown
 
     return (
         <Box className={classes.pageMid}>

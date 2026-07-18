@@ -21,8 +21,8 @@ export const useSubscriptionSummary = (): ISubscriptionSummary => {
     const subscription = useSubscription()
     const { user } = subscription
 
-    const limitBytes = Number(user.trafficLimitBytes)
-    const usedBytes = Number(user.trafficUsedBytes)
+    const limitBytes = Number(user.trafficLimitBytes) || 0
+    const usedBytes = Number(user.trafficUsedBytes) || 0
     const isUnlimited = !limitBytes
     const remainingBytes = isUnlimited ? 0 : Math.max(0, limitBytes - usedBytes)
     const expiresAt = new Date(user.expiresAt)
