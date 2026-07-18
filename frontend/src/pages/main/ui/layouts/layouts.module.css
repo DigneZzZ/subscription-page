@@ -1,0 +1,248 @@
+/* Structural grid scaffolding for the five layout presets.
+   Surfaces/colors come from the theme system (--sp-* vars + Mantine tokens);
+   only structure lives here. */
+
+.pageNarrow {
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.pageMid {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.pageWide {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+/* Shared card surface (mirrors the mockup .card — sp-card + edge + shadow). */
+.card {
+    background: var(--sp-card);
+    border: 1px solid var(--sp-card-border);
+    border-radius: 15px;
+    box-shadow: inset 0 1px 0 var(--sp-card-edge), var(--sp-card-shadow);
+}
+
+.infoCard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 18px;
+}
+
+.trafficCard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 18px;
+}
+
+.linkCard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+}
+
+.linkRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--sp-inset-bg);
+    border-radius: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.linkUrl {
+    flex: 1;
+    overflow: hidden;
+    font-family: var(--mantine-font-family-monospace);
+    font-size: 12px;
+    color: var(--sp-dim);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.trafficSpan {
+    grid-column: span 3;
+}
+
+/* Two-column info grid used inside the narrow left rail of the columns layout. */
+.infoGridTwo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.trafficSpanTwo {
+    grid-column: span 2;
+}
+
+.hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 26px;
+    align-items: center;
+    padding: 26px;
+}
+
+.twocol {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.twocolLeft {
+    position: sticky;
+    top: 92px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.twocolF {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.twocolFRight {
+    position: sticky;
+    top: 92px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.tileSpan2 {
+    grid-column: span 2;
+}
+
+.tile {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 15px 16px;
+}
+
+.tileClickable {
+    cursor: pointer;
+    transition: border-color 0.18s, transform 0.18s;
+}
+
+.tileClickable:hover {
+    transform: translateY(-1px);
+    border-color: rgba(var(--sp-acc-rgb), 0.4);
+}
+
+.ctaTile {
+    display: flex;
+    flex-direction: row;
+    grid-column: span 2;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    color: var(--sp-cta-text);
+    background: linear-gradient(135deg, var(--sp-acc-bright), var(--sp-acc-deep));
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(var(--sp-acc-rgb), 0.25);
+    cursor: pointer;
+    transition: filter 0.15s, transform 0.15s;
+}
+
+.ctaTile:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.07);
+}
+
+.banner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 26px;
+    align-items: center;
+    padding: 26px 28px;
+    background: linear-gradient(
+            135deg,
+            rgba(var(--sp-acc-rgb), 0.15),
+            rgba(var(--sp-acc-rgb), 0.02) 55%
+        ),
+        var(--sp-card);
+    border: 1px solid rgba(var(--sp-acc-rgb), 0.22);
+    border-radius: 15px;
+}
+
+.bannerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.sectionHead {
+    margin: 4px 0 14px;
+    font-family: var(--mantine-font-family-headings, inherit);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 860px) {
+    .twocol,
+    .twocolF {
+        grid-template-columns: 1fr;
+    }
+
+    .twocolLeft,
+    .twocolFRight {
+        position: static;
+    }
+
+    .tiles {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 620px) {
+    .infoGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .trafficSpan {
+        grid-column: span 2;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .banner {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .bannerLeft {
+        align-items: center;
+    }
+}

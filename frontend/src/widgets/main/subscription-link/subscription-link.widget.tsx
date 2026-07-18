@@ -24,7 +24,6 @@ import classes from './subscription-link.module.css'
 
 interface IProps {
     hideGetLink: boolean
-    paymentUrl: string
     supportEmail: string
     supportUrl: string
 }

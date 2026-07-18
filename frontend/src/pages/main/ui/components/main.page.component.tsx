@@ -1,25 +1,28 @@
-import { Box, Center, Container, Group, Image, Stack, Title } from '@mantine/core'
 import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types'
+import { Box, Container, Group, Image, Title } from '@mantine/core'
 
 import {
     AccordionBlockRenderer,
     CardsBlockRenderer,
-    DevicesButton,
-    InstallationGuideConnector,
     MinimalBlockRenderer,
-    RawKeysWidget,
-    ResetTrafficButton,
     SubscriptionInfoCardsWidget,
     SubscriptionInfoCollapsedWidget,
     SubscriptionInfoExpandedWidget,
     SubscriptionLinkWidget,
     TimelineBlockRenderer
 } from '@widgets/main'
-import { useAppConfig, useAppConfigStoreActions, useCurrentLang } from '@entities/app-config-store'
-import { LanguagePicker } from '@shared/ui/language-picker/language-picker.shared'
+import {
+    BannerLayout,
+    ClassicLayout,
+    ColumnsLayout,
+    HeroLayout,
+    ILayoutProps,
+    TilesLayout
+} from '@pages/main/ui/layouts'
+import { useLayoutPreset } from '@entities/ui-preset-store'
 import { useSupportEmail } from '@entities/support-store'
-import { usePaymentUrl } from '@entities/payment-store'
-import { Page, RemnawaveLogo } from '@shared/ui'
+import { useAppConfig } from '@entities/app-config-store'
+import { Page, Wordmark } from '@shared/ui'
 
 interface IMainPageComponentProps {
     isMobile: boolean
@@ -40,12 +43,18 @@ const SUBSCRIPTION_INFO_BLOCK_RENDERERS = {
     hidden: null
 } as const
 
+const LAYOUT_RENDERERS = {
+    banner: BannerLayout,
+    classic: ClassicLayout,
+    columns: ColumnsLayout,
+    hero: HeroLayout,
+    tiles: TilesLayout
+} as const
+
 export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProps) => {
     const config = useAppConfig()
-    const currentLang = useCurrentLang()
-    const { setLanguage } = useAppConfigStoreActions()
-    const paymentUrl = usePaymentUrl()
     const supportEmail = useSupportEmail()
+    const layoutPreset = useLayoutPreset()
 
     const brandName = config.brandingSettings.title
     let hasCustomLogo = !!config.brandingSettings.logoUrl
@@ -71,6 +80,17 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     const SubscriptionInfoBlockRenderer =
         SUBSCRIPTION_INFO_BLOCK_RENDERERS[config.uiConfig.subscriptionInfoBlockType]
 
+    const Layout = LAYOUT_RENDERERS[layoutPreset] ?? BannerLayout
+
+    const layoutProps: ILayoutProps = {
+        atLeastOnePlatformApp,
+        BlockRenderer: BLOCK_RENDERERS[config.uiConfig.installationGuidesBlockType],
+        hasPlatformApps,
+        isMobile,
+        platform,
+        SubscriptionInfoBlockRenderer
+    }
+
     return (
         <Page>
             <Box className="header-wrapper" py="md">
@@ -78,32 +98,28 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                     <Group justify="space-between">
                         <Group gap="sm" style={{ userSelect: 'none' }} wrap="nowrap">
                             {hasCustomLogo ? (
-                                <Image
-                                    alt="logo"
-                                    fit="contain"
-                                    src={config.brandingSettings.logoUrl}
-                                    style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        flexShrink: 0
-                                    }}
-                                />
+                                <>
+                                    <Image
+                                        alt="logo"
+                                        fit="contain"
+                                        src={config.brandingSettings.logoUrl}
+                                        style={{
+                                            width: '32px',
+                                            height: '32px',
+                                            flexShrink: 0
+                                        }}
+                                    />
+                                    <Title c="white" fw={700} order={4} size="lg">
+                                        {brandName}
+                                    </Title>
+                                </>
                             ) : (
-                                <RemnawaveLogo c="cyan" size={32} />
+                                <Wordmark title={brandName} />
                             )}
-                            <Title
-                                c={hasCustomLogo ? 'white' : 'cyan'}
-                                fw={700}
-                                order={4}
-                                size="lg"
-                            >
-                                {brandName}
-                            </Title>
                         </Group>
 
                         <SubscriptionLinkWidget
                             hideGetLink={config.baseSettings.hideGetLinkButton}
-                            paymentUrl={paymentUrl}
                             supportEmail={supportEmail}
                             supportUrl={config.brandingSettings.supportUrl}
                         />
@@ -117,38 +133,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                 py="xl"
                 style={{ position: 'relative', zIndex: 1 }}
             >
-                <Stack gap="xl">
-                    {/* Page-level mount: these buttons must be reachable regardless of the
-                        subscriptionInfoBlockType variant (cards/collapsed/expanded/hidden). */}
-                    <Stack gap="xs">
-                        {SubscriptionInfoBlockRenderer && (
-                            <SubscriptionInfoBlockRenderer isMobile={isMobile} />
-                        )}
-                        <ResetTrafficButton />
-                        <DevicesButton />
-                    </Stack>
-
-                    {atLeastOnePlatformApp && (
-                        <InstallationGuideConnector
-                            BlockRenderer={
-                                BLOCK_RENDERERS[config.uiConfig.installationGuidesBlockType]
-                            }
-                            hasPlatformApps={hasPlatformApps}
-                            isMobile={isMobile}
-                            platform={platform}
-                        />
-                    )}
-
-                    <RawKeysWidget isMobile={isMobile} />
-
-                    <Center>
-                        <LanguagePicker
-                            currentLang={currentLang}
-                            locales={config.locales}
-                            onLanguageChange={setLanguage}
-                        />
-                    </Center>
-                </Stack>
+                <Layout {...layoutProps} />
             </Container>
         </Page>
     )
