@@ -1,5 +1,53 @@
 # Changelog
 
+## [7.8.0](https://github.com/DigneZzZ/subscription-page/compare/v7.7.0...v7.8.0) (2026-07-18)
+
+
+### Features
+
+* **backend:** THEME_PRESET/LAYOUT_PRESET/PREVIEW env with pure resolvers ([8250ee7](https://github.com/DigneZzZ/subscription-page/commit/8250ee7d9e6624de110f521c55ebc0fbbd15193f))
+* **config:** SHM_INTEGRATION_ENABLED master switch ([09e5a49](https://github.com/DigneZzZ/subscription-page/commit/09e5a49b81d893e56fdb19fb1570b71051e97217))
+* hero as default layout + full-width hero action buttons ([9630388](https://github.com/DigneZzZ/subscription-page/commit/9630388c4285cc30f5db9952ae88a4cc95d4cbc5))
+* hero becomes the default layout; hero action buttons stack full-width ([ab3b1b3](https://github.com/DigneZzZ/subscription-page/commit/ab3b1b3205639f70061e7f5ef026c0ec170f7c12))
+* **hwid:** 404 challenge/verify when not in telegram mode ([7dc24c4](https://github.com/DigneZzZ/subscription-page/commit/7dc24c47fe1e257a8c058989022726246fc1845e))
+* **hwid:** axios wrappers for panel HWID device endpoints ([215d3af](https://github.com/DigneZzZ/subscription-page/commit/215d3af0b418a6f38f265834c3de161bc77cd1b0))
+* **hwid:** challenge/session store with codes, blocks, bounded state (tested) ([c44e28c](https://github.com/DigneZzZ/subscription-page/commit/c44e28cbf5a4e7a5263b5a18336bd10229a64705))
+* **hwid:** config, constants, env docs, and jest harness ([38f1e14](https://github.com/DigneZzZ/subscription-page/commit/38f1e14c7a87164129568fcfe09b083085d2956d))
+* **hwid:** device-management controller with IDOR + session guards ([65766c6](https://github.com/DigneZzZ/subscription-page/commit/65766c6a6673363fb235d34b3db0e33af5653398))
+* **hwid:** device-management orchestration service ([f9b05c5](https://github.com/DigneZzZ/subscription-page/commit/f9b05c58131d36e15564864dcc4edcb555762eba))
+* **hwid:** English-only HTML Telegram messages with code in &lt;pre&gt; ([5e9d43c](https://github.com/DigneZzZ/subscription-page/commit/5e9d43c913d2e5f8059531f43af9b154ff1fb90b))
+* **hwid:** expose feature-enabled flag to the subscription page ([735b2b2](https://github.com/DigneZzZ/subscription-page/commit/735b2b2c12e8bcf8468f6ac05d7983ade857c2cc))
+* **hwid:** HWID_MANAGEMENT_MODE resolver, config, constants, env docs ([13a3fa2](https://github.com/DigneZzZ/subscription-page/commit/13a3fa2e8449ac20225c66ffdb4a76fe67b25418))
+* **hwid:** mode-aware authorization, open-mode device access + rate-limit ([991b7f6](https://github.com/DigneZzZ/subscription-page/commit/991b7f60a0f8f5b3545009df05a990eb8ab449da))
+* **hwid:** page enabled flag reflects resolved HWID mode ([21f75f6](https://github.com/DigneZzZ/subscription-page/commit/21f75f650d8c0a373ea2befe8d3d32da19bad87e))
+* **hwid:** resume live management session on modal open with accurate TTL ([b958b40](https://github.com/DigneZzZ/subscription-page/commit/b958b40e0c954998365ba4a212ab62a673c29b05))
+* **hwid:** Telegram notifier with leak-safe logging and plain-text messages ([83619b0](https://github.com/DigneZzZ/subscription-page/commit/83619b064f45d57cbd1b7bd4720aa612991c149c))
+* **hwid:** wire module, JWT-guard /api/devices, exclude from global prefix ([bf58215](https://github.com/DigneZzZ/subscription-page/commit/bf58215465b5c1bdecf39ef69da61078385a2f1e))
+* pass ui preset (theme/layout/preview) to page via EJS #ui div ([bd30ffc](https://github.com/DigneZzZ/subscription-page/commit/bd30ffc6500d0702d3e7b328a345ed9a38b63e40))
+* **root:** SHM mode counts as a payment provider (button visible without gateway creds) ([a35221b](https://github.com/DigneZzZ/subscription-page/commit/a35221b844d38d842b2a03c527c0b3c964c16935))
+* **shm:** add payment-create template + serviceId in webhook (complete two-step flow) ([9d4de37](https://github.com/DigneZzZ/subscription-page/commit/9d4de378ba7b3422ee767d503f96e27454ceb1ed))
+* **shm:** reset threshold from SHM config.subscription_page.reset_min_usage_percent ([3276620](https://github.com/DigneZzZ/subscription-page/commit/32766202f14b9c9d8240a4f458136f531435245b))
+* **shm:** SHM-owned payment — add public pay page, drop payment-create ([6fce421](https://github.com/DigneZzZ/subscription-page/commit/6fce4215fddabc2bc2ca0003dc5c16da52212ff3))
+* **shm:** SHM-owned traffic reset — reset.tpl + charge-and-reset-traffic shortUuid ([ac1728b](https://github.com/DigneZzZ/subscription-page/commit/ac1728b0377d88ab3f5b0551b564c71f17aa137d))
+* **shm:** traffic reset honors TRAFFIC_RESET_MIN_PERCENT ([dd8bad1](https://github.com/DigneZzZ/subscription-page/commit/dd8bad1b32f7732129747df64519a0bbaab07a06))
+* **tariffs:** allow_to_order filter + names/descriptions + per-tariff id selection ([74f705e](https://github.com/DigneZzZ/subscription-page/commit/74f705e31420112fe4437645347b9d2fcaf9085c))
+* **tariffs:** grouped accordion UI, day-based plans, UTF-8 fix, descriptions with icons ([6a9d93b](https://github.com/DigneZzZ/subscription-page/commit/6a9d93b4cd98daea52d2973143211cb104e7cf7b))
+* theme/layout presets (THEME_PRESET, LAYOUT_PRESET, PREVIEW) ([185768b](https://github.com/DigneZzZ/subscription-page/commit/185768b33e7164a789edaeb5b46d1aad38a9186e))
+
+
+### Bug Fixes
+
+* **config:** accept SHM tariffs (SHM_TARIFFS_URL+SHM_TARIFF_CATEGORY) as a tariff source ([0b1ec9d](https://github.com/DigneZzZ/subscription-page/commit/0b1ec9d3f4f64c4863316aa25a80ba22823b0d20))
+* **hwid:** bound sessions map; document transitive bound of block maps ([2d79a30](https://github.com/DigneZzZ/subscription-page/commit/2d79a308cc57cb056685f2eefb71b3fe235eda75))
+* **hwid:** HTML-escape all interpolated values in Telegram messages (defense-in-depth) ([492da9b](https://github.com/DigneZzZ/subscription-page/commit/492da9b3c53c9e86f84bda196000a2d432aef4d8))
+* keep preview panel above the sticky header, plus doc/schema cleanups ([5bf112e](https://github.com/DigneZzZ/subscription-page/commit/5bf112e4ec4263a5bf756e7cba2bf398c0dfc426))
+* server-rendered initial background per theme preset ([4511af4](https://github.com/DigneZzZ/subscription-page/commit/4511af4faa62fd325d0cc6bb5b58e4d49f50ef8f))
+* **shm:** keep reset button visibility env-driven (TRAFFIC_RESET_MIN_PERCENT) ([273aab7](https://github.com/DigneZzZ/subscription-page/commit/273aab773350fd767cff9c37dede6af127ccb66b))
+* **shm:** payment-confirm provider detection robust to form-urlencoded POST ([fed3fb3](https://github.com/DigneZzZ/subscription-page/commit/fed3fb345c4ad0bc39cc80fe53a1b05434423d11))
+* **shm:** payment-confirm reads ps from query string (POST body shadowed it) ([5a48e2e](https://github.com/DigneZzZ/subscription-page/commit/5a48e2ef2d962ee1aa55ced32646b4994cebb542))
+* **shm:** reset.tpl internal call uses request host; dynamic reset price (hide env stub) ([a9ce383](https://github.com/DigneZzZ/subscription-page/commit/a9ce383ee71efa5ccaaf96afa66de51caef52e32))
+* **shm:** tolerate SHM_TARIFFS_URL ending in /tariffs (avoid /tariffs/tariffs) ([b45dd83](https://github.com/DigneZzZ/subscription-page/commit/b45dd8341e58fdb02e96fa962aa0d15ef50f35e1))
+
 ## [7.7.0](https://github.com/DigneZzZ/subscription-page/compare/v7.6.0...v7.7.0) (2026-06-28)
 
 
