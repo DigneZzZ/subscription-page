@@ -82,7 +82,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     const SubscriptionInfoBlockRenderer =
         SUBSCRIPTION_INFO_BLOCK_RENDERERS[config.uiConfig.subscriptionInfoBlockType]
 
-    const Layout = LAYOUT_RENDERERS[layoutPreset] ?? BannerLayout
+    const Layout = LAYOUT_RENDERERS[layoutPreset] ?? HeroLayout
 
     const layoutProps: ILayoutProps = {
         atLeastOnePlatformApp,

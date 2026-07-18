@@ -62,10 +62,12 @@ export const HeroLayout = (props: ILayoutProps) => {
 
                         <Stack gap="xs">
                             {hasPayment && <CtaButton label={s.renew} onClick={openPayment} />}
-                            <Group className={classes.btnFlush} gap="xs" grow>
+                            {/* Кнопки в столбик: в пол-ширины карты счётчик устройств
+                                и цена+остаток сброса не влезают и усекаются */}
+                            <Stack className={classes.btnFlush} gap="xs">
                                 <DevicesButton />
                                 <ResetTrafficButton />
-                            </Group>
+                            </Stack>
                         </Stack>
                     </Stack>
                 </Box>

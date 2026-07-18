@@ -1,7 +1,7 @@
 export type TLayoutPreset = 'banner' | 'classic' | 'columns' | 'hero' | 'tiles';
 
 export const DEFAULT_THEME_PRESET = 2;
-export const DEFAULT_LAYOUT_PRESET: TLayoutPreset = 'banner';
+export const DEFAULT_LAYOUT_PRESET: TLayoutPreset = 'hero';
 
 const LAYOUT_ALIASES: Record<string, TLayoutPreset> = {
     a: 'classic',
