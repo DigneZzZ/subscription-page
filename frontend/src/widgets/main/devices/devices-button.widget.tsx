@@ -69,7 +69,7 @@ export const DevicesButton = () => {
             onClick={handleClick}
             radius="md"
             size="md"
-            variant="light"
+            variant="outline"
         >
             <Group gap="xs" justify="space-between" w="100%" wrap="nowrap">
                 <Text fw={600} size="sm">
