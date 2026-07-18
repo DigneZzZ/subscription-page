@@ -1,5 +1,53 @@
 # Changelog
 
+## [7.8.0](https://github.com/DigneZzZ/subscription-page/compare/v7.7.0...v7.8.0) (2026-07-18)
+
+
+### Features
+
+* **frontend:** 8 runtime theme presets with Mantine factory and --sp-* css vars ([23373a7](https://github.com/DigneZzZ/subscription-page/commit/23373a7004aad2f2a0ef76688ba9f64805307683))
+* **frontend:** app-first installation guide with platform chips ([1041962](https://github.com/DigneZzZ/subscription-page/commit/104196258e087dd4786d0cc6fa4f1b1e3f04c822))
+* **frontend:** five layout presets with banner default and layout dispatcher ([4497991](https://github.com/DigneZzZ/subscription-page/commit/449799175d3045cf8b07d43657d0874ac96f5cf0))
+* **frontend:** PREVIEW=1 design picker panel with env hint ([0089620](https://github.com/DigneZzZ/subscription-page/commit/0089620df0ec460ccc02294fadec52a6933a13fa))
+* **frontend:** smart reset button with remaining fill, payment modal hook, devices restyle ([ad07d95](https://github.com/DigneZzZ/subscription-page/commit/ad07d95cb3ed6c4fc6df3229bfccafb9494f6986))
+* **frontend:** ui-preset store initialized from #ui div ([1356f8e](https://github.com/DigneZzZ/subscription-page/commit/1356f8ea3111f7a9bdce2e6de7050315148590ef))
+* **frontend:** wordmark, traffic gauge, subscription summary hook, layout i18n ([730194d](https://github.com/DigneZzZ/subscription-page/commit/730194dd7af5612d9bf8774343928a55431eb7af))
+* hero as default layout + full-width hero action buttons ([9630388](https://github.com/DigneZzZ/subscription-page/commit/9630388c4285cc30f5db9952ae88a4cc95d4cbc5))
+* hero becomes the default layout; hero action buttons stack full-width ([ab3b1b3](https://github.com/DigneZzZ/subscription-page/commit/ab3b1b3205639f70061e7f5ef026c0ec170f7c12))
+* **hwid:** device-management card widget and multi-step modal ([6815d2b](https://github.com/DigneZzZ/subscription-page/commit/6815d2bd96d95f06041ba19b6b29a804166f26d6))
+* **hwid:** device-management i18n strings ([8630f4a](https://github.com/DigneZzZ/subscription-page/commit/8630f4ad8d7322b3379c972dabc70361dd99b100))
+* **hwid:** devices store and feature-flag hydration from page ([6b88b4a](https://github.com/DigneZzZ/subscription-page/commit/6b88b4a9038470cf252ec8e1fe99bdf73971e047))
+* **hwid:** expose feature-enabled flag to the subscription page ([735b2b2](https://github.com/DigneZzZ/subscription-page/commit/735b2b2c12e8bcf8468f6ac05d7983ade857c2cc))
+* **hwid:** fetchStatus returns management mode ([991ef7e](https://github.com/DigneZzZ/subscription-page/commit/991ef7ece47f37434fc6f748e9ac31c0e5df170a))
+* **hwid:** frontend device API client ([852462d](https://github.com/DigneZzZ/subscription-page/commit/852462dcdfef240ba10e375ddc735ea515d2531d))
+* **hwid:** open-mode modal flow + mode-aware widget visibility ([4cb7c1d](https://github.com/DigneZzZ/subscription-page/commit/4cb7c1d2110867cee0c20d9d0b6818b22736fabd))
+* **hwid:** resume live management session on modal open with accurate TTL ([b958b40](https://github.com/DigneZzZ/subscription-page/commit/b958b40e0c954998365ba4a212ab62a673c29b05))
+* pass ui preset (theme/layout/preview) to page via EJS #ui div ([bd30ffc](https://github.com/DigneZzZ/subscription-page/commit/bd30ffc6500d0702d3e7b328a345ed9a38b63e40))
+* **tariffs:** allow_to_order filter + names/descriptions + per-tariff id selection ([74f705e](https://github.com/DigneZzZ/subscription-page/commit/74f705e31420112fe4437645347b9d2fcaf9085c))
+* **tariffs:** grouped accordion UI, day-based plans, UTF-8 fix, descriptions with icons ([6a9d93b](https://github.com/DigneZzZ/subscription-page/commit/6a9d93b4cd98daea52d2973143211cb104e7cf7b))
+* theme/layout presets (THEME_PRESET, LAYOUT_PRESET, PREVIEW) ([185768b](https://github.com/DigneZzZ/subscription-page/commit/185768b33e7164a789edaeb5b46d1aad38a9186e))
+
+
+### Bug Fixes
+
+* degenerate states of wide layouts (page cap, grid blowout, unlimited gauge, empty management) ([abff1a4](https://github.com/DigneZzZ/subscription-page/commit/abff1a40f22b67399f0aac6055b8a5505b26de20))
+* **frontend:** degenerate states of wide layouts — page cap, grid blowout, unlimited gauge, empty management ([d3f5313](https://github.com/DigneZzZ/subscription-page/commit/d3f5313723ab104c91fc92a27bf165d8051b75e3))
+* **frontend:** polish after cross-layout browser verification ([75e1e97](https://github.com/DigneZzZ/subscription-page/commit/75e1e973a730c4c2a258326565312e16b45232b7))
+* **frontend:** show devices/reset buttons for all subscription-info variants ([af3a504](https://github.com/DigneZzZ/subscription-page/commit/af3a5042e5cedcaac91efc1db4a8d4c55bd1e1ec))
+* **frontend:** single-source layout letters in preview panel ([628c37a](https://github.com/DigneZzZ/subscription-page/commit/628c37a04f8b097c4b21038e5b8e799c49ecef25))
+* **frontend:** theme the leftover stock-cyan pay button, QR colors and tariff accents ([d940124](https://github.com/DigneZzZ/subscription-page/commit/d94012415bf5e7920206132ec82e6e1c35861f94))
+* **frontend:** tiles layout — honest 2-column grid with full-width action rows ([8a4aa4b](https://github.com/DigneZzZ/subscription-page/commit/8a4aa4b11c1ed79b320d12aadc2f7ca28a50b5d6))
+* **hwid:** catch network failure in modal probe so 'loading' never sticks ([f825348](https://github.com/DigneZzZ/subscription-page/commit/f82534845e1cfa7ffeaf1bc9b2618cb9be43013f))
+* **hwid:** correct modal intro copy — code not yet sent ([7e668c3](https://github.com/DigneZzZ/subscription-page/commit/7e668c3ae1683b61185fe31cda17ca15a786855f))
+* **hwid:** wire hwidData EJS var into vite build (Task 8 gap) ([c914f2f](https://github.com/DigneZzZ/subscription-page/commit/c914f2fbc95df1e8a5a082d514d0226a89e7814e))
+* keep preview panel above the sticky header, plus doc/schema cleanups ([5bf112e](https://github.com/DigneZzZ/subscription-page/commit/5bf112e4ec4263a5bf756e7cba2bf398c0dfc426))
+* server-rendered initial background per theme preset ([4511af4](https://github.com/DigneZzZ/subscription-page/commit/4511af4faa62fd325d0cc6bb5b58e4d49f50ef8f))
+* **shm:** payment-confirm provider detection robust to form-urlencoded POST ([fed3fb3](https://github.com/DigneZzZ/subscription-page/commit/fed3fb345c4ad0bc39cc80fe53a1b05434423d11))
+* **shm:** payment-confirm reads ps from query string (POST body shadowed it) ([5a48e2e](https://github.com/DigneZzZ/subscription-page/commit/5a48e2ef2d962ee1aa55ced32646b4994cebb542))
+* **shm:** reset.tpl internal call uses request host; dynamic reset price (hide env stub) ([a9ce383](https://github.com/DigneZzZ/subscription-page/commit/a9ce383ee71efa5ccaaf96afa66de51caef52e32))
+* **tariffs:** add days to frontend IPaymentTariff (TS build) ([f66ce12](https://github.com/DigneZzZ/subscription-page/commit/f66ce121e99a5caeba2f967c04c211132411c756))
+* tiles layout composition (2-column grid, full-width buttons) ([5d85edc](https://github.com/DigneZzZ/subscription-page/commit/5d85edc268afcee4dcc8940955de10344ba562fc))
+
 ## [7.5.0](https://github.com/DigneZzZ/subscription-page/compare/v7.4.0...v7.5.0) (2026-06-24)
 
 
