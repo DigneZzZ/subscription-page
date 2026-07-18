@@ -8,7 +8,7 @@ Configure the theme and layout via environment variables:
 
 | Variable | Options | Default | Description |
 |----------|---------|---------|-------------|
-| `THEME_PRESET` | 1–8 | 2 | Color theme: 1 Graphite+Amber, 2 Midnight+Gold, 3 Graphite+Copper, 4 Rose Gold, 5 Graphite+Wine, 6 Obsidian+Platinum, 7 Neon/Cyber, 8 Light |
+| `THEME_PRESET` | 1–8 | 2 | Color theme: 1 Graphite+Amber, 2 Midnight+Gold, 3 Graphite+Copper, 4 Rose Gold, 5 Graphite+Wine, 6 Obsidian+Platinum, 7 Neon/Cyber, 8 Light Minimal |
 | `LAYOUT_PRESET` | a\|b\|c\|e\|f | f | Page layout: a=classic, b=hero, c=columns, e=tiles, f=banner |
 | `PREVIEW` | 0\|1 | 0 | Show on-page design picker (theme/layout switcher); selection not persisted |
 

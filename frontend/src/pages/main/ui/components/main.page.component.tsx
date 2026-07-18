@@ -129,13 +129,20 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                 </Container>
             </Box>
 
+            {/* Rendered OUTSIDE the content Container: that container is a
+                `zIndex: 1` stacking context which would trap the sticky panel's
+                own z-index below the `.header-wrapper` (z 10) and let it slide
+                underneath. As a direct Page child it shares the tall containing
+                block (so it stays sticky through the whole scroll) and its
+                z-index is honoured against the header. */}
+            {preview && <PreviewPanel />}
+
             <Container
                 maw={1200}
                 px={{ base: 'md', sm: 'lg', md: 'xl' }}
                 py="xl"
                 style={{ position: 'relative', zIndex: 1 }}
             >
-                {preview && <PreviewPanel />}
                 <Layout {...layoutProps} />
             </Container>
         </Page>

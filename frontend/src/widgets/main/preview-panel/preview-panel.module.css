@@ -7,9 +7,14 @@
     flex-direction: column;
     gap: 8px;
     position: sticky;
-    top: 8px;
+    /* Sticks just beneath the sticky `.header-wrapper` (~77px tall, see
+       main.page.component.tsx) so the two never overlap while scrolling. */
+    top: 84px;
     z-index: 20;
-    margin-bottom: 18px;
+    /* Rendered as a direct Page child, so it carries its own content-width
+       cap + side gutter to line up with the 1200px content Container. */
+    width: min(1200px, 100% - 32px);
+    margin: 0 auto 18px;
     padding: 10px 12px;
     background: rgba(22, 20, 22, 0.94);
     backdrop-filter: blur(8px);
