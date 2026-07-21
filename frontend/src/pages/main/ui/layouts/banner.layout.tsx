@@ -56,6 +56,15 @@ export const BannerLayout = (props: ILayoutProps) => {
                 <Box className={classes.banner}>
                     <Box className={classes.bannerLeft}>
                         <StatusBadge />
+                        <Text
+                            c="var(--sp-mono-label)"
+                            ff="monospace"
+                            fw={500}
+                            fz="11px"
+                            style={{ letterSpacing: '0.1em' }}
+                        >
+                            {summary.username}
+                        </Text>
                         <Title ff="heading" fw={600} fz="19px" order={2}>
                             {titleText}
                         </Title>

@@ -43,6 +43,13 @@ export const TilesLayout = (props: ILayoutProps) => {
         <Box className={classes.pageMid}>
             <Stack gap="xl">
                 <Box className={classes.tiles}>
+                    <Box className={clsx(classes.card, classes.tile, classes.tileSpan2)}>
+                        <Text className="sp-mono-label">{t(baseTranslations.name)}</Text>
+                        <Text fw={600} fz="15.5px">
+                            {summary.username}
+                        </Text>
+                    </Box>
+
                     <Box className={clsx(classes.card, classes.tile)}>
                         <Text className="sp-mono-label">{t(baseTranslations.status)}</Text>
                         <StatusBadge />

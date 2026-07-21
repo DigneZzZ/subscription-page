@@ -200,6 +200,13 @@ export const SummaryCards = () => {
 
     return (
         <Box className={classes.infoGridTwo}>
+            <Box className={clsx(classes.card, classes.infoCard, classes.trafficSpanTwo)}>
+                <Text className="sp-mono-label">{t(baseTranslations.name)}</Text>
+                <Text fw={600} fz="16.5px">
+                    {summary.username}
+                </Text>
+            </Box>
+
             <Box className={clsx(classes.card, classes.infoCard)}>
                 <Text className="sp-mono-label">{t(baseTranslations.status)}</Text>
                 <StatusBadge />
