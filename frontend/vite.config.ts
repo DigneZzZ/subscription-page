@@ -44,7 +44,7 @@ export default defineConfig({
                 uiPreset:
                     process.env.UI_PRESET ??
                     Buffer.from(
-                        JSON.stringify({ theme: 2, layout: 'hero', preview: true })
+                        JSON.stringify({ theme: 2, layout: 'hero', preview: true, headerPay: true })
                     ).toString('base64'),
                 uiThemeColor: '#070b14',
                 uiColorScheme: 'dark'

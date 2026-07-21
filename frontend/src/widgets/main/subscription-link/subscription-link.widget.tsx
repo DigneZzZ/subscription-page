@@ -16,6 +16,7 @@ import { renderSVG } from 'uqr'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
 import { useSubscription } from '@entities/subscription-info-store'
+import { useHeaderPayButton } from '@entities/ui-preset-store'
 import { vibrate } from '@shared/utils/vibrate'
 import { useTranslation } from '@shared/hooks'
 import { getQrColors } from '@shared/utils'
@@ -34,6 +35,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
     const subscription = useSubscription()
     const clipboard = useClipboard({ timeout: 10000 })
     const { hasPayment, openPayment } = usePaymentModal()
+    const headerPay = useHeaderPayButton()
 
     const isRu = currentLang === 'ru'
 
@@ -159,7 +161,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
                 </ActionIcon>
             )}
 
-            {hasPayment && (
+            {hasPayment && headerPay && (
                 <Button
                     className={classes.payButton}
                     leftSection={<IconCreditCard size={18} />}
