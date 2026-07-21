@@ -12,6 +12,7 @@ export interface ISubscriptionSummary {
     remainingPercent: number
     trafficLimit: string
     trafficUsed: string
+    username: string
     userStatus: 'ACTIVE' | 'DISABLED' | 'EXPIRED' | 'LIMITED'
 }
 
@@ -40,6 +41,7 @@ export const useSubscriptionSummary = (): ISubscriptionSummary => {
             : Math.max(0, Math.min(100, Math.round((remainingBytes / limitBytes) * 100))),
         trafficLimit: user.trafficLimit,
         trafficUsed: user.trafficUsed,
+        username: user.username,
         userStatus: user.userStatus
     }
 }

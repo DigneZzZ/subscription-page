@@ -53,6 +53,15 @@ export const HeroLayout = (props: ILayoutProps) => {
 
                         <Group gap="md" justify="space-between" wrap="nowrap">
                             <Text c="var(--sp-dim)" fz="14px">
+                                {t(baseTranslations.name)}
+                            </Text>
+                            <Text fw={600} fz="14px" ta="end">
+                                {summary.username}
+                            </Text>
+                        </Group>
+
+                        <Group gap="md" justify="space-between" wrap="nowrap">
+                            <Text c="var(--sp-dim)" fz="14px">
                                 {t(baseTranslations.expires)}
                             </Text>
                             <Text fw={600} fz="14px" ta="end">
