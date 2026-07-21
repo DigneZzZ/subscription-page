@@ -60,7 +60,7 @@ export const BannerLayout = (props: ILayoutProps) => {
                             c="var(--sp-mono-label)"
                             ff="monospace"
                             fw={500}
-                            fz="11px"
+                            fz="13px"
                             style={{ letterSpacing: '0.1em' }}
                         >
                             {summary.username}

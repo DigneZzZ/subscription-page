@@ -55,7 +55,7 @@ export const HeroLayout = (props: ILayoutProps) => {
                             <Text c="var(--sp-dim)" fz="14px">
                                 {t(baseTranslations.name)}
                             </Text>
-                            <Text fw={600} fz="14px" ta="end">
+                            <Text fw={600} fz="16.5px" ta="end">
                                 {summary.username}
                             </Text>
                         </Group>
