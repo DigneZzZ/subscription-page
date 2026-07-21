@@ -16,10 +16,12 @@ import {
 import {
     AuroraLayout,
     BannerLayout,
+    BillboardLayout,
     ClassicLayout,
     ColumnsLayout,
     HeroLayout,
     ILayoutProps,
+    NetworkLayout,
     TilesLayout
 } from '@pages/main/ui/layouts'
 import { EFFECT_FLAGS, useEffects, useLayoutPreset, usePreviewMode } from '@entities/ui-preset-store'
@@ -49,9 +51,11 @@ const SUBSCRIPTION_INFO_BLOCK_RENDERERS = {
 const LAYOUT_RENDERERS = {
     aurora: AuroraLayout,
     banner: BannerLayout,
+    billboard: BillboardLayout,
     classic: ClassicLayout,
     columns: ColumnsLayout,
     hero: HeroLayout,
+    network: NetworkLayout,
     tiles: TilesLayout
 } as const
 

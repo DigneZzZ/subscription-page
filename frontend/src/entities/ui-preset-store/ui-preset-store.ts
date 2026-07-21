@@ -3,7 +3,15 @@ import { create } from 'zustand'
 export const EFFECT_FLAGS = ['blobs', 'glass', 'shimmer', 'pulse', 'glow'] as const
 export type TEffectFlag = (typeof EFFECT_FLAGS)[number]
 
-export type TLayoutPreset = 'aurora' | 'banner' | 'classic' | 'columns' | 'hero' | 'tiles'
+export type TLayoutPreset =
+    | 'aurora'
+    | 'banner'
+    | 'billboard'
+    | 'classic'
+    | 'columns'
+    | 'hero'
+    | 'network'
+    | 'tiles'
 
 interface IUiPresetState {
     actions: {
@@ -18,7 +26,16 @@ interface IUiPresetState {
     themePreset: number
 }
 
-const LAYOUTS: TLayoutPreset[] = ['aurora', 'banner', 'classic', 'columns', 'hero', 'tiles']
+const LAYOUTS: TLayoutPreset[] = [
+    'aurora',
+    'banner',
+    'billboard',
+    'classic',
+    'columns',
+    'hero',
+    'network',
+    'tiles'
+]
 
 const readInitialPreset = (): { effects: TEffectFlag[]; headerPay: boolean; layout: TLayoutPreset; preview: boolean; theme: number } => {
     const fallback = { effects: [] as TEffectFlag[], headerPay: true, layout: 'hero' as TLayoutPreset, preview: false, theme: 2 }
