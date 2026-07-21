@@ -30,11 +30,13 @@ describe('resolveLayoutPreset', () => {
         expect(resolveLayoutPreset('c')).toBe('columns');
         expect(resolveLayoutPreset('e')).toBe('tiles');
         expect(resolveLayoutPreset('f')).toBe('banner');
+        expect(resolveLayoutPreset('j')).toBe('aurora');
     });
     it('accepts full aliases case-insensitively', () => {
         expect(resolveLayoutPreset('classic')).toBe('classic');
         expect(resolveLayoutPreset('HERO')).toBe('hero');
         expect(resolveLayoutPreset(' Tiles ')).toBe('tiles');
+        expect(resolveLayoutPreset('AURORA')).toBe('aurora');
     });
     it('falls back to hero on invalid input (incl. reserved d)', () => {
         expect(resolveLayoutPreset(undefined)).toBe('hero');

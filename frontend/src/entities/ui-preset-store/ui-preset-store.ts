@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type TLayoutPreset = 'banner' | 'classic' | 'columns' | 'hero' | 'tiles'
+export type TLayoutPreset = 'aurora' | 'banner' | 'classic' | 'columns' | 'hero' | 'tiles'
 
 interface IUiPresetState {
     actions: {
@@ -13,7 +13,7 @@ interface IUiPresetState {
     themePreset: number
 }
 
-const LAYOUTS: TLayoutPreset[] = ['banner', 'classic', 'columns', 'hero', 'tiles']
+const LAYOUTS: TLayoutPreset[] = ['aurora', 'banner', 'classic', 'columns', 'hero', 'tiles']
 
 const readInitialPreset = (): { headerPay: boolean; layout: TLayoutPreset; preview: boolean; theme: number } => {
     const fallback = { headerPay: true, layout: 'hero' as TLayoutPreset, preview: false, theme: 2 }

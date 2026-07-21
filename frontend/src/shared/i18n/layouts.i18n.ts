@@ -9,8 +9,10 @@ export interface ILayoutStrings {
     platform: string
     recommended: string
     renew: string
+    resetShort: string
     subscriptionLink: string
     subscriptionUntil: (date: string) => string
+    trafficLeftCaption: string
     unlimited: string
     unlimitedTraffic: string
 }
@@ -29,6 +31,8 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'Platform',
         recommended: 'Recommended',
         renew: 'Renew subscription',
+        resetShort: 'Reset',
+        trafficLeftCaption: 'traffic left',
         subscriptionLink: 'Subscription link',
         subscriptionUntil: (date) => `Subscription until ${date}`,
         unlimited: 'Unlimited',
@@ -45,6 +49,8 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'Платформа',
         recommended: 'Рекомендуем',
         renew: 'Продлить подписку',
+        resetShort: 'Сбросить',
+        trafficLeftCaption: 'трафика осталось',
         subscriptionLink: 'Ссылка на подписку',
         subscriptionUntil: (date) => `Подписка до ${date}`,
         unlimited: 'Безлимит',
@@ -61,6 +67,8 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'پلتفرم',
         recommended: 'پیشنهادی',
         renew: 'تمدید اشتراک',
+        resetShort: 'بازنشانی',
+        trafficLeftCaption: 'ترافیک باقی‌مانده',
         subscriptionLink: 'لینک اشتراک',
         subscriptionUntil: (date) => `اشتراک تا ${date}`,
         unlimited: 'نامحدود',
@@ -77,6 +85,8 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'Plateforme',
         recommended: 'Recommandé',
         renew: "Renouveler l'abonnement",
+        resetShort: 'Réinitialiser',
+        trafficLeftCaption: 'de trafic restant',
         subscriptionLink: "Lien d'abonnement",
         subscriptionUntil: (date) => `Abonnement jusqu'au ${date}`,
         unlimited: 'Illimité',
@@ -93,6 +103,8 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: '平台',
         recommended: '推荐',
         renew: '续订订阅',
+        resetShort: '重置',
+        trafficLeftCaption: '剩余流量',
         subscriptionLink: '订阅链接',
         subscriptionUntil: (date) => `订阅至 ${date}`,
         unlimited: '不限量',

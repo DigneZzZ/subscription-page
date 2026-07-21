@@ -1,3 +1,4 @@
+export * from './aurora.layout'
 export { BannerLayout } from './banner.layout'
 export { ClassicLayout } from './classic.layout'
 export { ColumnsLayout } from './columns.layout'

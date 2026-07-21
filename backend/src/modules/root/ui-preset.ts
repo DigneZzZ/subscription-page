@@ -1,4 +1,4 @@
-export type TLayoutPreset = 'banner' | 'classic' | 'columns' | 'hero' | 'tiles';
+export type TLayoutPreset = 'aurora' | 'banner' | 'classic' | 'columns' | 'hero' | 'tiles';
 
 export const DEFAULT_THEME_PRESET = 2;
 export const DEFAULT_LAYOUT_PRESET: TLayoutPreset = 'hero';
@@ -14,6 +14,8 @@ const LAYOUT_ALIASES: Record<string, TLayoutPreset> = {
     tiles: 'tiles',
     f: 'banner',
     banner: 'banner',
+    j: 'aurora',
+    aurora: 'aurora',
 };
 
 // Server-side mirror of each theme preset's page background + color scheme, used

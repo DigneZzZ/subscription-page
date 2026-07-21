@@ -5,9 +5,10 @@ interface ITrafficGaugeProps {
     label: string
     percent: number
     size?: number
+    sub?: string
 }
 
-export const TrafficGauge = ({ caption, label, percent, size = 148 }: ITrafficGaugeProps) => {
+export const TrafficGauge = ({ caption, label, percent, size = 148, sub }: ITrafficGaugeProps) => {
     const stroke = 11
     const radius = (size - stroke * 2) / 2
     const circumference = 2 * Math.PI * radius
@@ -49,6 +50,11 @@ export const TrafficGauge = ({ caption, label, percent, size = 148 }: ITrafficGa
                 <Text c="var(--sp-dim)" size="11px">
                     {caption}
                 </Text>
+                {sub && (
+                    <Text fw={600} size="11px">
+                        {sub}
+                    </Text>
+                )}
             </Stack>
         </Box>
     )

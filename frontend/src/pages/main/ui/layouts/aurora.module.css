@@ -1,0 +1,171 @@
+/* Aurora layout: живой градиентный фон из плывущих пятен акцентного цвета
+   за стеклянными (blur) карточками. Все цвета — из --sp-* пресета. */
+
+.stage {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 30px 28px;
+    border: 1px solid var(--sp-card-edge);
+}
+
+.blobs {
+    position: absolute;
+    inset: -20%;
+    z-index: -1;
+    filter: blur(70px);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.blobs i {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.blobs i:nth-child(1) {
+    width: 46%;
+    height: 52%;
+    inset-inline-start: -6%;
+    top: -8%;
+    background: rgb(var(--sp-acc-rgb));
+    animation: drift-a 16s ease-in-out infinite alternate;
+}
+
+.blobs i:nth-child(2) {
+    width: 38%;
+    height: 44%;
+    inset-inline-end: -4%;
+    top: 20%;
+    background: color-mix(in srgb, rgb(var(--sp-acc-rgb)) 55%, #7bdcff);
+    animation: drift-b 20s ease-in-out infinite alternate;
+}
+
+.blobs i:nth-child(3) {
+    width: 42%;
+    height: 40%;
+    inset-inline-start: 24%;
+    bottom: -14%;
+    background: color-mix(in srgb, rgb(var(--sp-acc-rgb)) 45%, #ff7bd5);
+    animation: drift-c 18s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a {
+    to {
+        transform: translate(14%, 10%) scale(1.12);
+    }
+}
+
+@keyframes drift-b {
+    to {
+        transform: translate(-12%, 14%) scale(0.92);
+    }
+}
+
+@keyframes drift-c {
+    to {
+        transform: translate(-8%, -12%) scale(1.08);
+    }
+}
+
+.glass {
+    background: color-mix(in srgb, var(--sp-card) 55%, transparent);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+.hero {
+    padding: 26px 28px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.heroLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.ringBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.ringBtn:hover {
+    transform: scale(1.03);
+}
+
+.ringBtn:hover .resetPill {
+    background: rgba(var(--sp-acc-rgb), 0.16);
+}
+
+.resetPill {
+    font-family: var(--mantine-font-family-monospace);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sp-acc);
+    border: 1px solid rgba(var(--sp-acc-rgb), 0.35);
+    border-radius: 999px;
+    padding: 6px 14px;
+    background: rgba(var(--sp-acc-rgb), 0.07);
+    transition: background 0.2s;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.sideCol {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+@media (max-width: 860px) {
+    .stage {
+        padding: 20px 14px;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .heroLeft {
+        align-items: center;
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .blobs i {
+        animation: none;
+    }
+
+    .ringBtn,
+    .ringBtn:hover {
+        transition: none;
+        transform: none;
+    }
+}

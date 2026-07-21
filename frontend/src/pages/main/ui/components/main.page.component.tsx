@@ -13,6 +13,7 @@ import {
     TimelineBlockRenderer
 } from '@widgets/main'
 import {
+    AuroraLayout,
     BannerLayout,
     ClassicLayout,
     ColumnsLayout,
@@ -45,6 +46,7 @@ const SUBSCRIPTION_INFO_BLOCK_RENDERERS = {
 } as const
 
 const LAYOUT_RENDERERS = {
+    aurora: AuroraLayout,
     banner: BannerLayout,
     classic: ClassicLayout,
     columns: ColumnsLayout,
