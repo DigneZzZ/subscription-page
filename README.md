@@ -12,6 +12,7 @@ Configure the theme and layout via environment variables:
 | `LAYOUT_PRESET` | a\|b\|c\|e\|f\|j | b | Page layout: a=classic, b=hero, c=columns, e=tiles, f=banner, j=aurora (animated glass) |
 | `PREVIEW` | 0\|1 | 0 | Show on-page design picker (theme/layout switcher); selection not persisted |
 | `HEADER_PAY_BUTTON` | 0\|1 | 1 | Header Pay button; hide (0) when a layout's own Renew CTA is enough (classic has no own CTA — keep 1) |
+| `EFFECTS` | csv\|all\|none | none | Visual effects on any layout: blobs, glass, shimmer, pulse, glow (respects prefers-reduced-motion) |
 
 **Note:** Layouts other than `classic` render their own subscription summary; `uiConfig.subscriptionInfoBlockType` applies to `classic` only.
 

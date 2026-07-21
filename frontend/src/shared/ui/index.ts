@@ -1,3 +1,4 @@
+export * from './fx-blobs'
 export * from './loading-screen'
 export * from './page'
 export * from './theme-icon'

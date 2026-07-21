@@ -26,6 +26,7 @@ export const TrafficGauge = ({ caption, label, percent, size = 148, sub }: ITraf
                     strokeWidth={stroke}
                 />
                 <circle
+                    className="sp-gauge-fill"
                     cx={size / 2}
                     cy={size / 2}
                     fill="none"

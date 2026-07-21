@@ -1,5 +1,6 @@
 import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types'
 import { Box, Container, Group, Image, Title } from '@mantine/core'
+import { useEffect } from 'react'
 
 import {
     AccordionBlockRenderer,
@@ -21,10 +22,10 @@ import {
     ILayoutProps,
     TilesLayout
 } from '@pages/main/ui/layouts'
-import { useLayoutPreset, usePreviewMode } from '@entities/ui-preset-store'
+import { EFFECT_FLAGS, useEffects, useLayoutPreset, usePreviewMode } from '@entities/ui-preset-store'
 import { useSupportEmail } from '@entities/support-store'
 import { useAppConfig } from '@entities/app-config-store'
-import { Page, Wordmark } from '@shared/ui'
+import { FxBlobs, Page, Wordmark } from '@shared/ui'
 
 interface IMainPageComponentProps {
     isMobile: boolean
@@ -58,6 +59,16 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     const config = useAppConfig()
     const supportEmail = useSupportEmail()
     const layoutPreset = useLayoutPreset()
+    const effects = useEffects()
+
+    useEffect(() => {
+        EFFECT_FLAGS.forEach((flag) => {
+            document.body.classList.toggle(`fx-${flag}`, effects.includes(flag))
+        })
+        return () => {
+            EFFECT_FLAGS.forEach((flag) => document.body.classList.remove(`fx-${flag}`))
+        }
+    }, [effects])
     const preview = usePreviewMode()
 
     const brandName = config.brandingSettings.title
@@ -97,6 +108,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
 
     return (
         <Page>
+            {effects.includes('blobs') && layoutPreset !== 'aurora' && <FxBlobs />}
             <Box className="header-wrapper" py="md">
                 <Container maw={1200} px={{ base: 'md', sm: 'lg', md: 'xl' }}>
                     <Group justify="space-between">
