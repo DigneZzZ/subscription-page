@@ -9,6 +9,7 @@ export interface ILayoutStrings {
     platform: string
     recommended: string
     renew: string
+    reserveHeadline: (pct: number) => string
     resetShort: string
     subscriptionLink: string
     subscriptionUntil: (date: string) => string
@@ -31,6 +32,7 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'Platform',
         recommended: 'Recommended',
         renew: 'Renew subscription',
+        reserveHeadline: (pct) => `${pct}% in reserve`,
         resetShort: 'Reset',
         trafficLeftCaption: 'traffic left',
         subscriptionLink: 'Subscription link',
@@ -49,6 +51,7 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'Платформа',
         recommended: 'Рекомендуем',
         renew: 'Продлить подписку',
+        reserveHeadline: (pct) => `${pct}% в запасе`,
         resetShort: 'Сбросить',
         trafficLeftCaption: 'трафика осталось',
         subscriptionLink: 'Ссылка на подписку',
@@ -67,6 +70,7 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'پلتفرم',
         recommended: 'پیشنهادی',
         renew: 'تمدید اشتراک',
+        reserveHeadline: (pct) => `${pct}٪ ذخیره`,
         resetShort: 'بازنشانی',
         trafficLeftCaption: 'ترافیک باقی‌مانده',
         subscriptionLink: 'لینک اشتراک',
@@ -85,6 +89,7 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: 'Plateforme',
         recommended: 'Recommandé',
         renew: "Renouveler l'abonnement",
+        reserveHeadline: (pct) => `${pct}% en réserve`,
         resetShort: 'Réinitialiser',
         trafficLeftCaption: 'de trafic restant',
         subscriptionLink: "Lien d'abonnement",
@@ -103,6 +108,7 @@ const STRINGS: Record<Lang, ILayoutStrings> = {
         platform: '平台',
         recommended: '推荐',
         renew: '续订订阅',
+        reserveHeadline: (pct) => `剩余 ${pct}%`,
         resetShort: '重置',
         trafficLeftCaption: '剩余流量',
         subscriptionLink: '订阅链接',

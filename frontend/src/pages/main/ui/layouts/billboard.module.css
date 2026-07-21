@@ -1,0 +1,134 @@
+/* Billboard layout: постерная типографика — гигантский заголовок с
+   переливающимся градиентом, бегущая световая кромка hero-карты и
+   статичная полоса фактов подписки. */
+
+.poster {
+    position: relative;
+    overflow: hidden;
+    border-radius: 26px;
+    padding: 42px 36px;
+    background:
+        radial-gradient(90% 130% at 85% -20%, rgba(var(--sp-acc-rgb), 0.22), transparent 60%),
+        linear-gradient(180deg, var(--sp-bg-soft), var(--sp-bg));
+    border: 1px solid rgba(var(--sp-acc-rgb), 0.18);
+}
+
+@property --sp-spin {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.poster::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 26px;
+    padding: 1.5px;
+    background: conic-gradient(
+        from var(--sp-spin, 0deg),
+        rgba(var(--sp-acc-rgb), 0) 0%,
+        rgba(var(--sp-acc-rgb), 0.9) 18%,
+        rgba(var(--sp-acc-rgb), 0) 40%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: poster-spin 6s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes poster-spin {
+    to {
+        --sp-spin: 360deg;
+    }
+}
+
+.kick {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.giant {
+    font-family: var(--mantine-font-family-headings);
+    font-weight: 800;
+    font-size: clamp(46px, 9vw, 96px);
+    line-height: 1;
+    margin: 20px 0 8px;
+    overflow-wrap: break-word;
+    background: linear-gradient(
+        110deg,
+        var(--sp-text) 20%,
+        var(--sp-acc-bright) 45%,
+        var(--sp-acc-deep) 60%,
+        var(--sp-text) 85%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: poster-sheen 7s ease-in-out infinite;
+}
+
+@keyframes poster-sheen {
+    50% {
+        background-position: 100% 0;
+    }
+}
+
+.lead {
+    font-size: 15.5px;
+    color: var(--sp-dim);
+}
+
+.lead b {
+    color: var(--sp-text);
+}
+
+.ctaRow {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.ctaRow > * {
+    flex: 1;
+    min-width: 200px;
+}
+
+.facts {
+    display: flex;
+    gap: 12px 42px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    border-block: 1px solid rgba(var(--sp-acc-rgb), 0.25);
+    padding: 12px 4px;
+    font-family: var(--mantine-font-family-monospace);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sp-acc);
+    opacity: 0.85;
+}
+
+@media (max-width: 620px) {
+    .poster {
+        padding: 28px 20px;
+    }
+
+    .giant {
+        font-size: clamp(22px, 7.6vw, 34px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .poster::before,
+    .giant {
+        animation: none;
+    }
+}

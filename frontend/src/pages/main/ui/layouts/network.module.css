@@ -1,0 +1,146 @@
+/* Network layout: анимированная карта узлов-серверов на фоне сцены,
+   крупный процент остатка со свечением и полоса трафика с бликом. */
+
+.stage {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    padding: 38px 32px;
+    border: 1px solid var(--sp-card-border);
+    background: linear-gradient(180deg, var(--sp-bg-soft), var(--sp-bg));
+}
+
+.net {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.net line {
+    stroke: rgba(var(--sp-acc-rgb), 0.22);
+    stroke-width: 1;
+    stroke-dasharray: 4 7;
+    animation: net-dash 9s linear infinite;
+}
+
+@keyframes net-dash {
+    to {
+        stroke-dashoffset: -110;
+    }
+}
+
+.net circle {
+    fill: rgba(var(--sp-acc-rgb), 0.8);
+}
+
+.net circle.big {
+    animation: net-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes net-glow {
+    from {
+        r: 3;
+        opacity: 0.5;
+    }
+
+    to {
+        r: 5;
+        opacity: 1;
+    }
+}
+
+.inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    text-align: end;
+}
+
+.statNum {
+    font-family: var(--mantine-font-family-headings);
+    font-size: 46px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--sp-acc);
+    text-shadow: 0 0 24px rgba(var(--sp-acc-rgb), 0.5);
+}
+
+.bar {
+    height: 10px;
+    border-radius: 5px;
+    background: rgba(127, 127, 127, 0.14);
+    overflow: hidden;
+}
+
+.barFill {
+    display: block;
+    height: 100%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--sp-acc-deep), var(--sp-acc-bright));
+    position: relative;
+    overflow: hidden;
+}
+
+.barFill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+    transform: translateX(-120%);
+    animation: net-shimmer 2.8s linear infinite;
+}
+
+@keyframes net-shimmer {
+    55%,
+    100% {
+        transform: translateX(120%);
+    }
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.actions > * {
+    flex: 1;
+    min-width: 200px;
+}
+
+@media (max-width: 620px) {
+    .stage {
+        padding: 24px 16px;
+    }
+
+    .top {
+        flex-direction: column;
+    }
+
+    .stat {
+        text-align: start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .net line,
+    .net circle.big,
+    .barFill::after {
+        animation: none;
+    }
+}

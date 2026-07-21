@@ -32,6 +32,8 @@ describe('resolveLayoutPreset', () => {
         expect(resolveLayoutPreset('e')).toBe('tiles');
         expect(resolveLayoutPreset('f')).toBe('banner');
         expect(resolveLayoutPreset('j')).toBe('aurora');
+        expect(resolveLayoutPreset('k')).toBe('network');
+        expect(resolveLayoutPreset('l')).toBe('billboard');
     });
     it('accepts full aliases case-insensitively', () => {
         expect(resolveLayoutPreset('classic')).toBe('classic');
