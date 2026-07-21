@@ -62,3 +62,17 @@ export function resolvePreviewMode(raw: string | undefined): boolean {
 export function resolveHeaderPayButton(raw: string | undefined): boolean {
     return !(raw === '0' || raw === 'false');
 }
+
+/* EFFECTS: csv из blobs|glass|shimmer|pulse|glow, либо all/none.
+   Дефолт — пусто (текущий вид). Aurora несёт свои blobs/glass всегда. */
+export const EFFECT_FLAGS = ['blobs', 'glass', 'shimmer', 'pulse', 'glow'] as const;
+export type TEffectFlag = (typeof EFFECT_FLAGS)[number];
+
+export function resolveEffects(raw: string | undefined): TEffectFlag[] {
+    if (!raw) return [];
+    const key = raw.trim().toLowerCase();
+    if (key === 'none' || key === '0') return [];
+    if (key === 'all' || key === '1') return [...EFFECT_FLAGS];
+    const parts = key.split(',').map((part) => part.trim());
+    return EFFECT_FLAGS.filter((flag) => parts.includes(flag));
+}

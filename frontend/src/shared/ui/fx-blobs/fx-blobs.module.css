@@ -1,0 +1,64 @@
+.blobs {
+    position: fixed;
+    inset: -12%;
+    z-index: 0;
+    filter: blur(80px);
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.blobs i {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.blobs i:nth-child(1) {
+    width: 40%;
+    height: 44%;
+    inset-inline-start: -4%;
+    top: -6%;
+    background: rgb(var(--sp-acc-rgb));
+    animation: fx-drift-a 18s ease-in-out infinite alternate;
+}
+
+.blobs i:nth-child(2) {
+    width: 34%;
+    height: 38%;
+    inset-inline-end: -2%;
+    top: 26%;
+    background: color-mix(in srgb, rgb(var(--sp-acc-rgb)) 55%, #7bdcff);
+    animation: fx-drift-b 22s ease-in-out infinite alternate;
+}
+
+.blobs i:nth-child(3) {
+    width: 36%;
+    height: 34%;
+    inset-inline-start: 28%;
+    bottom: -10%;
+    background: color-mix(in srgb, rgb(var(--sp-acc-rgb)) 45%, #ff7bd5);
+    animation: fx-drift-c 20s ease-in-out infinite alternate;
+}
+
+@keyframes fx-drift-a {
+    to {
+        transform: translate(12%, 9%) scale(1.1);
+    }
+}
+
+@keyframes fx-drift-b {
+    to {
+        transform: translate(-10%, 12%) scale(0.94);
+    }
+}
+
+@keyframes fx-drift-c {
+    to {
+        transform: translate(-7%, -10%) scale(1.06);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .blobs i {
+        animation: none;
+    }
+}

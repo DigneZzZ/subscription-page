@@ -13,6 +13,7 @@ import { notifications } from '@mantine/notifications'
 import { useClipboard } from '@mantine/hooks'
 import { modals } from '@mantine/modals'
 import { renderSVG } from 'uqr'
+import clsx from 'clsx'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
 import { useSubscription } from '@entities/subscription-info-store'
@@ -163,7 +164,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
 
             {hasPayment && headerPay && (
                 <Button
-                    className={classes.payButton}
+                    className={clsx(classes.payButton, 'sp-cta')}
                     leftSection={<IconCreditCard size={18} />}
                     onClick={openPayment}
                     radius="md"

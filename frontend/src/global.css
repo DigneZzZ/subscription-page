@@ -109,3 +109,60 @@ body {
     background: linear-gradient(135deg, rgba(253, 126, 20, 0.1), rgba(253, 126, 20, 0.05));
     border: 1px solid rgba(253, 126, 20, 0.2);
 }
+
+/* ── Опциональные эффекты (EFFECTS env / панель PREVIEW): body-классы fx-* ── */
+@keyframes sp-fx-pulse {
+    50% {
+        box-shadow: 0 0 0 7px color-mix(in srgb, var(--sp-ok) 8%, transparent);
+    }
+}
+
+body.fx-pulse .sp-badge::before {
+    animation: sp-fx-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes sp-fx-shimmer {
+    55%,
+    100% {
+        transform: translateX(120%);
+    }
+}
+
+body.fx-shimmer .sp-cta {
+    position: relative;
+    overflow: hidden;
+}
+
+body.fx-shimmer .sp-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+    transform: translateX(-120%);
+    animation: sp-fx-shimmer 3.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+body.fx-glow .sp-gauge-fill {
+    filter: drop-shadow(0 0 10px rgba(var(--sp-acc-rgb), 0.75));
+}
+
+body.fx-glow .sp-cta {
+    box-shadow: 0 6px 26px rgba(var(--sp-acc-rgb), 0.45);
+}
+
+/* Стекло: карточки полупрозрачные с blur — работает поверх fx-blobs */
+body.fx-glass [class*='_card_'],
+body.fx-glass .mantine-Card-root,
+body.fx-glass .mantine-Paper-root {
+    background-color: color-mix(in srgb, var(--sp-card) 62%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.fx-pulse .sp-badge::before,
+    body.fx-shimmer .sp-cta::after {
+        animation: none;
+    }
+}

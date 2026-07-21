@@ -3,7 +3,9 @@ import { IconCheck, IconCopy } from '@tabler/icons-react'
 import clsx from 'clsx'
 
 import {
+    EFFECT_FLAGS,
     TLayoutPreset,
+    useEffects,
     useLayoutPreset,
     useThemePreset,
     useUiPresetActions
@@ -42,9 +44,11 @@ const THEME_LIST = Object.values(THEME_PRESETS).sort((a, b) => a.id - b.id)
 export const PreviewPanel = () => {
     const themePreset = useThemePreset()
     const layoutPreset = useLayoutPreset()
-    const { setLayoutPreset, setThemePreset } = useUiPresetActions()
+    const effects = useEffects()
+    const { setLayoutPreset, setThemePreset, toggleEffect } = useUiPresetActions()
 
-    const envHint = `THEME_PRESET=${themePreset} LAYOUT_PRESET=${LAYOUT_LETTERS[layoutPreset]}`
+    const fxHint = effects.length > 0 ? ` EFFECTS=${effects.join(',')}` : ''
+    const envHint = `THEME_PRESET=${themePreset} LAYOUT_PRESET=${LAYOUT_LETTERS[layoutPreset]}${fxHint}`
 
     return (
         <Box className={classes.panel}>
@@ -102,6 +106,31 @@ export const PreviewPanel = () => {
                             {preset.name}
                         </Box>
                     ))}
+                </Box>
+            </Box>
+
+            <Box className={classes.row}>
+                <Text className={classes.rowHint} component="span">
+                    FX →
+                </Text>
+                <Box className={classes.chipGroup}>
+                    {EFFECT_FLAGS.map((flag) => {
+                        const on = effects.includes(flag)
+                        return (
+                            <Box
+                                className={clsx(classes.chip, on && classes.chipActive)}
+                                component="button"
+                                key={flag}
+                                onClick={() => {
+                                    vibrate('tap')
+                                    toggleEffect(flag)
+                                }}
+                                type="button"
+                            >
+                                {on ? '✓' : '✕'} {flag}
+                            </Box>
+                        )
+                    })}
                 </Box>
             </Box>
 

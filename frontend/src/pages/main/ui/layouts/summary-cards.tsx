@@ -36,7 +36,7 @@ export const StatusBadge = () => {
     const label = isActive ? t(baseTranslations.active) : t(baseTranslations.inactive)
 
     return (
-        <Badge color={color} radius="sm" size="lg" variant="dot">
+        <Badge className="sp-badge" color={color} radius="sm" size="lg" variant="dot">
             {label}
         </Badge>
     )
@@ -58,6 +58,7 @@ export const CtaButton = ({
     onClick: () => void
 }) => (
     <Button
+        className="sp-cta"
         fullWidth={fullWidth}
         onClick={onClick}
         radius="md"

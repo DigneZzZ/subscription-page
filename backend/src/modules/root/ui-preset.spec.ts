@@ -1,4 +1,5 @@
 import {
+    resolveEffects,
     resolveHeaderPayButton,
     resolveLayoutPreset,
     resolvePreviewMode,
@@ -82,5 +83,16 @@ describe('resolveHeaderPayButton', () => {
         expect(resolveHeaderPayButton('1')).toBe(true);
         expect(resolveHeaderPayButton('0')).toBe(false);
         expect(resolveHeaderPayButton('false')).toBe(false);
+    });
+});
+
+describe('resolveEffects', () => {
+    it('parses csv, all and none', () => {
+        expect(resolveEffects(undefined)).toEqual([]);
+        expect(resolveEffects('')).toEqual([]);
+        expect(resolveEffects('none')).toEqual([]);
+        expect(resolveEffects('all')).toEqual(['blobs', 'glass', 'shimmer', 'pulse', 'glow']);
+        expect(resolveEffects('glow, blobs')).toEqual(['blobs', 'glow']);
+        expect(resolveEffects('sparkles,glow')).toEqual(['glow']);
     });
 });

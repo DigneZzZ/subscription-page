@@ -78,7 +78,7 @@ export const TilesLayout = (props: ILayoutProps) => {
 
                     {hasPayment && (
                         <UnstyledButton
-                            className={clsx(classes.card, classes.ctaTile)}
+                            className={clsx(classes.card, classes.ctaTile, 'sp-cta')}
                             onClick={openPayment}
                         >
                             <Box>
