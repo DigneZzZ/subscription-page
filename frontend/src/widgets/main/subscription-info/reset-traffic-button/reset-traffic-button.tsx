@@ -31,6 +31,49 @@ export const useResetTrafficVisible = (): boolean => {
     return usagePercent >= reset.minPercent
 }
 
+
+/* Полное действие сброса как хук: Aurora рендерит его кольцом-кнопкой,
+   классическая кнопка ниже — тем же хуком. */
+export const useResetTraffic = (): {
+    dynamic: boolean
+    handleReset: () => void
+    priceLabel: string
+    visible: boolean
+} => {
+    const reset = usePaymentReset()
+    const subscription = useSubscription()
+    const { currentLang } = useTranslation()
+    const visible = useResetTrafficVisible()
+
+    const s = getResetStrings(currentLang)
+    const priceLabel = reset ? formatAmount(reset.amount, reset.currency) : ''
+
+    const handleReset = () => {
+        if (!reset) return
+        vibrate('tap')
+        const openReset = () => {
+            const { shortUuid } = subscription.user
+            const url = `/api/pay/reset?shortUuid=${encodeURIComponent(shortUuid)}`
+            window.open(url, '_blank', 'noopener,noreferrer')
+        }
+        // In SHM (dynamic) mode the SHM reset page shows the real price and its own
+        // confirmation, so skip the local confirm modal and go straight there.
+        if (reset.dynamic) {
+            openReset()
+            return
+        }
+        modals.openConfirmModal({
+            centered: true,
+            title: s.confirmTitle,
+            children: <Text size="sm">{s.confirmBody(priceLabel)}</Text>,
+            labels: { confirm: s.pay, cancel: s.cancel },
+            onConfirm: openReset
+        })
+    }
+
+    return { dynamic: reset?.dynamic ?? false, handleReset, priceLabel, visible }
+}
+
 export const ResetTrafficButton = () => {
     const reset = usePaymentReset()
     const subscription = useSubscription()

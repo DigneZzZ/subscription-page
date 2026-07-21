@@ -13,7 +13,7 @@ import { vibrate } from '@shared/utils/vibrate'
 
 import classes from './preview-panel.module.css'
 
-type TLayoutLetter = 'a' | 'b' | 'c' | 'e' | 'f'
+type TLayoutLetter = 'a' | 'b' | 'c' | 'e' | 'f' | 'j'
 
 interface ILayoutChipDef {
     layout: TLayoutPreset
@@ -29,7 +29,8 @@ const LAYOUT_CHIPS: ILayoutChipDef[] = [
     { letter: 'b', layout: 'hero', name: 'Hero' },
     { letter: 'c', layout: 'columns', name: 'Columns' },
     { letter: 'e', layout: 'tiles', name: 'Tiles' },
-    { letter: 'f', layout: 'banner', name: 'Banner' }
+    { letter: 'f', layout: 'banner', name: 'Banner' },
+    { letter: 'j', layout: 'aurora', name: 'Aurora' }
 ]
 
 const LAYOUT_LETTERS: Record<TLayoutPreset, TLayoutLetter> = Object.fromEntries(
