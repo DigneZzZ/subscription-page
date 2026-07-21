@@ -1,4 +1,5 @@
 import {
+    resolveHeaderPayButton,
     resolveLayoutPreset,
     resolvePreviewMode,
     resolveThemePreset,
@@ -9,12 +10,14 @@ describe('resolveThemePreset', () => {
     it('returns valid ints 1-8 as-is', () => {
         expect(resolveThemePreset('1')).toBe(1);
         expect(resolveThemePreset('8')).toBe(8);
+        expect(resolveThemePreset('9')).toBe(9);
+        expect(resolveThemePreset('12')).toBe(12);
     });
     it('falls back to 2 on invalid input', () => {
         expect(resolveThemePreset(undefined)).toBe(2);
         expect(resolveThemePreset('')).toBe(2);
         expect(resolveThemePreset('0')).toBe(2);
-        expect(resolveThemePreset('9')).toBe(2);
+        expect(resolveThemePreset('13')).toBe(2);
         expect(resolveThemePreset('2.5')).toBe(2);
         expect(resolveThemePreset('gold')).toBe(2);
     });
@@ -51,7 +54,7 @@ describe('THEME_BACKGROUNDS', () => {
             Object.keys(THEME_BACKGROUNDS)
                 .map(Number)
                 .sort((a, b) => a - b),
-        ).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+        ).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     });
     it('marks only theme 8 as light and all others dark', () => {
         for (let id = 1; id <= 8; id++) {
@@ -67,5 +70,15 @@ describe('resolvePreviewMode', () => {
         expect(resolvePreviewMode('0')).toBe(false);
         expect(resolvePreviewMode(undefined)).toBe(false);
         expect(resolvePreviewMode('yes')).toBe(false);
+    });
+});
+
+describe('resolveHeaderPayButton', () => {
+    it('shows by default and hides only on 0/false', () => {
+        expect(resolveHeaderPayButton(undefined)).toBe(true);
+        expect(resolveHeaderPayButton('')).toBe(true);
+        expect(resolveHeaderPayButton('1')).toBe(true);
+        expect(resolveHeaderPayButton('0')).toBe(false);
+        expect(resolveHeaderPayButton('false')).toBe(false);
     });
 });

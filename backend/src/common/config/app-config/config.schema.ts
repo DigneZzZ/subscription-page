@@ -234,6 +234,11 @@ export const configSchema = z
             .transform((v) => (v && v.length > 0 ? v : undefined)),
         // On-page theme/layout design picker: "1"/"true" enables it, anything
         // else disables it. Default disabled.
+    // Header Pay button visibility ('0'/'false' hides; default shown)
+    HEADER_PAY_BUTTON: z
+        .string()
+        .optional()
+        .transform((v) => (v && v.length > 0 ? v : undefined)),
         PREVIEW: z
             .string()
             .optional()

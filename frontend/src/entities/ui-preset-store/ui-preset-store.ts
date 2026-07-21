@@ -7,6 +7,7 @@ interface IUiPresetState {
         setLayoutPreset: (layout: TLayoutPreset) => void
         setThemePreset: (theme: number) => void
     }
+    headerPay: boolean
     layoutPreset: TLayoutPreset
     preview: boolean
     themePreset: number
@@ -14,17 +15,18 @@ interface IUiPresetState {
 
 const LAYOUTS: TLayoutPreset[] = ['banner', 'classic', 'columns', 'hero', 'tiles']
 
-const readInitialPreset = (): { layout: TLayoutPreset; preview: boolean; theme: number } => {
-    const fallback = { layout: 'hero' as TLayoutPreset, preview: false, theme: 2 }
+const readInitialPreset = (): { headerPay: boolean; layout: TLayoutPreset; preview: boolean; theme: number } => {
+    const fallback = { headerPay: true, layout: 'hero' as TLayoutPreset, preview: false, theme: 2 }
     try {
         const div = document.getElementById('ui')
         if (!div?.dataset.preset) return fallback
         const parsed = JSON.parse(atob(div.dataset.preset))
         return {
+            headerPay: parsed.headerPay !== false,
             layout: LAYOUTS.includes(parsed.layout) ? parsed.layout : fallback.layout,
             preview: parsed.preview === true,
             theme:
-                Number.isInteger(parsed.theme) && parsed.theme >= 1 && parsed.theme <= 8
+                Number.isInteger(parsed.theme) && parsed.theme >= 1 && parsed.theme <= 12
                     ? parsed.theme
                     : fallback.theme
         }
@@ -36,6 +38,7 @@ const readInitialPreset = (): { layout: TLayoutPreset; preview: boolean; theme: 
 const initial = readInitialPreset()
 
 export const useUiPresetStore = create<IUiPresetState>()((set) => ({
+    headerPay: initial.headerPay,
     themePreset: initial.theme,
     layoutPreset: initial.layout,
     preview: initial.preview,
@@ -45,6 +48,7 @@ export const useUiPresetStore = create<IUiPresetState>()((set) => ({
     }
 }))
 
+export const useHeaderPayButton = () => useUiPresetStore((state) => state.headerPay)
 export const useThemePreset = () => useUiPresetStore((state) => state.themePreset)
 export const useLayoutPreset = () => useUiPresetStore((state) => state.layoutPreset)
 export const usePreviewMode = () => useUiPresetStore((state) => state.preview)

@@ -136,6 +136,63 @@ export const THEME_PRESETS: Record<number, IThemePreset> = {
     }
 }
 
+
+THEME_PRESETS[9] = {
+    id: 9, name: 'Emerald Night', colorScheme: 'dark',
+    bg: '#0a120d', bgSoft: '#101b14', card: '#14231a',
+    cardBorder: 'rgba(61,220,151,0.14)', cardEdge: 'rgba(255,255,255,0.04)',
+    cardShadow: '0 8px 24px rgba(0,0,0,0.5)', insetBg: '#0e1811',
+    text: '#e6efe9', dim: '#93a89b', monoLabel: '#7d9287',
+    ok: '#7dbb8a', track: '#1d3226',
+    accent: ['#e3fbf1', '#bff5dd', '#96eec6', '#68e5ae', '#3ddc97',
+        '#2bb87c', '#219363', '#186f4b', '#104b33', '#08291c'],
+    accRgb: '61, 220, 151', ctaText: '#06231a', glow: 'rgba(61,220,151,0.08)',
+    darkRamp: ['#d6e2da', '#b4c4ba', '#92a699', '#68806f', '#35473c',
+        '#1a2b20', '#14231a', '#101b14', '#0a120d', '#050a07']
+}
+
+THEME_PRESETS[10] = {
+    id: 10, name: 'Deep Sapphire', colorScheme: 'dark',
+    bg: '#0b1219', bgSoft: '#101a26', card: '#14212e',
+    cardBorder: 'rgba(90,167,232,0.14)', cardEdge: 'rgba(255,255,255,0.04)',
+    cardShadow: '0 8px 24px rgba(0,0,0,0.5)', insetBg: '#0e1722',
+    text: '#e6ecf2', dim: '#93a3b3', monoLabel: '#7d8fa1',
+    ok: '#7dbb8a', track: '#1c2a3a',
+    accent: ['#e8f3fc', '#c8e2f8', '#a3cef3', '#7dbaee', '#5aa7e8',
+        '#4187c7', '#326ba2', '#25507c', '#183756', '#0d1f31'],
+    accRgb: '90, 167, 232', ctaText: '#081523', glow: 'transparent',
+    darkRamp: ['#d7dee5', '#b6c1cc', '#94a4b2', '#6a7e8f', '#37485a',
+        '#1a2836', '#14212e', '#101a26', '#0b1219', '#05090d']
+}
+
+THEME_PRESETS[11] = {
+    id: 11, name: 'Ruby Noir', colorScheme: 'dark',
+    bg: '#140b0e', bgSoft: '#1c1115', card: '#22141a',
+    cardBorder: 'rgba(224,90,110,0.15)', cardEdge: 'rgba(255,255,255,0.04)',
+    cardShadow: '0 8px 24px rgba(0,0,0,0.55)', insetBg: '#180e12',
+    text: '#efe7e9', dim: '#ab959b', monoLabel: '#957f86',
+    ok: '#7dbb8a', track: '#2f1c22',
+    accent: ['#fce9ec', '#f7c8d0', '#f1a3b0', '#eb7e8f', '#e05a6e',
+        '#c04355', '#9c3244', '#772534', '#521823', '#2e0c13'],
+    accRgb: '224, 90, 110', ctaText: '#230a0f', glow: 'transparent',
+    darkRamp: ['#e0d5d8', '#c2b2b7', '#a18d94', '#78646c', '#45333a',
+        '#291820', '#22141a', '#1c1115', '#140b0e', '#0a0507']
+}
+
+THEME_PRESETS[12] = {
+    id: 12, name: 'Lavender Dusk', colorScheme: 'dark',
+    bg: '#12101a', bgSoft: '#181525', card: '#1c1930',
+    cardBorder: 'rgba(179,157,242,0.14)', cardEdge: 'rgba(255,255,255,0.04)',
+    cardShadow: '0 8px 24px rgba(0,0,0,0.5)', insetBg: '#151226',
+    text: '#e9e6f2', dim: '#9d95b3', monoLabel: '#877fa1',
+    ok: '#7dbb8a', track: '#272144',
+    accent: ['#f3effd', '#e2d9fa', '#cfc0f7', '#bfaef5', '#b39df2',
+        '#8f77d4', '#705bb0', '#54418a', '#392b61', '#201738'],
+    accRgb: '179, 157, 242', ctaText: '#171029', glow: 'rgba(179,157,242,0.07)',
+    darkRamp: ['#dcd8e5', '#bcb6cc', '#9b93b2', '#716a8c', '#3d3759',
+        '#211d3a', '#1c1930', '#181525', '#12101a', '#08070d']
+}
+
 export const SAGE_GREEN: TColorRamp = [
     '#eaf5ec', '#cfe7d4', '#b2d8ba', '#96caa1', '#7dbb8a',
     '#5f9e6e', '#4a7f57', '#376142', '#25442e', '#14281a'

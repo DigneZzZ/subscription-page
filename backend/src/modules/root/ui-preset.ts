@@ -30,12 +30,16 @@ export const THEME_BACKGROUNDS: Record<number, { bg: string; colorScheme: 'dark'
     6: { bg: '#08090b', colorScheme: 'dark' },
     7: { bg: '#0b0a12', colorScheme: 'dark' },
     8: { bg: '#f2f4f7', colorScheme: 'light' },
+    9: { bg: '#0a120d', colorScheme: 'dark' },
+    10: { bg: '#0b1219', colorScheme: 'dark' },
+    11: { bg: '#140b0e', colorScheme: 'dark' },
+    12: { bg: '#12101a', colorScheme: 'dark' },
 };
 
 export function resolveThemePreset(raw: string | undefined): number {
     if (!raw) return DEFAULT_THEME_PRESET;
     const value = Number(raw);
-    return Number.isInteger(value) && value >= 1 && value <= 8 ? value : DEFAULT_THEME_PRESET;
+    return Number.isInteger(value) && value >= 1 && value <= 12 ? value : DEFAULT_THEME_PRESET;
 }
 
 export function resolveLayoutPreset(raw: string | undefined): TLayoutPreset {
@@ -48,4 +52,11 @@ export function resolveLayoutPreset(raw: string | undefined): TLayoutPreset {
 
 export function resolvePreviewMode(raw: string | undefined): boolean {
     return raw === '1' || raw === 'true';
+}
+
+/* HEADER_PAY_BUTTON: '0'/'false' прячут кнопку «Оплатить» в шапке
+   (в раскладках b/c/e/f есть своя CTA «Продлить»; в classic шапочная —
+   единственная точка оплаты, там прятать не стоит). Дефолт — показывать. */
+export function resolveHeaderPayButton(raw: string | undefined): boolean {
+    return !(raw === '0' || raw === 'false');
 }
