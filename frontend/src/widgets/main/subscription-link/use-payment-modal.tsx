@@ -80,6 +80,9 @@ export const usePaymentModal = (): IUsePaymentModal => {
             .map((line) => line.trim())
             .filter(Boolean)
 
+        const periodLabel = getPeriodLabel(tariff.months, tariff.days ?? 0, currentLang)
+        const titleLabel = tariff.name ?? periodLabel
+
         return (
             <UnstyledButton
                 className={classes.tariffCard}
@@ -89,11 +92,13 @@ export const usePaymentModal = (): IUsePaymentModal => {
                 <Group align="flex-start" gap="sm" justify="space-between" w="100%" wrap="nowrap">
                     <Box style={{ minWidth: 0 }}>
                         <Text c="var(--sp-text)" className={classes.tariffName} fw={700} size="sm">
-                            {tariff.name ?? getPeriodLabel(tariff.months, tariff.days ?? 0, currentLang)}
+                            {titleLabel}
                         </Text>
-                        <Text c="dimmed" mt={2} size="xs">
-                            {getPeriodLabel(tariff.months, tariff.days ?? 0, currentLang)}
-                        </Text>
+                        {titleLabel !== periodLabel ? (
+                            <Text c="dimmed" mt={2} size="xs">
+                                {periodLabel}
+                            </Text>
+                        ) : null}
                     </Box>
                     <Group gap={10} wrap="nowrap">
                         <Text c="var(--sp-text)" fw={700} size="lg" style={{ whiteSpace: 'nowrap' }}>
@@ -151,6 +156,9 @@ export const usePaymentModal = (): IUsePaymentModal => {
             }))
             .sort((a, b) => a.months - b.months)
 
+        // Первая «настоящая» группа (2+ тарифа) раскрыта по умолчанию, как раньше
+        const firstMultiMonths = monthGroups.find((group) => group.items.length > 1)?.months
+
         modals.open({
             centered: true,
             title: isRu ? 'Выберите тариф' : 'Choose a plan',
@@ -174,36 +182,71 @@ export const usePaymentModal = (): IUsePaymentModal => {
                     ) : null}
 
                     {monthGroups.length > 0 ? (
-                        <Accordion
-                            classNames={{
-                                chevron: classes.accChevron,
-                                control: classes.accControl,
-                                item: classes.accItem
-                            }}
-                            defaultValue={String(monthGroups[0].months)}
-                            variant="separated"
-                        >
-                            {monthGroups.map((group) => (
-                                <Accordion.Item key={group.months} value={String(group.months)}>
-                                    <Accordion.Control
-                                        icon={<IconClock className={classes.groupIcon} size={18} />}
+                        <Stack gap="xs">
+                            {/* Период с единственным тарифом группировать бессмысленно —
+                                карточка выводится сразу; аккордеон только при выборе внутри */}
+                            {monthGroups.map((group) =>
+                                group.items.length === 1 ? (
+                                    renderTariffCard(group.items[0])
+                                ) : (
+                                    <Accordion
+                                        classNames={{
+                                            chevron: classes.accChevron,
+                                            control: classes.accControl,
+                                            item: classes.accItem
+                                        }}
+                                        defaultValue={
+                                            group.months === firstMultiMonths
+                                                ? String(group.months)
+                                                : null
+                                        }
+                                        key={group.months}
+                                        variant="separated"
                                     >
-                                        <Group gap="xs" justify="space-between" pr="sm" wrap="nowrap">
-                                            <Text c="var(--sp-text)" fw={600}>
-                                                {getPeriodLabel(group.months, 0, currentLang)}
-                                            </Text>
-                                            <Badge className={classes.priceBadge} variant="light">
-                                                {isRu ? 'от' : 'from'}{' '}
-                                                {formatAmount(group.minPrice, group.currency)}
-                                            </Badge>
-                                        </Group>
-                                    </Accordion.Control>
-                                    <Accordion.Panel>
-                                        <Stack gap="xs">{group.items.map(renderTariffCard)}</Stack>
-                                    </Accordion.Panel>
-                                </Accordion.Item>
-                            ))}
-                        </Accordion>
+                                        <Accordion.Item value={String(group.months)}>
+                                            <Accordion.Control
+                                                icon={
+                                                    <IconClock
+                                                        className={classes.groupIcon}
+                                                        size={18}
+                                                    />
+                                                }
+                                            >
+                                                <Group
+                                                    gap="xs"
+                                                    justify="space-between"
+                                                    pr="sm"
+                                                    wrap="nowrap"
+                                                >
+                                                    <Text c="var(--sp-text)" fw={600}>
+                                                        {getPeriodLabel(
+                                                            group.months,
+                                                            0,
+                                                            currentLang
+                                                        )}
+                                                    </Text>
+                                                    <Badge
+                                                        className={classes.priceBadge}
+                                                        variant="light"
+                                                    >
+                                                        {isRu ? 'от' : 'from'}{' '}
+                                                        {formatAmount(
+                                                            group.minPrice,
+                                                            group.currency
+                                                        )}
+                                                    </Badge>
+                                                </Group>
+                                            </Accordion.Control>
+                                            <Accordion.Panel>
+                                                <Stack gap="xs">
+                                                    {group.items.map(renderTariffCard)}
+                                                </Stack>
+                                            </Accordion.Panel>
+                                        </Accordion.Item>
+                                    </Accordion>
+                                )
+                            )}
+                        </Stack>
                     ) : null}
                 </Stack>
             )
