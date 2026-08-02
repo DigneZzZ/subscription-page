@@ -18,9 +18,9 @@ import {
     DeleteUserHwidDeviceCommand,
     GetMetadataCommand,
     GetSubpageConfigByShortUuidCommand,
+    GetSubpageConfigCommand,
+    GetSubpageConfigsCommand,
     GetSubscriptionInfoByShortUuidCommand,
-    GetSubscriptionPageConfigCommand,
-    GetSubscriptionPageConfigsCommand,
     GetUserByShortUuidCommand,
     GetUserByUsernameCommand,
     GetUserHwidDevicesCommand,
@@ -207,13 +207,12 @@ export class AxiosService implements OnModuleInit {
 
     public async getSubscriptionPageConfigByUuid(
         uuid: string,
-    ): Promise<ICommandResponse<GetSubscriptionPageConfigCommand.Response['response']>> {
+    ): Promise<ICommandResponse<GetSubpageConfigCommand.Response['response']>> {
         try {
-            const response =
-                await this.axiosInstance.request<GetSubscriptionPageConfigCommand.Response>({
-                    method: GetSubscriptionPageConfigCommand.endpointDetails.REQUEST_METHOD,
-                    url: GetSubscriptionPageConfigCommand.url(encodeURIComponent(uuid)),
-                });
+            const response = await this.axiosInstance.request<GetSubpageConfigCommand.Response>({
+                method: GetSubpageConfigCommand.endpointDetails.REQUEST_METHOD,
+                url: GetSubpageConfigCommand.url(encodeURIComponent(uuid)),
+            });
 
             return {
                 isOk: true,
@@ -227,17 +226,17 @@ export class AxiosService implements OnModuleInit {
     }
 
     public async getSubscriptionPageConfigList(): Promise<
-        ICommandResponse<GetSubscriptionPageConfigsCommand.Response['response']>
+        ICommandResponse<GetSubpageConfigsCommand.Response['response']>
     > {
         try {
-            const response =
-                await this.axiosInstance.request<GetSubscriptionPageConfigsCommand.Response>({
-                    method: GetSubscriptionPageConfigsCommand.endpointDetails.REQUEST_METHOD,
-                    url: GetSubscriptionPageConfigsCommand.url,
-                });
+            const response = await this.axiosInstance.request<GetSubpageConfigsCommand.Response>({
+                method: GetSubpageConfigsCommand.endpointDetails.REQUEST_METHOD,
+                url: GetSubpageConfigsCommand.url,
+            });
 
-            const validationResult =
-                await GetSubscriptionPageConfigsCommand.ResponseSchema.parseAsync(response.data);
+            const validationResult = await GetSubpageConfigsCommand.ResponseSchema.parseAsync(
+                response.data,
+            );
 
             return {
                 isOk: true,
@@ -248,7 +247,7 @@ export class AxiosService implements OnModuleInit {
                 if (error.response?.status === 404) {
                     this.logger.error('Request failed with 404 status code.');
                     this.logger.error(
-                        'This version of Subscription Page requires Remnawave Panel version >=2.4.0. Please upgrade Remnawave Panel to the latest version or downgrade Subscription Page.',
+                        'This version of Subscription Page requires Remnawave Panel version >=3.0.0. Please upgrade Remnawave Panel to the latest version or downgrade Subscription Page.',
                     );
                     return { isOk: false };
                 }
@@ -372,12 +371,12 @@ export class AxiosService implements OnModuleInit {
     }
 
     public async getUserHwidDevices(
-        userUuid: string,
+        userId: number,
     ): Promise<ICommandResponse<GetUserHwidDevicesCommand.Response>> {
         try {
             const response = await this.axiosInstance.request<GetUserHwidDevicesCommand.Response>({
                 method: GetUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
-                url: GetUserHwidDevicesCommand.url(encodeURIComponent(userUuid)),
+                url: GetUserHwidDevicesCommand.url(String(userId)),
             });
             return { isOk: true, response: response.data };
         } catch (error) {
@@ -391,7 +390,7 @@ export class AxiosService implements OnModuleInit {
     }
 
     public async deleteUserHwidDevice(
-        userUuid: string,
+        userId: number,
         hwid: string,
     ): Promise<ICommandResponse<DeleteUserHwidDeviceCommand.Response>> {
         try {
@@ -399,7 +398,7 @@ export class AxiosService implements OnModuleInit {
                 {
                     method: DeleteUserHwidDeviceCommand.endpointDetails.REQUEST_METHOD,
                     url: DeleteUserHwidDeviceCommand.url,
-                    data: { userUuid, hwid },
+                    data: { userId, hwid },
                 },
             );
             return { isOk: true, response: response.data };
@@ -414,14 +413,14 @@ export class AxiosService implements OnModuleInit {
     }
 
     public async deleteAllUserHwidDevices(
-        userUuid: string,
+        userId: number,
     ): Promise<ICommandResponse<DeleteAllUserHwidDevicesCommand.Response>> {
         try {
             const response =
                 await this.axiosInstance.request<DeleteAllUserHwidDevicesCommand.Response>({
                     method: DeleteAllUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
                     url: DeleteAllUserHwidDevicesCommand.url,
-                    data: { userUuid },
+                    data: { userId },
                 });
             return { isOk: true, response: response.data };
         } catch (error) {

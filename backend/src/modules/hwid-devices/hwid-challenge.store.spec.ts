@@ -9,7 +9,7 @@ const mkStore = () => new HwidChallengeStore(SECRET);
 describe('HwidChallengeStore', () => {
     it('creates a numeric code of configured length and reports TTL', () => {
         const store = mkStore();
-        const res = store.createChallenge('sub1', 'uuid1', T0);
+        const res = store.createChallenge('sub1', 101, T0);
         expect(res.ok).toBe(true);
         if (!res.ok) return;
         expect(res.code).toMatch(new RegExp(`^\\d{${HWID.CODE_LENGTH}}$`));
@@ -18,38 +18,38 @@ describe('HwidChallengeStore', () => {
 
     it('rejects a second request within the cooldown window', () => {
         const store = mkStore();
-        store.createChallenge('sub1', 'uuid1', T0);
-        const res = store.createChallenge('sub1', 'uuid1', T0 + 10_000);
+        store.createChallenge('sub1', 101, T0);
+        const res = store.createChallenge('sub1', 101, T0 + 10_000);
         expect(res).toMatchObject({ ok: false, reason: 'cooldown' });
     });
 
     it('allows a new request after the cooldown and invalidates the old code', () => {
         const store = mkStore();
-        const first = store.createChallenge('sub1', 'uuid1', T0);
+        const first = store.createChallenge('sub1', 101, T0);
         const firstCode = first.ok ? first.code : '';
-        const second = store.createChallenge('sub1', 'uuid1', T0 + HWID.COOLDOWN_MS + 1);
+        const second = store.createChallenge('sub1', 101, T0 + HWID.COOLDOWN_MS + 1);
         expect(second.ok).toBe(true);
         // Old code no longer verifies.
         const v = store.verifyCode('sub1', firstCode, T0 + HWID.COOLDOWN_MS + 2);
         expect(v.ok).toBe(false);
     });
 
-    it('verifies the correct code and returns a session token + userUuid', () => {
+    it('verifies the correct code and returns a session token + userId', () => {
         const store = mkStore();
-        const c = store.createChallenge('sub1', 'uuid1', T0);
+        const c = store.createChallenge('sub1', 101, T0);
         const code = c.ok ? c.code : '';
         const v = store.verifyCode('sub1', code, T0 + 1_000);
         expect(v.ok).toBe(true);
         if (!v.ok) return;
-        expect(v.userUuid).toBe('uuid1');
+        expect(v.userId).toBe(101);
         expect(typeof v.token).toBe('string');
         const session = store.getSession(v.token, T0 + 2_000);
-        expect(session).toMatchObject({ shortUuid: 'sub1', userUuid: 'uuid1' });
+        expect(session).toMatchObject({ shortUuid: 'sub1', userId: 101 });
     });
 
     it('rejects an expired code', () => {
         const store = mkStore();
-        const c = store.createChallenge('sub1', 'uuid1', T0);
+        const c = store.createChallenge('sub1', 101, T0);
         const code = c.ok ? c.code : '';
         const v = store.verifyCode('sub1', code, T0 + HWID.CODE_TTL_MS + 1);
         expect(v.ok).toBe(false);
@@ -61,7 +61,7 @@ describe('HwidChallengeStore', () => {
         // (isBlocked is checked before the missing-challenge branch — the spec intends
         // "3 failed attempts → block").
         const store = mkStore();
-        store.createChallenge('sub1', 'uuid1', T0);
+        store.createChallenge('sub1', 101, T0);
         for (let i = 0; i < HWID.MAX_CODE_ATTEMPTS; i++) {
             store.verifyCode('sub1', '000000', T0 + i, '1.2.3.4');
         }
@@ -74,7 +74,7 @@ describe('HwidChallengeStore', () => {
         const store = mkStore();
         let triggered = 0;
         for (let i = 0; i < HWID.FAIL_THRESHOLD; i++) {
-            store.createChallenge('sub1', 'uuid1', T0 + i * (HWID.COOLDOWN_MS + 1));
+            store.createChallenge('sub1', 101, T0 + i * (HWID.COOLDOWN_MS + 1));
             const v = store.verifyCode('sub1', '000000', T0 + i * (HWID.COOLDOWN_MS + 1) + 1);
             if (!v.ok && v.blockTriggered) triggered++;
         }
@@ -85,7 +85,7 @@ describe('HwidChallengeStore', () => {
     it('lifts the block after BLOCK_MS', () => {
         const store = mkStore();
         for (let i = 0; i < HWID.FAIL_THRESHOLD; i++) {
-            store.createChallenge('sub1', 'uuid1', T0 + i * (HWID.COOLDOWN_MS + 1));
+            store.createChallenge('sub1', 101, T0 + i * (HWID.COOLDOWN_MS + 1));
             store.verifyCode('sub1', '000000', T0 + i * (HWID.COOLDOWN_MS + 1) + 1);
         }
         const blockedAt = T0 + HWID.FAIL_THRESHOLD * (HWID.COOLDOWN_MS + 1);
@@ -95,12 +95,12 @@ describe('HwidChallengeStore', () => {
 
     it('getSession returns null after session TTL and after dropSession', () => {
         const store = mkStore();
-        const c = store.createChallenge('sub1', 'uuid1', T0);
+        const c = store.createChallenge('sub1', 101, T0);
         const v = store.verifyCode('sub1', c.ok ? c.code : '', T0 + 1);
         const token = v.ok ? v.token : '';
         expect(store.getSession(token, T0 + HWID.SESSION_TTL_MS + 1)).toBeNull();
         // Fresh session, then drop.
-        const c2 = store.createChallenge('sub1', 'uuid1', T0 + HWID.COOLDOWN_MS + 2);
+        const c2 = store.createChallenge('sub1', 101, T0 + HWID.COOLDOWN_MS + 2);
         const v2 = store.verifyCode('sub1', c2.ok ? c2.code : '', T0 + HWID.COOLDOWN_MS + 3);
         const token2 = v2.ok ? v2.token : '';
         store.dropSession(token2, T0 + HWID.COOLDOWN_MS + 4);
@@ -109,7 +109,7 @@ describe('HwidChallengeStore', () => {
 
     it('bindSession enforces sessionId match via getSession consumer check', () => {
         const store = mkStore();
-        const c = store.createChallenge('sub1', 'uuid1', T0);
+        const c = store.createChallenge('sub1', 101, T0);
         const v = store.verifyCode('sub1', c.ok ? c.code : '', T0 + 1);
         const token = v.ok ? v.token : '';
         store.bindSession(token, 'jwt-session-abc');
@@ -119,7 +119,7 @@ describe('HwidChallengeStore', () => {
 
     it('getSession exposes the absolute expiry so callers can compute remaining TTL', () => {
         const store = mkStore();
-        const c = store.createChallenge('sub1', 'uuid1', T0);
+        const c = store.createChallenge('sub1', 101, T0);
         const v = store.verifyCode('sub1', c.ok ? c.code : '', T0 + 1);
         const token = v.ok ? v.token : '';
         const s = store.getSession(token, T0 + 1);

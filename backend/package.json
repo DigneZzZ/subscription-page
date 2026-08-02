@@ -37,8 +37,8 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "11.1.17",
     "@nestjs/serve-static": "5.0.4",
-    "@remnawave/backend-contract": "2.7.2",
-    "@remnawave/subscription-page-types": "0.4.0",
+    "@remnawave/backend-contract": "3.1.1",
+    "@remnawave/subscription-page-types": "0.5.0",
     "axios": "1.18.1",
     "class-transformer": "^0.5.1",
     "compression": "^1.8.1",
@@ -55,7 +55,7 @@
     "morgan": "^1.10.1",
     "nanoid": "5.1.15",
     "nest-winston": "^1.10.2",
-    "nestjs-zod": "4.3.1",
+    "nestjs-zod": "5.5.0",
     "pkg-types": "2.3.0",
     "proxy-addr": "^2.0.7",
     "reflect-metadata": "0.2.2",
@@ -65,7 +65,7 @@
     "table": "^6.9.0",
     "winston": "^3.19.0",
     "xbytes": "^1.9.1",
-    "zod": "3.25.76"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@nestjs/cli": "11.0.17",

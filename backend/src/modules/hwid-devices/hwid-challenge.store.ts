@@ -7,12 +7,12 @@ interface Challenge {
     hash: Buffer; // HMAC-SHA256 of the code
     createdAt: number;
     attempts: number;
-    userUuid: string;
+    userId: number;
 }
 
 interface Session {
     shortUuid: string;
-    userUuid: string;
+    userId: number;
     sessionId: string; // bound to the session-JWT sessionId claim
     expiresAt: number;
 }
@@ -55,7 +55,7 @@ export class HwidChallengeStore {
 
     createChallenge(
         shortUuid: string,
-        userUuid: string,
+        userId: number,
         now: number,
     ):
         | { ok: true; code: string; ttlSec: number }
@@ -84,7 +84,7 @@ export class HwidChallengeStore {
             hash: this.hashCode(code),
             createdAt: now,
             attempts: 0,
-            userUuid,
+            userId,
         });
         return { ok: true, code, ttlSec: HWID.CODE_TTL_MS / 1000 };
     }
@@ -119,7 +119,7 @@ export class HwidChallengeStore {
         now: number,
         ip = '__ip_unknown_on_verify__',
     ):
-        | { ok: true; token: string; userUuid: string }
+        | { ok: true; token: string; userId: number }
         | { ok: false; reason: 'blocked' | 'no_challenge' | 'wrong'; blockTriggered: boolean } {
         this.sweep(now);
 
@@ -159,11 +159,11 @@ export class HwidChallengeStore {
         const token = nanoid(32);
         this.sessions.set(token, {
             shortUuid,
-            userUuid: challenge.userUuid,
+            userId: challenge.userId,
             sessionId: '',
             expiresAt: now + HWID.SESSION_TTL_MS,
         });
-        return { ok: true, token, userUuid: challenge.userUuid };
+        return { ok: true, token, userId: challenge.userId };
     }
 
     bindSession(token: string, sessionId: string): void {
@@ -174,7 +174,7 @@ export class HwidChallengeStore {
     getSession(
         token: string,
         now: number,
-    ): { shortUuid: string; userUuid: string; sessionId: string; expiresAt: number } | null {
+    ): { shortUuid: string; userId: number; sessionId: string; expiresAt: number } | null {
         const s = this.sessions.get(token);
         if (!s || s.expiresAt <= now) {
             if (s) this.sessions.delete(token);
@@ -182,7 +182,7 @@ export class HwidChallengeStore {
         }
         return {
             shortUuid: s.shortUuid,
-            userUuid: s.userUuid,
+            userId: s.userId,
             sessionId: s.sessionId,
             expiresAt: s.expiresAt,
         };
