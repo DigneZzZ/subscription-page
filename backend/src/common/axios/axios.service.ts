@@ -31,6 +31,7 @@ import {
 import { IGNORED_HEADERS } from '@common/constants';
 
 import { ICommandResponse } from '../types/command-response.type';
+import { hwidUserBody } from './hwid-user-ref';
 
 @Injectable()
 export class AxiosService implements OnModuleInit {
@@ -372,12 +373,12 @@ export class AxiosService implements OnModuleInit {
     }
 
     public async getUserHwidDevices(
-        userUuid: string,
+        userRef: string,
     ): Promise<ICommandResponse<GetUserHwidDevicesCommand.Response>> {
         try {
             const response = await this.axiosInstance.request<GetUserHwidDevicesCommand.Response>({
                 method: GetUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
-                url: GetUserHwidDevicesCommand.url(encodeURIComponent(userUuid)),
+                url: GetUserHwidDevicesCommand.url(encodeURIComponent(userRef)),
             });
             return { isOk: true, response: response.data };
         } catch (error) {
@@ -391,7 +392,7 @@ export class AxiosService implements OnModuleInit {
     }
 
     public async deleteUserHwidDevice(
-        userUuid: string,
+        userRef: string,
         hwid: string,
     ): Promise<ICommandResponse<DeleteUserHwidDeviceCommand.Response>> {
         try {
@@ -399,7 +400,7 @@ export class AxiosService implements OnModuleInit {
                 {
                     method: DeleteUserHwidDeviceCommand.endpointDetails.REQUEST_METHOD,
                     url: DeleteUserHwidDeviceCommand.url,
-                    data: { userUuid, hwid },
+                    data: { ...hwidUserBody(userRef), hwid },
                 },
             );
             return { isOk: true, response: response.data };
@@ -414,14 +415,14 @@ export class AxiosService implements OnModuleInit {
     }
 
     public async deleteAllUserHwidDevices(
-        userUuid: string,
+        userRef: string,
     ): Promise<ICommandResponse<DeleteAllUserHwidDevicesCommand.Response>> {
         try {
             const response =
                 await this.axiosInstance.request<DeleteAllUserHwidDevicesCommand.Response>({
                     method: DeleteAllUserHwidDevicesCommand.endpointDetails.REQUEST_METHOD,
                     url: DeleteAllUserHwidDevicesCommand.url,
-                    data: { userUuid },
+                    data: hwidUserBody(userRef),
                 });
             return { isOk: true, response: response.data };
         } catch (error) {

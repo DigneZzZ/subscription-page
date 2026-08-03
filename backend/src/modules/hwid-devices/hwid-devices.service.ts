@@ -25,7 +25,8 @@ export interface DeviceDto {
 }
 
 interface UserCtx {
-    uuid: string;
+    // Panel user reference for HWID API calls: numeric id on panel >=3.x, uuid on 2.x.
+    ref: string;
     username: string;
     telegramId: number | null;
     hwidDeviceLimit: number | null;
@@ -71,9 +72,11 @@ export class HwidDevicesService {
     private async fetchUser(shortUuid: string): Promise<UserCtx | null> {
         const res = await this.axiosService.getUserByShortUuid(shortUuid);
         if (!res.isOk || !res.response) return null;
-        const u = res.response.response;
+        const u = res.response.response as { id?: number } & typeof res.response.response;
+        const rawRef = u.id ?? u.uuid;
+        if (rawRef === undefined || rawRef === null) return null;
         return {
-            uuid: u.uuid,
+            ref: String(rawRef),
             username: u.username,
             telegramId: u.telegramId ?? null,
             hwidDeviceLimit: u.hwidDeviceLimit ?? null,
@@ -121,7 +124,7 @@ export class HwidDevicesService {
         }
 
         let deviceCount = 0;
-        const devicesRes = await this.axiosService.getUserHwidDevices(user.uuid);
+        const devicesRes = await this.axiosService.getUserHwidDevices(user.ref);
         if (devicesRes.isOk && devicesRes.response) {
             deviceCount = devicesRes.response.response.total;
         }
@@ -159,7 +162,7 @@ export class HwidDevicesService {
         if (!user) return { ok: false, reason: 'unavailable' };
         if (user.telegramId === null) return { ok: false, reason: 'not_linked' };
 
-        const created = this.store.createChallenge(shortUuid, user.uuid, now);
+        const created = this.store.createChallenge(shortUuid, user.ref, now);
         if (!created.ok) {
             if (created.reason === 'cooldown') {
                 return { ok: false, reason: 'cooldown', cooldownSec: created.cooldownSec };
@@ -225,21 +228,21 @@ export class HwidDevicesService {
         return true;
     }
 
-    // Resolves the target userUuid for a device action, per mode.
+    // Resolves the target panel user reference for a device action, per mode.
     // open: authorized by the session-JWT sub alone (bound by the controller's IDOR guard).
     // telegram: requires a valid hwid_mgmt session bound to sub + sessionId.
     private async authorize(
         token: string,
         sessionId: string,
         sub: string,
-    ): Promise<{ userUuid: string; sessionExpiresAt: number | null } | null> {
+    ): Promise<{ userRef: string; sessionExpiresAt: number | null } | null> {
         if (this.mode === 'open') {
             // No ephemeral session in open mode → no countdown.
             const user = await this.fetchUser(sub);
-            return user ? { userUuid: user.uuid, sessionExpiresAt: null } : null;
+            return user ? { userRef: user.ref, sessionExpiresAt: null } : null;
         }
         const session = this.resolveSession(token, sessionId, sub);
-        return session ? { userUuid: session.userUuid, sessionExpiresAt: session.expiresAt } : null;
+        return session ? { userRef: session.userUuid, sessionExpiresAt: session.expiresAt } : null;
     }
 
     private resolveSession(token: string, sessionId: string, sub: string) {
@@ -252,7 +255,7 @@ export class HwidDevicesService {
     async listDevices(token: string, sessionId: string, sub: string) {
         const auth = await this.authorize(token, sessionId, sub);
         if (!auth) return { ok: false as const, status: 403 };
-        const res = await this.axiosService.getUserHwidDevices(auth.userUuid);
+        const res = await this.axiosService.getUserHwidDevices(auth.userRef);
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
         return this.buildListResult(sub, res.response.response, auth.sessionExpiresAt);
     }
@@ -264,11 +267,11 @@ export class HwidDevicesService {
             return { ok: false as const, status: 429 };
         }
         // Label for the owner notification, resolved from the pre-delete list.
-        const before = await this.axiosService.getUserHwidDevices(auth.userUuid);
+        const before = await this.axiosService.getUserHwidDevices(auth.userRef);
         const target = before.isOk
             ? before.response?.response.devices.find((d) => d.hwid === hwid)
             : undefined;
-        const res = await this.axiosService.deleteUserHwidDevice(auth.userUuid, hwid);
+        const res = await this.axiosService.deleteUserHwidDevice(auth.userRef, hwid);
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
         this.statusCache.delete(sub);
         void this.notifyDeviceRemoved(sub, ip, target);
@@ -281,7 +284,7 @@ export class HwidDevicesService {
         if (this.mode === 'open' && !this.allowOpenAction(ip, sub)) {
             return { ok: false as const, status: 429 };
         }
-        const res = await this.axiosService.deleteAllUserHwidDevices(auth.userUuid);
+        const res = await this.axiosService.deleteAllUserHwidDevices(auth.userRef);
         if (!res.isOk || !res.response) return { ok: false as const, status: 502 };
         this.statusCache.delete(sub);
         const remaining = res.response.response.total;
