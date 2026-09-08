@@ -219,15 +219,12 @@ export const configSchema = z
                 'TRAFFIC_RESET_MIN_PERCENT must be an integer between 0 and 100',
             ),
 
-        // Color theme preset: integer 1–8 (1 Graphite Amber, 2 Midnight Gold,
-        // 3 Graphite Copper, 4 Rose Gold, 5 Graphite Wine, 6 Obsidian Platinum,
-        // 7 Neon Cyber, 8 Light Minimal). Invalid/empty falls back to 2.
+        // Color theme preset: integer 1–12. Invalid/empty defaults to 9 (Emerald Night).
         THEME_PRESET: z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
-        // Page layout preset: a|classic, b|hero, c|columns, e|tiles, f|banner
-        // (case-insensitive). Invalid/empty falls back to banner.
+        // Page layout preset: o|obsidian (default), plus the existing layout aliases.
         LAYOUT_PRESET: z
             .string()
             .optional()

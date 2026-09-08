@@ -11,6 +11,7 @@ export type TLayoutPreset =
     | 'columns'
     | 'hero'
     | 'network'
+    | 'obsidian'
     | 'tiles'
 
 interface IUiPresetState {
@@ -27,6 +28,7 @@ interface IUiPresetState {
 }
 
 const LAYOUTS: TLayoutPreset[] = [
+    'obsidian',
     'aurora',
     'banner',
     'billboard',
@@ -38,7 +40,7 @@ const LAYOUTS: TLayoutPreset[] = [
 ]
 
 const readInitialPreset = (): { effects: TEffectFlag[]; headerPay: boolean; layout: TLayoutPreset; preview: boolean; theme: number } => {
-    const fallback = { effects: [] as TEffectFlag[], headerPay: true, layout: 'hero' as TLayoutPreset, preview: false, theme: 2 }
+    const fallback = { effects: [] as TEffectFlag[], headerPay: true, layout: 'obsidian' as TLayoutPreset, preview: false, theme: 9 }
     try {
         const div = document.getElementById('ui')
         if (!div?.dataset.preset) return fallback

@@ -139,16 +139,16 @@ export const THEME_PRESETS: Record<number, IThemePreset> = {
 
 THEME_PRESETS[9] = {
     id: 9, name: 'Emerald Night', colorScheme: 'dark',
-    bg: '#0a120d', bgSoft: '#101b14', card: '#14231a',
-    cardBorder: 'rgba(61,220,151,0.14)', cardEdge: 'rgba(255,255,255,0.04)',
-    cardShadow: '0 8px 24px rgba(0,0,0,0.5)', insetBg: '#0e1811',
-    text: '#e6efe9', dim: '#93a89b', monoLabel: '#7d9287',
-    ok: '#7dbb8a', track: '#1d3226',
-    accent: ['#e3fbf1', '#bff5dd', '#96eec6', '#68e5ae', '#3ddc97',
-        '#2bb87c', '#219363', '#186f4b', '#104b33', '#08291c'],
-    accRgb: '61, 220, 151', ctaText: '#06231a', glow: 'rgba(61,220,151,0.08)',
-    darkRamp: ['#d6e2da', '#b4c4ba', '#92a699', '#68806f', '#35473c',
-        '#1a2b20', '#14231a', '#101b14', '#0a120d', '#050a07']
+    bg: '#080c0d', bgSoft: '#0d1717', card: '#11191b',
+    cardBorder: 'rgba(180,220,210,0.16)', cardEdge: 'rgba(255,255,255,0.04)',
+    cardShadow: '0 12px 40px rgba(0,0,0,0.16)', insetBg: '#0b1113',
+    text: '#f4f6f5', dim: '#a6b0ac', monoLabel: '#9aa9a3',
+    ok: '#65e3ae', track: '#243331',
+    accent: ['#e9fcf4', '#d0f9e6', '#abf2d3', '#88edc2', '#65e3ae',
+        '#48c993', '#2ba677', '#20815c', '#175d43', '#0d3829'],
+    accRgb: '101, 227, 174', ctaText: '#06231a', glow: 'rgba(101,227,174,0.04)',
+    darkRamp: ['#f4f6f5', '#d6dfda', '#a6b0ac', '#7a8d85', '#3e524a',
+        '#25352f', '#17231f', '#11191b', '#080c0d', '#050808']
 }
 
 THEME_PRESETS[10] = {
@@ -204,4 +204,4 @@ export const LIGHT_GREEN: TColorRamp = [
 ]
 
 export const getThemePreset = (id: number): IThemePreset =>
-    THEME_PRESETS[id] ?? THEME_PRESETS[2]
+    THEME_PRESETS[id] ?? THEME_PRESETS[9]

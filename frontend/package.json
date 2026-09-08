@@ -25,7 +25,8 @@
     "lint:eslint": "eslint . --ext .ts,.tsx --cache",
     "lint:stylelint": "stylelint '**/*.css' --cache",
     "prettier": "prettier --check \"**/*.{ts,tsx}\"",
-    "prettier:write": "prettier --write \"**/*.{ts,tsx}\""
+    "prettier:write": "prettier --write \"**/*.{ts,tsx}\"",
+    "test:ui": "npm run cb && playwright test"
   },
   "dependencies": {
     "@gfazioli/mantine-spinner": "^2.3.9",
@@ -64,6 +65,7 @@
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@playwright/test": "^1.62.1",
     "@stylistic/eslint-plugin": "^5.6.1",
     "@types/byte-size": "^8.1.2",
     "@types/bytes": "^3.1.5",

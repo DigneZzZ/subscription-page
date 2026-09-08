@@ -1,23 +1,23 @@
 :root {
-    --sp-bg: #070b14;
-    --sp-bg-soft: #0c1322;
-    --sp-card: #101a2e;
-    --sp-card-border: rgba(232, 197, 107, 0.14);
-    --sp-card-edge: rgba(255, 255, 255, 0.04);
-    --sp-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    --sp-inset-bg: #0b1222;
-    --sp-text: #eae6dc;
-    --sp-dim: #9aa3b5;
-    --sp-mono-label: #8d94a8;
-    --sp-ok: #7dbb8a;
-    --sp-track: #1b2438;
-    --sp-acc: #e8c56b;
-    --sp-acc-bright: #f0d48a;
-    --sp-acc-deep: #c9a24d;
-    --sp-acc-rgb: 232, 197, 107;
-    --sp-cta-text: #1a1408;
-    --sp-glow: rgba(232, 197, 107, 0.1);
-    --sp-header-bg: rgba(7, 11, 20, 0.82);
+    --sp-bg: #080c0d;
+    --sp-bg-soft: #0d1717;
+    --sp-card: #11191b;
+    --sp-card-border: rgb(101, 227, 174, 0.14);
+    --sp-card-edge: rgb(255, 255, 255, 0.04);
+    --sp-card-shadow: 0 8px 24px rgb(0, 0, 0, 0.5);
+    --sp-inset-bg: #0b1113;
+    --sp-text: #f4f6f5;
+    --sp-dim: #a6b0ac;
+    --sp-mono-label: #9aa9a3;
+    --sp-ok: #65e3ae;
+    --sp-track: #243331;
+    --sp-acc: #65e3ae;
+    --sp-acc-bright: #88edc2;
+    --sp-acc-deep: #48c993;
+    --sp-acc-rgb: 101, 227, 174;
+    --sp-cta-text: #06231a;
+    --sp-glow: rgb(101, 227, 174, 0.1);
+    --sp-header-bg: rgb(8, 12, 13, 0.82);
 }
 
 html,
@@ -84,30 +84,30 @@ body {
 .info-card-violet {
     background: linear-gradient(
         135deg,
-        rgba(var(--sp-acc-rgb), 0.1),
-        rgba(var(--sp-acc-rgb), 0.05)
+        rgb(var(--sp-acc-rgb), 0.1),
+        rgb(var(--sp-acc-rgb), 0.05)
     );
-    border: 1px solid rgba(var(--sp-acc-rgb), 0.2);
+    border: 1px solid rgb(var(--sp-acc-rgb), 0.2);
 }
 
 .info-card-green {
-    background: linear-gradient(135deg, rgba(64, 192, 87, 0.1), rgba(64, 192, 87, 0.05));
-    border: 1px solid rgba(64, 192, 87, 0.2);
+    background: linear-gradient(135deg, rgb(64, 192, 87, 0.1), rgb(64, 192, 87, 0.05));
+    border: 1px solid rgb(64, 192, 87, 0.2);
 }
 
 .info-card-red {
-    background: linear-gradient(135deg, rgba(250, 82, 82, 0.1), rgba(250, 82, 82, 0.05));
-    border: 1px solid rgba(250, 82, 82, 0.2);
+    background: linear-gradient(135deg, rgb(250, 82, 82, 0.1), rgb(250, 82, 82, 0.05));
+    border: 1px solid rgb(250, 82, 82, 0.2);
 }
 
 .info-card-yellow {
-    background: linear-gradient(135deg, rgba(250, 176, 5, 0.1), rgba(250, 176, 5, 0.05));
-    border: 1px solid rgba(250, 176, 5, 0.2);
+    background: linear-gradient(135deg, rgb(250, 176, 5, 0.1), rgb(250, 176, 5, 0.05));
+    border: 1px solid rgb(250, 176, 5, 0.2);
 }
 
 .info-card-orange {
-    background: linear-gradient(135deg, rgba(253, 126, 20, 0.1), rgba(253, 126, 20, 0.05));
-    border: 1px solid rgba(253, 126, 20, 0.2);
+    background: linear-gradient(135deg, rgb(253, 126, 20, 0.1), rgb(253, 126, 20, 0.05));
+    border: 1px solid rgb(253, 126, 20, 0.2);
 }
 
 /* ── Опциональные эффекты (EFFECTS env / панель PREVIEW): body-классы fx-* ── */
@@ -137,18 +137,18 @@ body.fx-shimmer .sp-cta::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+    background: linear-gradient(115deg, transparent 30%, rgb(255, 255, 255, 0.4) 50%, transparent 70%);
     transform: translateX(-120%);
     animation: sp-fx-shimmer 3.2s ease-in-out infinite;
     pointer-events: none;
 }
 
 body.fx-glow .sp-gauge-fill {
-    filter: drop-shadow(0 0 10px rgba(var(--sp-acc-rgb), 0.75));
+    filter: drop-shadow(0 0 10px rgb(var(--sp-acc-rgb), 0.75));
 }
 
 body.fx-glow .sp-cta {
-    box-shadow: 0 6px 26px rgba(var(--sp-acc-rgb), 0.45);
+    box-shadow: 0 6px 26px rgb(var(--sp-acc-rgb), 0.45);
 }
 
 /* Стекло: карточки полупрозрачные с blur — работает поверх fx-blobs */

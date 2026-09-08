@@ -1,8 +1,9 @@
 .modalContent {
-    background: rgba(22, 27, 35, 0.95);
+    background: var(--sp-card);
+    border-radius: 24px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255, 255, 255, 0.1);
 }
 
 .modalHeader {
@@ -11,12 +12,12 @@
 
 .modalTitle {
     font-weight: 600;
-    color: white;
+    color: var(--sp-text);
 }
 
 .actionIcon {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgb(255, 255, 255, 0.02);
+    border: 1px solid rgb(255, 255, 255, 0.1);
 }
 
 .payButton {
@@ -24,13 +25,15 @@
     color: var(--sp-cta-text);
     font-weight: 700;
     border: none;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
     white-space: nowrap;
 }
 
 .payButton:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(var(--sp-acc-rgb), 0.35);
+    box-shadow: 0 4px 16px rgb(var(--sp-acc-rgb), 0.35);
 }
 
 .payButton:active {
@@ -46,21 +49,24 @@
     width: 100%;
     padding: 0.85rem 1rem;
     border-radius: var(--mantine-radius-md);
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+    background: rgb(255, 255, 255, 0.03);
+    border: 1px solid rgb(255, 255, 255, 0.1);
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.15s ease;
     text-decoration: none;
     cursor: pointer;
 }
 
 .tariffName {
     line-height: 1.25;
-    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .tariffCard:hover {
-    border-color: rgba(34, 211, 238, 0.5);
-    background: rgba(34, 211, 238, 0.06);
+    border-color: rgb(var(--sp-acc-rgb), 0.5);
+    background: rgb(var(--sp-acc-rgb), 0.06);
     transform: translateY(-2px);
 }
 
@@ -73,13 +79,15 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid rgb(255, 255, 255, 0.25);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .tariffCard:hover .radio {
     border-color: var(--sp-acc);
-    box-shadow: 0 0 0 4px rgba(var(--sp-acc-rgb), 0.12);
+    box-shadow: 0 0 0 4px rgb(var(--sp-acc-rgb), 0.12);
 }
 
 .cardDivider {
@@ -87,7 +95,7 @@
     width: 100%;
     height: 1px;
     margin: 10px 0 8px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgb(255, 255, 255, 0.08);
 }
 
 .groupIcon {
@@ -95,20 +103,20 @@
 }
 
 .priceBadge {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.65);
+    background: rgb(255, 255, 255, 0.06);
+    color: rgb(255, 255, 255, 0.65);
     font-weight: 600;
     text-transform: none;
 }
 
 .accItem {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgb(255, 255, 255, 0.03);
+    border: 1px solid rgb(255, 255, 255, 0.08);
     border-radius: var(--mantine-radius-md);
 }
 
 .accItem[data-active] {
-    border-color: rgba(34, 211, 238, 0.35);
+    border-color: rgb(var(--sp-acc-rgb), 0.35);
 }
 
 .accControl {
@@ -116,9 +124,17 @@
 }
 
 .accControl:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgb(255, 255, 255, 0.03);
 }
 
 .accChevron {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgb(255, 255, 255, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .payButton,
+    .tariffCard {
+        transition: none;
+        transform: none;
+    }
 }

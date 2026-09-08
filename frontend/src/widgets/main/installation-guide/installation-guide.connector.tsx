@@ -3,24 +3,17 @@ import {
     TSubscriptionPageButtonConfig,
     TSubscriptionPagePlatformKey
 } from '@remnawave/subscription-page-types'
-import {
-    Box,
-    Button,
-    ButtonVariant,
-    Card,
-    Group,
-    Stack,
-    Title,
-    UnstyledButton
-} from '@mantine/core'
+import { IconCheck, IconChevronDown, IconDeviceDesktop } from '@tabler/icons-react'
+import { Button, ButtonVariant, Card, Group, Text, Title } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useClipboard } from '@mantine/hooks'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import clsx from 'clsx'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
+import { getIconFromLibrary, getLocalizedText } from '@shared/utils/config-parser'
 import { useSubscription } from '@entities/subscription-info-store'
-import { getIconFromLibrary } from '@shared/utils/config-parser'
+import { getObsidianStrings } from '@shared/i18n/obsidian.i18n'
 import { TemplateEngine } from '@shared/utils/template-engine'
 import { useAppConfig } from '@entities/app-config-store'
 import { getLayoutStrings } from '@shared/i18n'
@@ -33,6 +26,7 @@ import classes from './installation-guide.module.css'
 export type TBlockVariant = 'accordion' | 'cards' | 'minimal' | 'timeline'
 
 interface IProps {
+    appearance?: 'default' | 'obsidian'
     BlockRenderer: React.ComponentType<IBlockRendererProps>
     hasPlatformApps: Record<TSubscriptionPagePlatformKey, boolean>
     isMobile: boolean
@@ -40,7 +34,9 @@ interface IProps {
 }
 
 export const InstallationGuideConnector = (props: IProps) => {
-    const { isMobile, hasPlatformApps, BlockRenderer, platform } = props
+    const { isMobile, hasPlatformApps, BlockRenderer, platform, appearance = 'default' } = props
+    const id = useId()
+    const modern = appearance === 'obsidian'
 
     const { t, currentLang, baseTranslations } = useTranslation()
 
@@ -49,9 +45,12 @@ export const InstallationGuideConnector = (props: IProps) => {
     const subscription = useSubscription()
 
     const s = getLayoutStrings(currentLang)
+    const labels = getObsidianStrings(currentLang)
 
     const [selectedAppIndex, setSelectedAppIndex] = useState(0)
-    const [selectedPlatform, setSelectedPlatform] = useState<TSubscriptionPagePlatformKey>(() => {
+    const [selectedPlatform, setSelectedPlatform] = useState<
+        TSubscriptionPagePlatformKey | undefined
+    >(() => {
         if (platform && hasPlatformApps[platform]) {
             return platform
         }
@@ -59,14 +58,21 @@ export const InstallationGuideConnector = (props: IProps) => {
         const firstAvailable = (
             Object.keys(hasPlatformApps) as TSubscriptionPagePlatformKey[]
         ).find((key) => hasPlatformApps[key])
-        return firstAvailable!
+        return firstAvailable
     })
 
-    const platformApps = platforms[selectedPlatform]!.apps
+    const activePlatform =
+        selectedPlatform && platforms[selectedPlatform]?.apps.length
+            ? selectedPlatform
+            : (Object.keys(platforms) as TSubscriptionPagePlatformKey[]).find(
+                (key) => platforms[key]?.apps.length
+            )
+    const platformApps = activePlatform ? platforms[activePlatform]!.apps : []
     // Featured apps surface first — everything below (selection, render, BlockRenderer
     // source) reads from this sorted array so `selectedAppIndex` always maps consistently.
     const sortedApps = [...platformApps].sort((a, b) => Number(b.featured) - Number(a.featured))
-    const selectedApp = sortedApps[selectedAppIndex] ?? sortedApps[0]
+    const activeAppIndex = sortedApps[selectedAppIndex] ? selectedAppIndex : 0
+    const selectedApp = sortedApps[activeAppIndex]
 
     const availablePlatforms = (
         Object.entries(hasPlatformApps) as [TSubscriptionPagePlatformKey, boolean][]
@@ -76,7 +82,8 @@ export const InstallationGuideConnector = (props: IProps) => {
             const platformConfig = platforms[platform]!
             return {
                 value: platform,
-                label: t(platformConfig.displayName)
+                label: t(platformConfig.displayName),
+                icon: platformConfig.svgIconKey
             }
         })
 
@@ -108,13 +115,13 @@ export const InstallationGuideConnector = (props: IProps) => {
                 break
             }
             case 'external': {
-                window.open(button.link, '_blank')
+                window.open(button.link, '_blank', 'noopener,noreferrer')
                 break
             }
             case 'subscriptionLink': {
                 if (!formattedUrl) return
 
-                window.open(formattedUrl, '_blank')
+                window.open(formattedUrl, '_blank', 'noopener,noreferrer')
                 break
             }
             default:
@@ -132,6 +139,14 @@ export const InstallationGuideConnector = (props: IProps) => {
             <Group gap="xs" wrap="wrap">
                 {buttons.map((button, index) => (
                     <Button
+                        className={
+                            modern
+                                ? clsx(
+                                    classes.stepButton,
+                                    button.type === 'subscriptionLink' && classes.importButton
+                                )
+                                : undefined
+                        }
                         key={index}
                         leftSection={
                             <span
@@ -143,7 +158,7 @@ export const InstallationGuideConnector = (props: IProps) => {
                         }
                         onClick={() => handleButtonClick(button)}
                         radius="md"
-                        variant={variant}
+                        variant={modern ? 'default' : variant}
                     >
                         {t(button.text)}
                     </Button>
@@ -154,89 +169,185 @@ export const InstallationGuideConnector = (props: IProps) => {
 
     const getIcon = (iconKey: string) => getIconFromLibrary(iconKey, svgLibrary)
 
+    if (!selectedApp) return null
+
     return (
-        <Card p={{ base: 'sm', xs: 'md', sm: 'lg', md: 'xl' }} radius="lg">
-            <Stack gap="md">
-                <Title c="var(--sp-text)" fw={600} order={4}>
-                    {t(baseTranslations.installationGuideHeader)}
-                </Title>
+        <Card
+            className={clsx(classes.guide, modern && classes.modern)}
+            p={modern ? undefined : { base: 'sm', xs: 'md', sm: 'lg', md: 'xl' }}
+            radius="lg"
+        >
+            <div className={classes.guideHeading}>
+                <div>
+                    <Title c="var(--sp-text)" className={classes.guideTitle} fw={600} order={2}>
+                        {modern ? labels.connection : t(baseTranslations.installationGuideHeader)}
+                    </Title>
+                    {modern && (
+                        <Text c="var(--sp-dim)" mt={6} size="sm">
+                            {labels.connectionHint}
+                        </Text>
+                    )}
+                </div>
+                {modern && sortedApps.some((app) => app.featured) && (
+                    <span className={classes.guideNote}>
+                        <IconCheck aria-hidden size={15} />
+                        {s.recommended}
+                    </span>
+                )}
+            </div>
 
-                {sortedApps.length > 0 && (
-                    <Box>
+            <div className={classes.selectionRow}>
+                <div className={classes.platformFieldset}>
+                    <label className={classes.fieldLabel} htmlFor={`${id}-platform`}>
+                        {labels.device}
+                    </label>
+                    <div className={classes.selectWrap}>
+                        <IconDeviceDesktop aria-hidden className={classes.selectIcon} size={18} />
+                        <select
+                            className={classes.select}
+                            id={`${id}-platform`}
+                            onChange={(event) => {
+                                vibrate('toggle')
+                                setSelectedPlatform(
+                                    event.target.value as TSubscriptionPagePlatformKey
+                                )
+                                setSelectedAppIndex(0)
+                            }}
+                            value={activePlatform}
+                        >
+                            {availablePlatforms.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                        <IconChevronDown aria-hidden className={classes.selectChevron} size={16} />
+                    </div>
+                </div>
+
+                <fieldset className={classes.appFieldset}>
+                    <legend className={classes.fieldLabel}>{labels.chooseApp}</legend>
+                    {sortedApps.length > 3 ? (
+                        <div className={classes.selectWrap}>
+                            <select
+                                aria-controls={`${id}-instructions`}
+                                aria-label={labels.chooseApp}
+                                className={clsx(classes.select, classes.appSelect)}
+                                onChange={(event) => {
+                                    vibrate('toggle')
+                                    setSelectedAppIndex(Number(event.target.value))
+                                }}
+                                value={activeAppIndex}
+                            >
+                                {sortedApps.map((app, index) => (
+                                    <option key={`${app.name}-${index}`} value={index}>
+                                        {app.name}
+                                        {app.featured ? ` · ${s.recommended}` : ''}
+                                    </option>
+                                ))}
+                            </select>
+                            <IconChevronDown
+                                aria-hidden
+                                className={classes.selectChevron}
+                                size={16}
+                            />
+                        </div>
+                    ) : (
                         <div className={classes.appGrid}>
-                            {sortedApps.map((app: TSubscriptionPageAppConfig, index: number) => {
-                                const isActive = index === selectedAppIndex
-                                const hasIcon = Boolean(app.svgIconKey)
-
-                                return (
-                                    <UnstyledButton
-                                        className={clsx(
-                                            classes.appChoice,
-                                            isActive && classes.appChoiceActive
-                                        )}
-                                        key={app.name}
-                                        onClick={() => {
+                            {sortedApps.map((app: TSubscriptionPageAppConfig, index: number) => (
+                                <label className={classes.choiceLabel} key={`${app.name}-${index}`}>
+                                    <input
+                                        aria-controls={`${id}-instructions`}
+                                        checked={index === activeAppIndex}
+                                        className={classes.choiceInput}
+                                        name={`${id}-app`}
+                                        onChange={() => {
                                             vibrate('toggle')
                                             setSelectedAppIndex(index)
                                         }}
-                                    >
-                                        {hasIcon && (
-                                            <span
-                                                className={classes.appIcon}
-                                                dangerouslySetInnerHTML={{
-                                                    __html: getIconFromLibrary(
-                                                        app.svgIconKey!,
-                                                        svgLibrary
-                                                    )
-                                                }}
-                                            />
+                                        type="radio"
+                                        value={index}
+                                    />
+                                    <span
+                                        className={clsx(
+                                            classes.appChoice,
+                                            index === activeAppIndex && classes.appChoiceActive
                                         )}
+                                    >
                                         <span className={classes.appInfo}>
                                             <span className={classes.appName}>{app.name}</span>
-                                            <span className={classes.appBadge}>
+                                            <span
+                                                className={clsx(
+                                                    classes.appBadge,
+                                                    app.featured && classes.recommendedBadge
+                                                )}
+                                            >
                                                 {app.featured ? s.recommended : s.alternative}
                                             </span>
                                         </span>
-                                    </UnstyledButton>
-                                )
-                            })}
+                                        <span aria-hidden className={classes.appRadio}>
+                                            {index === activeAppIndex && <IconCheck size={12} />}
+                                        </span>
+                                    </span>
+                                </label>
+                            ))}
                         </div>
+                    )}
+                </fieldset>
+            </div>
 
-                        {availablePlatforms.length > 1 && (
-                            <div className={classes.osRow}>
-                                <span className={classes.osNote}>{s.platform}</span>
-                                {availablePlatforms.map((opt) => (
-                                    <UnstyledButton
-                                        className={clsx(
-                                            classes.osChip,
-                                            opt.value === selectedPlatform && classes.osChipActive
-                                        )}
-                                        key={opt.value}
-                                        onClick={() => {
-                                            vibrate([80])
-                                            setSelectedPlatform(opt.value)
-                                            setSelectedAppIndex(0)
-                                        }}
-                                    >
-                                        {opt.label}
-                                    </UnstyledButton>
-                                ))}
-                            </div>
-                        )}
-
-                        {selectedApp && (
-                            <BlockRenderer
-                                blocks={selectedApp.blocks}
-                                currentLang={currentLang}
-                                getIconFromLibrary={getIcon}
-                                isMobile={isMobile}
-                                renderBlockButtons={renderBlockButtons}
-                                svgLibrary={svgLibrary}
-                            />
-                        )}
-                    </Box>
-                )}
-            </Stack>
+            <section
+                aria-labelledby={`${id}-instructions-title`}
+                className={classes.instructions}
+                id={`${id}-instructions`}
+            >
+                <h3 className={classes.instructionsTitle} id={`${id}-instructions-title`}>
+                    {labels.instructions} <span aria-live="polite">· {selectedApp.name}</span>
+                </h3>
+                <div
+                    className={classes.stepsTransition}
+                    key={`${activePlatform}-${activeAppIndex}`}
+                >
+                    {modern ? (
+                        <ol className={classes.steps}>
+                            {selectedApp.blocks.map((block, index) => (
+                                <li className={classes.step} key={index}>
+                                    <span aria-hidden className={classes.stepNumber}>
+                                        {String(index + 1).padStart(2, '0')}
+                                    </span>
+                                    <div className={classes.stepContent}>
+                                        <h4
+                                            className={classes.stepTitle}
+                                            dangerouslySetInnerHTML={{
+                                                __html: getLocalizedText(block.title, currentLang)
+                                            }}
+                                        />
+                                        <div
+                                            className={classes.stepDescription}
+                                            dangerouslySetInnerHTML={{
+                                                __html: getLocalizedText(
+                                                    block.description,
+                                                    currentLang
+                                                )
+                                            }}
+                                        />
+                                        {renderBlockButtons(block.buttons, 'default')}
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+                    ) : (
+                        <BlockRenderer
+                            blocks={selectedApp.blocks}
+                            currentLang={currentLang}
+                            getIconFromLibrary={getIcon}
+                            isMobile={isMobile}
+                            renderBlockButtons={renderBlockButtons}
+                            svgLibrary={svgLibrary}
+                        />
+                    )}
+                </div>
+            </section>
         </Card>
     )
 }

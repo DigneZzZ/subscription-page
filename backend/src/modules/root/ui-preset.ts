@@ -5,13 +5,16 @@ export type TLayoutPreset =
     | 'classic'
     | 'columns'
     | 'hero'
+    | 'obsidian'
     | 'network'
     | 'tiles';
 
-export const DEFAULT_THEME_PRESET = 2;
-export const DEFAULT_LAYOUT_PRESET: TLayoutPreset = 'hero';
+export const DEFAULT_THEME_PRESET = 9;
+export const DEFAULT_LAYOUT_PRESET: TLayoutPreset = 'obsidian';
 
 const LAYOUT_ALIASES: Record<string, TLayoutPreset> = {
+    o: 'obsidian',
+    obsidian: 'obsidian',
     a: 'classic',
     classic: 'classic',
     b: 'hero',
@@ -44,7 +47,7 @@ export const THEME_BACKGROUNDS: Record<number, { bg: string; colorScheme: 'dark'
     6: { bg: '#08090b', colorScheme: 'dark' },
     7: { bg: '#0b0a12', colorScheme: 'dark' },
     8: { bg: '#f2f4f7', colorScheme: 'light' },
-    9: { bg: '#0a120d', colorScheme: 'dark' },
+    9: { bg: '#080c0d', colorScheme: 'dark' },
     10: { bg: '#0b1219', colorScheme: 'dark' },
     11: { bg: '#140b0e', colorScheme: 'dark' },
     12: { bg: '#12101a', colorScheme: 'dark' },

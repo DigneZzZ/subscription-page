@@ -15,7 +15,7 @@ import { vibrate } from '@shared/utils/vibrate'
 
 import classes from './preview-panel.module.css'
 
-type TLayoutLetter = 'a' | 'b' | 'c' | 'e' | 'f' | 'j' | 'k' | 'l'
+type TLayoutLetter = 'a' | 'b' | 'c' | 'e' | 'f' | 'j' | 'k' | 'l' | 'o'
 
 interface ILayoutChipDef {
     layout: TLayoutPreset
@@ -27,6 +27,7 @@ interface ILayoutChipDef {
 // LAYOUT_PRESET env — a/b/c/e/f, 'd' is reserved/unused). Both the visible chip
 // label and the ENV hint's letter are derived from this list, never duplicated.
 const LAYOUT_CHIPS: ILayoutChipDef[] = [
+    { letter: 'o', layout: 'obsidian', name: 'Obsidian' },
     { letter: 'a', layout: 'classic', name: 'Classic' },
     { letter: 'b', layout: 'hero', name: 'Hero' },
     { letter: 'c', layout: 'columns', name: 'Columns' },

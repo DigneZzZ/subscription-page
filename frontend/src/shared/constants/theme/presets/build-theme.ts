@@ -19,7 +19,7 @@ export const buildMantineTheme = (preset: IThemePreset): MantineThemeOverride =>
             'Inter Tight, Vazirmatn, Apple Color Emoji, Noto Sans SC, Twemoji Country Flags, sans-serif',
         fontFamilyMonospace: 'JetBrains Mono, Fira Mono, monospace',
         headings: {
-            fontFamily: 'Unbounded, Vazirmatn, sans-serif',
+            fontFamily: preset.id === 9 ? 'Inter Tight, Vazirmatn, sans-serif' : 'Unbounded, Vazirmatn, sans-serif',
             fontWeight: '600'
         },
         breakpoints: {
@@ -28,7 +28,7 @@ export const buildMantineTheme = (preset: IThemePreset): MantineThemeOverride =>
         },
         scale: 1,
         fontSmoothing: true,
-        focusRing: 'never',
+        focusRing: 'auto',
         defaultRadius: 'md',
         white: preset.colorScheme === 'light' ? '#ffffff' : preset.text,
         black: preset.colorScheme === 'light' ? preset.text : preset.bg,

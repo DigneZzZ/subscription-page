@@ -6,4 +6,6 @@ export { ColumnsLayout } from './columns.layout'
 export { HeroLayout } from './hero.layout'
 export type { ILayoutProps } from './layout-props.interface'
 export * from './network.layout'
+export { ObsidianLayout } from './obsidian.layout'
+
 export { TilesLayout } from './tiles.layout'

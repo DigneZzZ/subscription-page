@@ -257,3 +257,7 @@ fx-banner-sapphire.png
 .playwright-mcp/page-2026-07-17T13-55-20-426Z.yml
 .playwright-mcp/page-2026-07-17T13-37-58-697Z.yml
 .agents/skills/verify/SKILL.md
+
+# Browser verification artifacts
+frontend/test-results/
+frontend/playwright-report/

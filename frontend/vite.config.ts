@@ -44,9 +44,17 @@ export default defineConfig({
                 uiPreset:
                     process.env.UI_PRESET ??
                     Buffer.from(
-                        JSON.stringify({ theme: 2, layout: 'hero', preview: true, headerPay: true, fx: [] })
+                        JSON.stringify({ theme: 9, layout: 'obsidian', preview: false, headerPay: true, fx: [] })
                     ).toString('base64'),
-                uiThemeColor: '#070b14',
+                paymentUrl: process.env.PAYMENT_URL ?? '',
+                paymentTariffs: process.env.PAYMENT_TARIFFS ?? '',
+                paymentReset: process.env.PAYMENT_RESET ?? '',
+                supportEmail: '',
+                chatwootBaseUrl: '',
+                chatwootWebsiteToken: '',
+                chatwootIdentifierHash: '',
+                hwidData: '',
+                uiThemeColor: '#080c0d',
                 uiColorScheme: 'dark'
             }
         })

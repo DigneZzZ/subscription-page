@@ -1,12 +1,17 @@
 .page {
-    animation: fadeIn 0.5s ease-in-out;
+    animation: fade-in 0.5s ease-in-out;
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page { animation: none; }
 }

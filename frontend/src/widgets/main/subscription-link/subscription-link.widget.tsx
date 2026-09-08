@@ -27,11 +27,12 @@ import classes from './subscription-link.module.css'
 
 interface IProps {
     hideGetLink: boolean
+    hidePayment?: boolean
     supportEmail: string
     supportUrl: string
 }
 
-export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }: IProps) => {
+export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink, hidePayment = false }: IProps) => {
     const { t, baseTranslations, currentLang } = useTranslation()
     const subscription = useSubscription()
     const clipboard = useClipboard({ timeout: 10000 })
@@ -57,6 +58,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
     const renderSupportEmailLink = (email: string) => {
         return (
             <ActionIcon
+                aria-label={isRu ? 'Написать в поддержку' : 'Email support'}
                 c="cyan"
                 component="a"
                 href={`mailto:${email}`}
@@ -90,6 +92,7 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
 
         return (
             <ActionIcon
+                aria-label={isRu ? 'Поддержка' : 'Support'}
                 c={color}
                 component="a"
                 href={supportUrl}
@@ -152,17 +155,18 @@ export const SubscriptionLinkWidget = ({ supportUrl, supportEmail, hideGetLink }
         <Group gap="xs" ml="auto" wrap="nowrap">
             {!hideGetLink && (
                 <ActionIcon
+                    aria-label={t(baseTranslations.getLink)}
                     className={classes.actionIcon}
                     onClick={handleGetLink}
                     radius="md"
                     size="xl"
                     variant="default"
                 >
-                    <IconLink />
+                    <IconLink aria-hidden="true" />
                 </ActionIcon>
             )}
 
-            {hasPayment && headerPay && (
+            {hasPayment && headerPay && !hidePayment && (
                 <Button
                     className={clsx(classes.payButton, 'sp-cta')}
                     leftSection={<IconCreditCard size={18} />}

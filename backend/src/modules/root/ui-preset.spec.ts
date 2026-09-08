@@ -8,19 +8,19 @@ import {
 } from './ui-preset';
 
 describe('resolveThemePreset', () => {
-    it('returns valid ints 1-8 as-is', () => {
+    it('returns valid ints 1-12 as-is', () => {
         expect(resolveThemePreset('1')).toBe(1);
         expect(resolveThemePreset('8')).toBe(8);
         expect(resolveThemePreset('9')).toBe(9);
         expect(resolveThemePreset('12')).toBe(12);
     });
-    it('falls back to 2 on invalid input', () => {
-        expect(resolveThemePreset(undefined)).toBe(2);
-        expect(resolveThemePreset('')).toBe(2);
-        expect(resolveThemePreset('0')).toBe(2);
-        expect(resolveThemePreset('13')).toBe(2);
-        expect(resolveThemePreset('2.5')).toBe(2);
-        expect(resolveThemePreset('gold')).toBe(2);
+    it('falls back to Emerald Night on invalid input', () => {
+        expect(resolveThemePreset(undefined)).toBe(9);
+        expect(resolveThemePreset('')).toBe(9);
+        expect(resolveThemePreset('0')).toBe(9);
+        expect(resolveThemePreset('13')).toBe(9);
+        expect(resolveThemePreset('2.5')).toBe(9);
+        expect(resolveThemePreset('gold')).toBe(9);
     });
 });
 
@@ -41,20 +41,20 @@ describe('resolveLayoutPreset', () => {
         expect(resolveLayoutPreset(' Tiles ')).toBe('tiles');
         expect(resolveLayoutPreset('AURORA')).toBe('aurora');
     });
-    it('falls back to hero on invalid input (incl. reserved d)', () => {
-        expect(resolveLayoutPreset(undefined)).toBe('hero');
-        expect(resolveLayoutPreset('')).toBe('hero');
-        expect(resolveLayoutPreset('d')).toBe('hero');
-        expect(resolveLayoutPreset('grid')).toBe('hero');
+    it('falls back to obsidian on invalid input (incl. reserved d)', () => {
+        expect(resolveLayoutPreset(undefined)).toBe('obsidian');
+        expect(resolveLayoutPreset('')).toBe('obsidian');
+        expect(resolveLayoutPreset('d')).toBe('obsidian');
+        expect(resolveLayoutPreset('grid')).toBe('obsidian');
     });
     it('ignores inherited Object.prototype keys', () => {
-        expect(resolveLayoutPreset('constructor')).toBe('hero');
-        expect(resolveLayoutPreset('toString')).toBe('hero');
+        expect(resolveLayoutPreset('constructor')).toBe('obsidian');
+        expect(resolveLayoutPreset('toString')).toBe('obsidian');
     });
 });
 
 describe('THEME_BACKGROUNDS', () => {
-    it('covers exactly theme ids 1..8', () => {
+    it('covers exactly theme ids 1..12', () => {
         expect(
             Object.keys(THEME_BACKGROUNDS)
                 .map(Number)
@@ -62,7 +62,7 @@ describe('THEME_BACKGROUNDS', () => {
         ).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     });
     it('marks only theme 8 as light and all others dark', () => {
-        for (let id = 1; id <= 8; id++) {
+        for (let id = 1; id <= 12; id++) {
             expect(THEME_BACKGROUNDS[id].colorScheme).toBe(id === 8 ? 'light' : 'dark');
         }
     });
@@ -96,5 +96,15 @@ describe('resolveEffects', () => {
         expect(resolveEffects('all')).toEqual(['blobs', 'glass', 'shimmer', 'pulse', 'glow']);
         expect(resolveEffects('glow, blobs')).toEqual(['blobs', 'glow']);
         expect(resolveEffects('sparkles,glow')).toEqual(['glow']);
+    });
+});
+
+describe('Obsidian redesign', () => {
+    it('accepts the new layout name and short alias', () => {
+        expect(resolveLayoutPreset('obsidian')).toBe('obsidian');
+        expect(resolveLayoutPreset(' O ')).toBe('obsidian');
+    });
+    it('paints the emerald theme with the obsidian background before hydration', () => {
+        expect(THEME_BACKGROUNDS[9]).toEqual({ bg: '#080c0d', colorScheme: 'dark' });
     });
 });

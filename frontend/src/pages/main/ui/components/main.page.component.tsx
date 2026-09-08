@@ -22,12 +22,15 @@ import {
     HeroLayout,
     ILayoutProps,
     NetworkLayout,
+    ObsidianLayout,
     TilesLayout
 } from '@pages/main/ui/layouts'
 import { EFFECT_FLAGS, useEffects, useLayoutPreset, usePreviewMode } from '@entities/ui-preset-store'
 import { useSupportEmail } from '@entities/support-store'
 import { useAppConfig } from '@entities/app-config-store'
 import { FxBlobs, Page, Wordmark } from '@shared/ui'
+
+import geologMark from '../../../../assets/geolog/mark.svg'
 
 interface IMainPageComponentProps {
     isMobile: boolean
@@ -49,6 +52,7 @@ const SUBSCRIPTION_INFO_BLOCK_RENDERERS = {
 } as const
 
 const LAYOUT_RENDERERS = {
+    obsidian: ObsidianLayout,
     aurora: AuroraLayout,
     banner: BannerLayout,
     billboard: BillboardLayout,
@@ -99,7 +103,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     const SubscriptionInfoBlockRenderer =
         SUBSCRIPTION_INFO_BLOCK_RENDERERS[config.uiConfig.subscriptionInfoBlockType]
 
-    const Layout = LAYOUT_RENDERERS[layoutPreset] ?? HeroLayout
+    const Layout = LAYOUT_RENDERERS[layoutPreset] ?? ObsidianLayout
 
     const layoutProps: ILayoutProps = {
         atLeastOnePlatformApp,
@@ -114,15 +118,15 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
         <Page>
             {effects.includes('blobs') && layoutPreset !== 'aurora' && <FxBlobs />}
             <Box className="header-wrapper" py="md">
-                <Container maw={1200} px={{ base: 'md', sm: 'lg', md: 'xl' }}>
+                <Container maw={layoutPreset === 'obsidian' ? 1320 : 1200} px={{ base: 'md', sm: 'lg', md: 'xl' }}>
                     <Group justify="space-between">
                         <Group gap="sm" style={{ userSelect: 'none' }} wrap="nowrap">
-                            {hasCustomLogo ? (
+                            {hasCustomLogo || layoutPreset === 'obsidian' ? (
                                 <>
                                     <Image
                                         alt="logo"
                                         fit="contain"
-                                        src={config.brandingSettings.logoUrl}
+                                        src={hasCustomLogo ? config.brandingSettings.logoUrl : geologMark}
                                         style={{
                                             width: '32px',
                                             height: '32px',
@@ -140,6 +144,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
 
                         <SubscriptionLinkWidget
                             hideGetLink={config.baseSettings.hideGetLinkButton}
+                            hidePayment={layoutPreset === 'obsidian'}
                             supportEmail={supportEmail}
                             supportUrl={config.brandingSettings.supportUrl}
                         />
@@ -156,7 +161,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
             {preview && <PreviewPanel />}
 
             <Container
-                maw={1200}
+                maw={layoutPreset === 'obsidian' ? 1320 : 1200}
                 px={{ base: 'md', sm: 'lg', md: 'xl' }}
                 py="xl"
                 style={{ position: 'relative', zIndex: 1 }}
