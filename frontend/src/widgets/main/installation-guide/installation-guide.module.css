@@ -383,3 +383,74 @@
         transition: none;
     }
 }
+
+.osSelect {
+    height: 58px;
+    padding-inline-start: 44px;
+    border: 1px solid var(--sp-card-border);
+    border-radius: 12px;
+    background: var(--sp-inset-bg);
+    color: var(--sp-text);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.osSelect:focus {
+    border-color: var(--sp-acc);
+}
+
+.osDropdown {
+    background: var(--sp-card);
+    border: 1px solid var(--sp-card-border);
+    border-radius: 14px;
+    padding: 6px;
+    color: var(--sp-text);
+    box-shadow: 0 16px 40px rgb(0, 0, 0, 0.35);
+}
+
+.osOption {
+    min-height: 44px;
+    border-radius: 9px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.osOption[data-combobox-selected] {
+    background: rgb(var(--sp-acc-rgb), 0.12);
+    color: var(--sp-acc);
+}
+
+.osOption[data-combobox-active],
+.osOption:hover {
+    background: rgb(var(--sp-acc-rgb), 0.08);
+}
+
+.osOptionContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.osIcon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    color: var(--sp-acc);
+}
+
+.tvBadge {
+    position: absolute;
+    right: -4px;
+    bottom: -3px;
+    background: var(--sp-card);
+    border-radius: 2px;
+}
+
+.osSelectedCheck {
+    margin-inline-start: auto;
+}

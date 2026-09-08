@@ -1,10 +1,18 @@
 import {
+    IconBrandAndroid,
+    IconBrandApple,
+    IconBrandWindows,
+    IconCheck,
+    IconChevronDown,
+    IconDeviceDesktop,
+    IconDeviceTv
+} from '@tabler/icons-react'
+import {
     TSubscriptionPageAppConfig,
     TSubscriptionPageButtonConfig,
     TSubscriptionPagePlatformKey
 } from '@remnawave/subscription-page-types'
-import { IconCheck, IconChevronDown, IconDeviceDesktop } from '@tabler/icons-react'
-import { Button, ButtonVariant, Card, Group, Text, Title } from '@mantine/core'
+import { Button, ButtonVariant, Card, Group, Select, Text, Title } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useClipboard } from '@mantine/hooks'
 import { useId, useState } from 'react'
@@ -22,6 +30,24 @@ import { useTranslation } from '@shared/hooks'
 
 import { IBlockRendererProps } from './components/blocks/renderer-block.interface'
 import classes from './installation-guide.module.css'
+
+const PlatformIcon = ({ platform }: { platform: string | undefined }) => {
+    const icons = {
+        ios: IconBrandApple,
+        macos: IconBrandApple,
+        android: IconBrandAndroid,
+        windows: IconBrandWindows,
+        androidTV: IconBrandAndroid,
+        appleTV: IconBrandApple
+    }
+    const Icon = icons[platform as keyof typeof icons] ?? IconDeviceDesktop
+    return (
+        <span aria-hidden className={classes.osIcon}>
+            <Icon size={19} />
+            {platform?.endsWith('TV') && <IconDeviceTv className={classes.tvBadge} size={11} />}
+        </span>
+    )
+}
 
 export type TBlockVariant = 'accordion' | 'cards' | 'minimal' | 'timeline'
 
@@ -201,28 +227,41 @@ export const InstallationGuideConnector = (props: IProps) => {
                     <label className={classes.fieldLabel} htmlFor={`${id}-platform`}>
                         {labels.device}
                     </label>
-                    <div className={classes.selectWrap}>
-                        <IconDeviceDesktop aria-hidden className={classes.selectIcon} size={18} />
-                        <select
-                            className={classes.select}
-                            id={`${id}-platform`}
-                            onChange={(event) => {
-                                vibrate('toggle')
-                                setSelectedPlatform(
-                                    event.target.value as TSubscriptionPagePlatformKey
-                                )
-                                setSelectedAppIndex(0)
-                            }}
-                            value={activePlatform}
-                        >
-                            {availablePlatforms.map((opt) => (
-                                <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
-                        <IconChevronDown aria-hidden className={classes.selectChevron} size={16} />
-                    </div>
+                    <Select
+                        allowDeselect={false}
+                        classNames={{
+                            input: classes.osSelect,
+                            dropdown: classes.osDropdown,
+                            option: classes.osOption
+                        }}
+                        comboboxProps={{
+                            transitionProps: { duration: 120, transition: 'fade' },
+                            shadow: 'lg'
+                        }}
+                        data={availablePlatforms.map(({ value, label }) => ({ value, label }))}
+                        id={`${id}-platform`}
+                        leftSection={<PlatformIcon platform={activePlatform} />}
+                        leftSectionPointerEvents="none"
+                        maxDropdownHeight={320}
+                        onChange={(value) => {
+                            if (!value) return
+                            vibrate('toggle')
+                            setSelectedPlatform(value as TSubscriptionPagePlatformKey)
+                            setSelectedAppIndex(0)
+                        }}
+                        renderOption={({ option, checked }) => (
+                            <span className={classes.osOptionContent}>
+                                <PlatformIcon platform={option.value} />
+                                <span>{option.label}</span>
+                                {checked && (
+                                    <IconCheck className={classes.osSelectedCheck} size={16} />
+                                )}
+                            </span>
+                        )}
+                        rightSection={<IconChevronDown aria-hidden size={16} />}
+                        rightSectionPointerEvents="none"
+                        value={activePlatform}
+                    />
                 </div>
 
                 <fieldset className={classes.appFieldset}>

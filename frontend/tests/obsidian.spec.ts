@@ -25,9 +25,8 @@ test('multiple recommendations keep their own instructions and import URLs', asy
         'data-opened-url',
         /hiddify:\/\/import\/.*demo-obsidian/
     )
-    await page
-        .getByRole('combobox', { name: 'Ваше устройство' })
-        .selectOption({ label: 'Apple TV' })
+    await page.getByRole('textbox', { name: 'Ваше устройство' }).click()
+    await page.getByRole('option', { name: 'Apple TV', exact: true }).click()
     await expect(apps.getByRole('radio')).toHaveCount(1)
     await expect(apps.getByRole('radio', { name: /INCY/ })).toBeChecked()
     await expect(page.getByRole('button', { name: 'Добавить в INCY' })).toBeVisible()
@@ -35,11 +34,19 @@ test('multiple recommendations keep their own instructions and import URLs', asy
 
 test('device dropdown is focusable and app choices work with the keyboard', async ({ page }) => {
     await page.goto('/')
-    const device = page.getByRole('combobox', { name: 'Ваше устройство' })
+    const device = page.getByRole('textbox', { name: 'Ваше устройство' })
     await device.focus()
     await expect(device).toBeFocused()
-    await device.selectOption({ label: 'Android' })
-    await expect(device.locator('option:checked')).toHaveText('Android')
+    await device.click()
+    await expect(page.getByRole('option')).toHaveCount(6)
+    await expect(
+        page.getByRole('option', { name: 'Android', exact: true }).locator('svg')
+    ).toHaveCount(1)
+    await page.getByRole('option', { name: 'Android', exact: true }).click()
+    await expect(device).toHaveValue('Android')
+    await device.press('Space')
+    await device.press('Escape')
+    await expect(page.getByRole('listbox')).not.toBeVisible()
     const incy = page.getByRole('radio', { name: /INCY/ })
     await incy.focus()
     await incy.press('ArrowRight')
