@@ -1,5 +1,27 @@
 # Changelog
 
+## [7.9.0](https://github.com/DigneZzZ/subscription-page/compare/v7.8.0...v7.9.0) (2026-09-08)
+
+
+### Features
+
+* Aurora layout (LAYOUT_PRESET=j) ([f52feee](https://github.com/DigneZzZ/subscription-page/commit/f52feee5a648923b44815e017923f86cc7d85069))
+* EFFECTS env — visual effects toggleable on any layout ([cff6d7d](https://github.com/DigneZzZ/subscription-page/commit/cff6d7dfbf5955c704c23acc042ff29715d4302f))
+* EFFECTS env — эффекты включаются на любой раскладке ([5050f06](https://github.com/DigneZzZ/subscription-page/commit/5050f062492f219115116a3faedc322594bcebca))
+* **frontend:** Aurora layout (LAYOUT_PRESET=j) — animated blobs, glass hero, ring-as-reset-button ([3925e17](https://github.com/DigneZzZ/subscription-page/commit/3925e17fdef01ee254c5b844573f8d113b619cb7))
+* **frontend:** Network (k) and Billboard (l) layouts ([6f138a7](https://github.com/DigneZzZ/subscription-page/commit/6f138a7c2d2d1ea307c52ca8794994846ba31caa))
+* Network (k) и Billboard (l) раскладки ([1b5b12b](https://github.com/DigneZzZ/subscription-page/commit/1b5b12b3274fb747a4a689c6a55a40d20e805cb2))
+* optional header Pay button (HEADER_PAY_BUTTON) + 4 new color themes ([25cb88a](https://github.com/DigneZzZ/subscription-page/commit/25cb88af5e20e9e53dab129a957b549ede07b967))
+* optional header Pay button + themes 9-12 ([72f589f](https://github.com/DigneZzZ/subscription-page/commit/72f589f1626400f467825b29be63335be1226652))
+* port remaining upstream v8.0.0 changes ([c1824fa](https://github.com/DigneZzZ/subscription-page/commit/c1824fa0b2b694bdfe20ffe91eca3b58e791cc33))
+* port remaining upstream v8.0.0 changes ([bd34afa](https://github.com/DigneZzZ/subscription-page/commit/bd34afa71ad9e8fdf10c43d001e0b0d70245afcc))
+
+
+### Bug Fixes
+
+* **backend:** support Remnawave panel 3.x numeric user ids in HWID API ([32e887b](https://github.com/DigneZzZ/subscription-page/commit/32e887ba87223ffde9d4d0149d85e747482510fe))
+* **backend:** support Remnawave panel 3.x numeric user ids in HWID API ([00b3573](https://github.com/DigneZzZ/subscription-page/commit/00b35737995a6cb1a3b3fc07f99f45f208ba4838))
+
 ## [7.8.0](https://github.com/DigneZzZ/subscription-page/compare/v7.7.0...v7.8.0) (2026-07-18)
 
 
