@@ -542,6 +542,8 @@ export class RootService {
             'Edge',
             'TelegramBot',
             'WhatsApp',
+            'facebookexternalhit',
+            'SteamChat',
         ];
 
         return browserKeywords.some((keyword) => userAgent.includes(keyword));
