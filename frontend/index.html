@@ -53,63 +53,79 @@
         <div id="hwid" data-hwid="<%- hwidData %>"></div>
         <div id="ui" data-preset="<%- uiPreset %>"></div>
 
-        <% if (chatwootBaseUrl && chatwootWebsiteToken) { %>
-        <!-- Chatwoot live chat widget -->
+        <!-- Chatwoot live chat widget. The template values are injected by the
+             backend at request time (see backend/src/modules/root/chatwoot.ts);
+             an EJS `if` here would run at vite build time, so the guard is
+             runtime JS. Language and color scheme are kept in sync from React
+             (shared/hooks/use-chatwoot-sync). -->
         <script>
-          (function () {
-            try {
-              var el = document.getElementById("sbpg");
-              if (el && el.dataset && el.dataset.panel) {
-                window.__rwPanelData = el.dataset.panel;
-              }
-            } catch (e) {}
-          })();
-
-          (function (d, t) {
+          (function (d, w) {
             var BASE = "<%- chatwootBaseUrl %>";
             var TOKEN = "<%- chatwootWebsiteToken %>";
-            var g = d.createElement(t),
-              s = d.getElementsByTagName(t)[0];
+            var IDENTIFIER_HASH = "<%- chatwootIdentifierHash %>";
+            var SETTINGS = "<%- chatwootSettings %>";
+            if (!BASE || !TOKEN) return;
+
+            var user = null;
+            try {
+              var el = d.getElementById("sbpg");
+              var panel = el && el.dataset.panel ? JSON.parse(atob(el.dataset.panel)) : null;
+              user = (panel && panel.response && panel.response.user) || null;
+            } catch (e) {}
+
+            var settings = {};
+            try {
+              if (SETTINGS) settings = JSON.parse(atob(SETTINGS));
+            } catch (e) {}
+            // Same key i18next-browser-languagedetector caches the page language under.
+            var lang = "";
+            try {
+              lang = w.localStorage.getItem("i18nextLng") || "";
+            } catch (e) {}
+            if (!lang && w.navigator && w.navigator.language) lang = w.navigator.language;
+            lang = String(lang).split("-")[0].toLowerCase();
+            if (lang) settings.locale = lang;
+            w.chatwootSettings = settings;
+
+            w.addEventListener("chatwoot:ready", function () {
+              if (!w.$chatwoot || !user || !user.shortUuid) return;
+              try {
+                var payload = {
+                  name: user.username || user.shortUuid,
+                  custom_attributes: {
+                    short_uuid: user.shortUuid,
+                    username: user.username || "",
+                    status: user.userStatus || "",
+                    expires_at: user.expiresAt || "",
+                    traffic_used: user.trafficUsed || "",
+                    traffic_limit: user.trafficLimit || "",
+                    days_left: user.daysLeft != null ? String(user.daysLeft) : ""
+                  }
+                };
+                if (IDENTIFIER_HASH) payload.identifier_hash = IDENTIFIER_HASH;
+                w.$chatwoot.setUser(user.shortUuid, payload);
+                w.$chatwoot.setCustomAttributes({ source: "subscription_page" });
+              } catch (e) {
+                console.warn("Chatwoot setUser failed:", e);
+              }
+            });
+            w.addEventListener("chatwoot:error", function (e) {
+              console.warn("Chatwoot widget error:", e && e.detail);
+            });
+
+            var g = d.createElement("script");
+            var s = d.getElementsByTagName("script")[0];
             g.src = BASE + "/packs/js/sdk.js";
             g.defer = true;
             g.async = true;
-            s.parentNode.insertBefore(g, s);
             g.onload = function () {
-              if (!window.chatwootSDK) return;
-              window.chatwootSDK.run({ websiteToken: TOKEN, baseUrl: BASE });
+              if (w.chatwootSDK) w.chatwootSDK.run({ websiteToken: TOKEN, baseUrl: BASE });
             };
-          })(document, "script");
-
-          window.addEventListener("chatwoot:ready", function () {
-            try {
-              var raw = window.__rwPanelData;
-              if (!raw) return;
-              var data = JSON.parse(atob(raw));
-              var u = (data && data.response && data.response.user) || {};
-              var uid = u.shortUuid || u.username || "";
-              if (!uid) return;
-              var IDENTIFIER_HASH = "<%- chatwootIdentifierHash %>";
-              var userPayload = {
-                name: u.username || u.shortUuid || uid,
-                email: u.email || undefined,
-                custom_attributes: {
-                  short_uuid: u.shortUuid || "",
-                  username: u.username || "",
-                  status: u.userStatus || "",
-                  expires_at: u.expiresAt || "",
-                  traffic_used: u.trafficUsed || "",
-                  traffic_limit: u.trafficLimit || "",
-                  days_left: u.daysLeft != null ? String(u.daysLeft) : "",
-                },
-              };
-              if (IDENTIFIER_HASH) userPayload.identifier_hash = IDENTIFIER_HASH;
-              window.$chatwoot.setUser(uid, userPayload);
-              window.$chatwoot.setCustomAttributes({ source: "subscription_page" });
-            } catch (e) {
-              console.warn("Chatwoot setUser failed:", e);
-            }
-          });
+            g.onerror = function () {
+              console.warn("Chatwoot SDK failed to load from " + BASE);
+            };
+            s.parentNode.insertBefore(g, s);
+          })(document, window);
         </script>
-        <% } %>
     </body>
 </html>

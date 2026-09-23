@@ -16,6 +16,27 @@ Configure the theme and layout via environment variables:
 
 **Note:** Layouts other than `classic` render their own subscription summary; `uiConfig.subscriptionInfoBlockType` applies to `classic` only.
 
+## Chatwoot live chat
+
+An optional floating support chat powered by a self-hosted [Chatwoot](https://www.chatwoot.com/) Website inbox. The widget renders only when both the base URL and the website token are set.
+
+| Variable | Options | Default | Description |
+|----------|---------|---------|-------------|
+| `CHATWOOT_BASE_URL` | URL | — | Chatwoot install, e.g. `https://support.example.com` (trailing slashes are stripped) |
+| `CHATWOOT_WEBSITE_TOKEN` | string | — | `website_token` from Settings → Inboxes → Website inbox → Configuration |
+| `CHATWOOT_HMAC_SECRET` | string | — | HMAC token from the same page (Identity Validation). Signs the subscriber so agents see a verified contact; leave empty for anonymous chats |
+| `CHATWOOT_POSITION` | left\|right | right | Corner of the floating bubble |
+| `CHATWOOT_LAUNCHER_TITLE` | string | — | Text next to the bubble; empty shows the icon only |
+| `CHATWOOT_HIDE_BUBBLE` | 0\|1 | 0 | Hide the bubble; open the chat from custom UI via `window.$chatwoot.toggle()` |
+
+Behaviour:
+
+- The contact is identified by the subscription `shortUuid`; the panel username, status, expiry, traffic and days left are attached as custom attributes. With `CHATWOOT_HMAC_SECRET` set, `identifier_hash` is HMAC-SHA256 (hex) over the `shortUuid`, matching Chatwoot's identity validation. If the inbox has **Enforce user identity validation** (`hmac_mandatory`) enabled, the secret is required.
+- The widget opens in the page language and follows the language picker (`setLocale`), and uses the dark or light scheme of the active `THEME_PRESET` (`setColorScheme`).
+- The Chatwoot SDK is loaded from `CHATWOOT_BASE_URL/packs/js/sdk.js`; make sure `/packs`, `/widget` and `/api/v1/widget` on the Chatwoot host are reachable from the browser.
+
+Preview locally with `node tests/preview-server.mjs` and open `http://127.0.0.1:3335/?chatwoot=1`; the preview serves a stub SDK that records calls in `window.__chatwootCalls`.
+
 ## Health check
 
 The container ships a `HEALTHCHECK` that performs a TCP connect to `APP_PORT` on

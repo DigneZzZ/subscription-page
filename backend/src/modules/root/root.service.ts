@@ -26,6 +26,7 @@ import {
 } from './ui-preset';
 import { SubpageConfigService } from './subpage-config.service';
 import { resolveHwidMode } from '../hwid-devices/hwid-mode';
+import { buildChatwootRenderVars } from './chatwoot';
 
 @Injectable()
 export class RootService {
@@ -648,16 +649,6 @@ export class RootService {
                 },
             );
 
-            const cwHmacSecret = this.configService.get<string>('CHATWOOT_HMAC_SECRET') || '';
-            const cwIdentifier =
-                subscriptionData?.response?.user?.shortUuid ||
-                subscriptionData?.response?.user?.username ||
-                '';
-            const cwIdentifierHash =
-                cwHmacSecret && cwIdentifier
-                    ? createHmac('sha256', cwHmacSecret).update(cwIdentifier).digest('hex')
-                    : '';
-
             const hwidEnabled =
                 resolveHwidMode(
                     this.configService.get<string>('HWID_MANAGEMENT_MODE'),
@@ -674,6 +665,19 @@ export class RootService {
             const previewMode = resolvePreviewMode(this.configService.get<string>('PREVIEW'));
             const themeBackground = THEME_BACKGROUNDS[themePreset];
 
+            const chatwoot = buildChatwootRenderVars(
+                {
+                    baseUrl: this.configService.get<string>('CHATWOOT_BASE_URL'),
+                    websiteToken: this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN'),
+                    hmacSecret: this.configService.get<string>('CHATWOOT_HMAC_SECRET'),
+                    position: this.configService.get<string>('CHATWOOT_POSITION'),
+                    launcherTitle: this.configService.get<string>('CHATWOOT_LAUNCHER_TITLE'),
+                    hideBubble: this.configService.get<string>('CHATWOOT_HIDE_BUBBLE'),
+                },
+                subscriptionData?.response?.user?.shortUuid,
+                themeBackground.colorScheme,
+            );
+
             res.render('index', {
                 metaTitle: baseSettings.metaTitle,
                 metaDescription: baseSettings.metaDescription,
@@ -682,10 +686,7 @@ export class RootService {
                 paymentTariffs,
                 paymentReset,
                 supportEmail: baseSettings.supportEmail,
-                chatwootBaseUrl: this.configService.get<string>('CHATWOOT_BASE_URL') || '',
-                chatwootWebsiteToken:
-                    this.configService.get<string>('CHATWOOT_WEBSITE_TOKEN') || '',
-                chatwootIdentifierHash: cwIdentifierHash,
+                ...chatwoot,
                 hwidData,
                 uiPreset: Buffer.from(
                     JSON.stringify({

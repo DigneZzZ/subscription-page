@@ -22,6 +22,7 @@ import {
 } from '@shared/constants'
 import { useThemePreset } from '@entities/ui-preset-store'
 import { initDayjs } from '@shared/utils/time-utils'
+import { useChatwootSync } from '@shared/hooks'
 
 import { Router } from './app/router/router'
 
@@ -41,6 +42,8 @@ export function App() {
     useEffect(() => {
         applyPresetCssVars(preset)
     }, [preset])
+
+    useChatwootSync()
 
     return (
         <DirectionProvider>

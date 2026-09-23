@@ -8,10 +8,40 @@ import { readFile } from 'node:fs/promises'
 // Local-only synthetic preview. No panel credentials or real payment endpoints.
 import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
+import { createHmac } from 'node:crypto'
 import ejs from 'ejs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../dist')
 const base64 = (value) => Buffer.from(JSON.stringify(value)).toString('base64')
+const previewOrigin = 'http://127.0.0.1:3335'
+// Stand-in for Chatwoot's /packs/js/sdk.js: records every SDK call on
+// window.__chatwootCalls and fires chatwoot:ready, exactly like the real SDK
+// does after boot. No network, no iframe.
+const chatwootSdkStub = `
+window.__chatwootCalls = [];
+(function () {
+  var record = function (name) {
+    return function () {
+      window.__chatwootCalls.push([name].concat(Array.prototype.slice.call(arguments)));
+    };
+  };
+  window.chatwootSDK = {
+    run: function (options) {
+      window.__chatwootCalls.push(['run', options]);
+      window.$chatwoot = {
+        setUser: record('setUser'),
+        setCustomAttributes: record('setCustomAttributes'),
+        setLocale: record('setLocale'),
+        setColorScheme: record('setColorScheme'),
+        toggle: record('toggle')
+      };
+      setTimeout(function () {
+        window.dispatchEvent(new CustomEvent('chatwoot:ready'));
+      }, 0);
+    }
+  };
+})();
+`
 const localize = (ru, en = ru) => ({ ru, en })
 const icon =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 7h6m-5 10h4"/></svg>'
@@ -169,7 +199,7 @@ const server = createServer(async (req, res) => {
         const { config, panel } = fixture(scenario, options.get('lang'))
         if (url.pathname === '/packs/js/sdk.js') {
             res.setHeader('Content-Type', 'application/javascript')
-            res.end('/* Chatwoot is disabled in this synthetic preview. */')
+            res.end(chatwootSdkStub)
             return
         }
         if (url.pathname === '/assets/.app-config-v2.json') {
@@ -231,9 +261,26 @@ const server = createServer(async (req, res) => {
                 hwidData: base64({ enabled: true }),
                 metaTitle: 'Geolog VPN — preview',
                 metaDescription: 'Local synthetic preview',
-                chatwootBaseUrl: '',
-                chatwootWebsiteToken: '',
-                chatwootIdentifierHash: '',
+                ...(options.get('chatwoot') === '1'
+                    ? {
+                        chatwootBaseUrl: previewOrigin,
+                        chatwootWebsiteToken: 'preview-token',
+                        chatwootIdentifierHash: createHmac('sha256', 'preview-secret')
+                            .update(panel.response.user.shortUuid)
+                            .digest('hex'),
+                        chatwootSettings: base64({
+                            position: 'right',
+                            launcherTitle: '',
+                            hideMessageBubble: false,
+                            darkMode: 'dark'
+                        })
+                    }
+                    : {
+                        chatwootBaseUrl: '',
+                        chatwootWebsiteToken: '',
+                        chatwootIdentifierHash: '',
+                        chatwootSettings: ''
+                    }),
                 uiPreset: base64({
                     theme: 9,
                     layout: options.get('layout') || 'obsidian',

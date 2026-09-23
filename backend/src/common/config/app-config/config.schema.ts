@@ -56,6 +56,23 @@ export const configSchema = z
             .transform((v) => (v && v.length > 0 ? v.replace(/\/+$/, '') : undefined)),
         CHATWOOT_WEBSITE_TOKEN: z.optional(z.string()),
         CHATWOOT_HMAC_SECRET: z.optional(z.string()),
+        // Widget appearance; resolved in modules/root/chatwoot.ts
+        CHATWOOT_POSITION: z
+            .string()
+            .optional()
+            .transform((v) => (v ? v.trim().toLowerCase() : undefined))
+            .refine(
+                (v) => v === undefined || v === '' || v === 'left' || v === 'right',
+                'CHATWOOT_POSITION must be "left" or "right"',
+            ),
+        CHATWOOT_LAUNCHER_TITLE: z.optional(z.string()),
+        CHATWOOT_HIDE_BUBBLE: z
+            .string()
+            .optional()
+            .refine(
+                (v) => v === undefined || ['', '0', '1', 'false', 'true'].includes(v.trim()),
+                'CHATWOOT_HIDE_BUBBLE must be 0 or 1',
+            ),
 
         CADDY_AUTH_API_TOKEN: z.optional(z.string()),
         CLOUDFLARE_ZERO_TRUST_CLIENT_ID: z.optional(z.string()),
@@ -231,16 +248,16 @@ export const configSchema = z
             .transform((v) => (v && v.length > 0 ? v : undefined)),
         // On-page theme/layout design picker: "1"/"true" enables it, anything
         // else disables it. Default disabled.
-    // Visual effects on any layout: csv of blobs|glass|shimmer|pulse|glow, or all/none
-    EFFECTS: z
-        .string()
-        .optional()
-        .transform((v) => (v && v.length > 0 ? v : undefined)),
-    // Header Pay button visibility ('0'/'false' hides; default shown)
-    HEADER_PAY_BUTTON: z
-        .string()
-        .optional()
-        .transform((v) => (v && v.length > 0 ? v : undefined)),
+        // Visual effects on any layout: csv of blobs|glass|shimmer|pulse|glow, or all/none
+        EFFECTS: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
+        // Header Pay button visibility ('0'/'false' hides; default shown)
+        HEADER_PAY_BUTTON: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
         PREVIEW: z
             .string()
             .optional()

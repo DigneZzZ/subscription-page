@@ -30,6 +30,7 @@ export default defineConfig({
                     chatwootBaseUrl: '<%- chatwootBaseUrl %>',
                     chatwootWebsiteToken: '<%- chatwootWebsiteToken %>',
                     chatwootIdentifierHash: '<%- chatwootIdentifierHash %>',
+                    chatwootSettings: '<%- chatwootSettings %>',
                     hwidData: '<%- hwidData %>',
                     uiPreset: '<%- uiPreset %>',
                     uiThemeColor: '<%- uiThemeColor %>',
@@ -53,6 +54,7 @@ export default defineConfig({
                 chatwootBaseUrl: '',
                 chatwootWebsiteToken: '',
                 chatwootIdentifierHash: '',
+                chatwootSettings: '',
                 hwidData: '',
                 uiThemeColor: '#080c0d',
                 uiColorScheme: 'dark'
