@@ -37,7 +37,9 @@ test('the widget boots with server settings and identifies the subscriber', asyn
     expect(settings).toEqual({
         position: 'right',
         launcherTitle: '',
-        hideMessageBubble: false,
+        type: 'standard',
+        launcher: 'page',
+        hideMessageBubble: true,
         darkMode: 'dark',
         proxied: false,
         locale: 'ru'

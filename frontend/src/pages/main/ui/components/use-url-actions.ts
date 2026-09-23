@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { fetchStatus, openDevicesModal, usePaymentModal, useResetTraffic } from '@widgets/main'
 import { usePaymentTariffs, usePaymentUrl } from '@entities/payment-store'
 import { useDevicesEnabled } from '@entities/devices-store'
+import { openChatwoot } from '@shared/utils/chatwoot'
 import { useTranslation } from '@shared/hooks'
 
 /**
@@ -24,23 +25,6 @@ export const parseUrlAction = (hash: string): null | TUrlAction => {
 const clearHash = () => {
     const { pathname, search } = window.location
     window.history.replaceState(window.history.state, '', `${pathname}${search}`)
-}
-
-interface IChatwootWindow {
-    $chatwoot?: { toggle: (state: 'close' | 'open') => void }
-    chatwootSettings?: unknown
-}
-
-// The inline bootstrap in index.html defines window.chatwootSettings only when
-// the widget is configured; without it there is nothing to open.
-const openChatwoot = () => {
-    const w = window as unknown as IChatwootWindow
-    if (w.$chatwoot) {
-        w.$chatwoot.toggle('open')
-        return
-    }
-    if (!('chatwootSettings' in w)) return
-    window.addEventListener('chatwoot:ready', () => w.$chatwoot?.toggle('open'), { once: true })
 }
 
 export function useUrlActions(): void {

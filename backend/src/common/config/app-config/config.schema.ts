@@ -66,12 +66,15 @@ export const configSchema = z
                 'CHATWOOT_POSITION must be "left" or "right"',
             ),
         CHATWOOT_LAUNCHER_TITLE: z.optional(z.string()),
-        CHATWOOT_HIDE_BUBBLE: z
+        // page (default) | native | none — see modules/root/chatwoot.ts
+        CHATWOOT_LAUNCHER: z
             .string()
             .optional()
             .refine(
-                (v) => v === undefined || ['', '0', '1', 'false', 'true'].includes(v.trim()),
-                'CHATWOOT_HIDE_BUBBLE must be 0 or 1',
+                (v) =>
+                    v === undefined ||
+                    ['', 'native', 'none', 'page'].includes(v.trim().toLowerCase()),
+                'CHATWOOT_LAUNCHER must be "page", "native" or "none"',
             ),
         // Relay the widget through this backend so the browser never contacts the
         // Chatwoot host (for subscribers behind DNS filters). See common/chatwoot-proxy.

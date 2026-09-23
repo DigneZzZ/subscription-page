@@ -2,7 +2,7 @@ import { createHmac } from 'node:crypto';
 
 import {
     buildChatwootRenderVars,
-    resolveChatwootHideBubble,
+    resolveChatwootLauncher,
     resolveChatwootPosition,
     resolveChatwootProxy,
 } from './chatwoot';
@@ -22,13 +22,16 @@ describe('resolveChatwootPosition', () => {
     });
 });
 
-describe('resolveChatwootHideBubble', () => {
-    it('is off by default and on for 1/true', () => {
-        expect(resolveChatwootHideBubble(undefined)).toBe(false);
-        expect(resolveChatwootHideBubble('0')).toBe(false);
-        expect(resolveChatwootHideBubble('false')).toBe(false);
-        expect(resolveChatwootHideBubble('1')).toBe(true);
-        expect(resolveChatwootHideBubble('true')).toBe(true);
+describe('resolveChatwootLauncher', () => {
+    it('defaults to the page launcher', () => {
+        expect(resolveChatwootLauncher(undefined)).toBe('page');
+        expect(resolveChatwootLauncher('')).toBe('page');
+        expect(resolveChatwootLauncher('bubble')).toBe('page');
+    });
+    it('accepts page/native/none case-insensitively', () => {
+        expect(resolveChatwootLauncher('native')).toBe('native');
+        expect(resolveChatwootLauncher('NONE')).toBe('none');
+        expect(resolveChatwootLauncher(' Page ')).toBe('page');
     });
 });
 
@@ -75,7 +78,10 @@ describe('buildChatwootRenderVars', () => {
         expect(decodeSettings(vars.chatwootSettings)).toEqual({
             position: 'right',
             launcherTitle: '',
-            hideMessageBubble: false,
+            type: 'standard',
+            launcher: 'page',
+            // the page renders its own launcher, so Chatwoot's bubble stays hidden
+            hideMessageBubble: true,
             darkMode: 'dark',
             proxied: false,
         });
@@ -84,19 +90,28 @@ describe('buildChatwootRenderVars', () => {
         );
     });
 
-    it('passes configured position, title and hidden bubble through', () => {
+    it('native launcher shows the Chatwoot bubble and a title switches it to the expanded bubble', () => {
         const vars = buildChatwootRenderVars(
-            { ...env, position: 'left', launcherTitle: 'Поддержка', hideBubble: '1' },
+            { ...env, position: 'left', launcherTitle: 'Поддержка', launcher: 'native' },
             'x',
             'dark',
         );
         expect(decodeSettings(vars.chatwootSettings)).toEqual({
             position: 'left',
             launcherTitle: 'Поддержка',
-            hideMessageBubble: true,
+            type: 'expanded_bubble',
+            launcher: 'native',
+            hideMessageBubble: false,
             darkMode: 'dark',
             proxied: false,
         });
+    });
+
+    it('launcher=none hides every launcher (chat opens only via #support)', () => {
+        const vars = buildChatwootRenderVars({ ...env, launcher: 'none' }, 'x', 'dark');
+        expect(decodeSettings(vars.chatwootSettings)).toEqual(
+            expect.objectContaining({ launcher: 'none', hideMessageBubble: true }),
+        );
     });
 
     it('serves the widget from the page origin when the proxy is enabled', () => {

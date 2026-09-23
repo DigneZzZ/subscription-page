@@ -1,6 +1,10 @@
 import { createHmac } from 'node:crypto';
 
 export type TChatwootPosition = 'left' | 'right';
+// page   → the subscription page renders its own launcher button, Chatwoot's bubble is hidden
+// native → Chatwoot's own bubble (expanded with text when CHATWOOT_LAUNCHER_TITLE is set)
+// none   → no launcher at all; the chat opens only via the #support URL command
+export type TChatwootLauncher = 'native' | 'none' | 'page';
 
 export interface IChatwootEnv {
     baseUrl?: string;
@@ -8,7 +12,7 @@ export interface IChatwootEnv {
     hmacSecret?: string;
     position?: string;
     launcherTitle?: string;
-    hideBubble?: string;
+    launcher?: string;
     // CHATWOOT_PROXY: serve the widget through this backend (see common/chatwoot-proxy)
     proxy?: string;
 }
@@ -28,6 +32,9 @@ export interface IChatwootRenderVars {
 export interface IChatwootSettings {
     position: TChatwootPosition;
     launcherTitle: string;
+    // Chatwoot only shows launcherTitle in its 'expanded_bubble' launcher.
+    type: 'expanded_bubble' | 'standard';
+    launcher: TChatwootLauncher;
     hideMessageBubble: boolean;
     darkMode: 'dark' | 'light';
     // true → index.html loads the SDK from window.location.origin instead of chatwootBaseUrl
@@ -43,8 +50,9 @@ export function resolveChatwootPosition(raw: string | undefined): TChatwootPosit
     return raw?.trim().toLowerCase() === 'left' ? 'left' : 'right';
 }
 
-export function resolveChatwootHideBubble(raw: string | undefined): boolean {
-    return parseFlag(raw);
+export function resolveChatwootLauncher(raw: string | undefined): TChatwootLauncher {
+    const value = raw?.trim().toLowerCase();
+    return value === 'native' || value === 'none' ? value : 'page';
 }
 
 export function resolveChatwootProxy(raw: string | undefined): boolean {
@@ -73,10 +81,14 @@ export function buildChatwootRenderVars(
         secret && identifier ? createHmac('sha256', secret).update(identifier).digest('hex') : '';
 
     const proxied = resolveChatwootProxy(env.proxy);
+    const launcher = resolveChatwootLauncher(env.launcher);
+    const launcherTitle = (env.launcherTitle ?? '').trim();
     const settings: IChatwootSettings = {
         position: resolveChatwootPosition(env.position),
-        launcherTitle: env.launcherTitle ?? '',
-        hideMessageBubble: resolveChatwootHideBubble(env.hideBubble),
+        launcherTitle,
+        type: launcherTitle ? 'expanded_bubble' : 'standard',
+        launcher,
+        hideMessageBubble: launcher !== 'native',
         darkMode: colorScheme,
         proxied,
     };

@@ -29,11 +29,17 @@ window.__chatwootCalls = [];
     run: function (options) {
       window.__chatwootCalls.push(['run', options]);
       window.$chatwoot = {
+        isOpen: false,
         setUser: record('setUser'),
         setCustomAttributes: record('setCustomAttributes'),
         setLocale: record('setLocale'),
         setColorScheme: record('setColorScheme'),
-        toggle: record('toggle')
+        toggle: function (state) {
+          record('toggle').apply(null, arguments);
+          var open = state === 'open' ? true : state === 'close' ? false : !window.$chatwoot.isOpen;
+          window.$chatwoot.isOpen = open;
+          window.dispatchEvent(new CustomEvent(open ? 'chatwoot:opened' : 'chatwoot:closed'));
+        }
       };
       setTimeout(function () {
         window.dispatchEvent(new CustomEvent('chatwoot:ready'));
@@ -264,9 +270,10 @@ const server = createServer(async (req, res) => {
                 hwidData: base64({ enabled: true }),
                 metaTitle: 'Geolog VPN — preview',
                 metaDescription: 'Local synthetic preview',
-                // ?chatwoot=1 → widget on an "external" base URL (the preview origin);
-                // ?chatwoot=proxy → CHATWOOT_PROXY mode: empty base URL, SDK from the page origin.
-                ...(['1', 'proxy'].includes(options.get('chatwoot') || '')
+                // ?chatwoot=1 → widget on an "external" base URL (the preview origin), page launcher;
+                // ?chatwoot=proxy → CHATWOOT_PROXY mode: empty base URL, SDK from the page origin;
+                // ?chatwoot=native → CHATWOOT_LAUNCHER=native: Chatwoot's own bubble, no page button.
+                ...(['1', 'proxy', 'native'].includes(options.get('chatwoot') || '')
                     ? {
                         chatwootBaseUrl: options.get('chatwoot') === 'proxy' ? '' : previewOrigin,
                         chatwootWebsiteToken: 'preview-token',
@@ -276,7 +283,9 @@ const server = createServer(async (req, res) => {
                         chatwootSettings: base64({
                             position: 'right',
                             launcherTitle: '',
-                            hideMessageBubble: false,
+                            type: 'standard',
+                            launcher: options.get('chatwoot') === 'native' ? 'native' : 'page',
+                            hideMessageBubble: options.get('chatwoot') !== 'native',
                             darkMode: 'dark',
                             proxied: options.get('chatwoot') === 'proxy'
                         })

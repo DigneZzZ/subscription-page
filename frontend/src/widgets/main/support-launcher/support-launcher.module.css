@@ -1,0 +1,134 @@
+/* Floating support launcher: replaces Chatwoot's own bubble. Graphite pill
+   with a thin inner ring and a headset glyph (per the brand reference);
+   collapses to a round icon on phones. Sits below Mantine overlays (modal
+   z-index 200) and far below the Chatwoot iframe holder, which covers the
+   phone screen while the chat is open. */
+.launcher {
+    --launcher-fill-top: #3b4046;
+    --launcher-fill-bottom: #1f2327;
+    --launcher-edge: #2a2e33;
+    --launcher-ring: rgb(255, 255, 255, 0.82);
+
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    z-index: 150;
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    min-width: 56px;
+    padding: 0 22px 0 18px;
+    border: 3px solid var(--launcher-edge);
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--launcher-fill-top), var(--launcher-fill-bottom));
+    color: #fff;
+    font: 600 16px/1 var(--mantine-font-family);
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    box-shadow:
+        inset 0 0 0 1.5px var(--launcher-ring),
+        0 0 0 1px rgb(0, 0, 0, 0.35),
+        0 12px 32px rgb(0, 0, 0, 0.45),
+        0 0 28px rgb(255, 255, 255, 0.06);
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        filter 160ms ease;
+}
+
+.right {
+    right: max(20px, env(safe-area-inset-right, 0px));
+}
+
+.left {
+    left: max(20px, env(safe-area-inset-left, 0px));
+}
+
+.launcher:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+    box-shadow:
+        inset 0 0 0 1.5px #fff,
+        0 0 0 1px rgb(0, 0, 0, 0.35),
+        0 16px 36px rgb(0, 0, 0, 0.5),
+        0 0 32px rgb(255, 255, 255, 0.1);
+}
+
+.launcher:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.launcher:focus-visible {
+    outline: 2px solid var(--sp-acc);
+    outline-offset: 3px;
+}
+
+/* Light theme keeps the graphite look but softens the outer glow. */
+:global(:root[data-mantine-color-scheme='light']) .launcher {
+    box-shadow:
+        inset 0 0 0 1.5px var(--launcher-ring),
+        0 0 0 1px rgb(0, 0, 0, 0.15),
+        0 12px 28px rgb(0, 0, 0, 0.25);
+}
+
+.icon {
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px rgb(255, 255, 255, 0.35));
+}
+
+.label {
+    white-space: nowrap;
+    text-shadow: 0 0 8px rgb(255, 255, 255, 0.25);
+}
+
+.dot {
+    position: absolute;
+    top: -3px;
+    inset-inline-end: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--sp-acc);
+    box-shadow: 0 0 0 2.5px var(--launcher-edge);
+    animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* Phones: round icon-only button, the label stays for assistive tech via aria-label. */
+@media (max-width: 40em) {
+    .launcher {
+        width: 60px;
+        height: 60px;
+        padding: 0;
+        gap: 0;
+    }
+
+    .label {
+        display: none;
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.25);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .launcher {
+        transition: none;
+    }
+
+    .launcher:hover {
+        transform: none;
+    }
+
+    .dot {
+        animation: none;
+    }
+}

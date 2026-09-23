@@ -26,14 +26,15 @@ An optional floating support chat powered by a self-hosted [Chatwoot](https://ww
 | `CHATWOOT_WEBSITE_TOKEN` | string | — | `website_token` from Settings → Inboxes → Website inbox → Configuration |
 | `CHATWOOT_HMAC_SECRET` | string | — | HMAC token from the same page (Identity Validation). Signs the subscriber so agents see a verified contact; leave empty for anonymous chats |
 | `CHATWOOT_POSITION` | left\|right | right | Corner of the floating bubble |
-| `CHATWOOT_LAUNCHER_TITLE` | string | — | Text next to the bubble; empty shows the icon only |
-| `CHATWOOT_HIDE_BUBBLE` | 0\|1 | 0 | Hide the bubble; open the chat from custom UI via `window.$chatwoot.toggle()` |
+| `CHATWOOT_LAUNCHER` | page\|native\|none | page | `page`: the page draws its own Support button in the page theme (headset icon, round on phones, pill with text on desktop) and hides Chatwoot's bubble. `native`: Chatwoot's own bubble. `none`: no button, chat opens only via `#support` |
+| `CHATWOOT_LAUNCHER_TITLE` | string | — | Button text. Empty means "Support" in the page language for the page launcher, or icon only for the native bubble |
 | `CHATWOOT_PROXY` | 0\|1 | 0 | Relay the widget through this backend so the browser never contacts the Chatwoot host (see below) |
 
 Behaviour:
 
 - The contact is identified by the subscription `shortUuid`; the panel username, status, expiry, traffic and days left are attached as custom attributes. With `CHATWOOT_HMAC_SECRET` set, `identifier_hash` is HMAC-SHA256 (hex) over the `shortUuid`, matching Chatwoot's identity validation. If the inbox has **Enforce user identity validation** (`hmac_mandatory`) enabled, the secret is required.
 - The widget opens in the page language and follows the language picker (`setLocale`), and uses the dark or light scheme of the active `THEME_PRESET` (`setColorScheme`).
+- The page launcher shows a dot when an agent replies while the chat is closed, turns into a "Close chat" button while the chat is open, and respects `CHATWOOT_POSITION`.
 - The Chatwoot SDK is loaded from `CHATWOOT_BASE_URL/packs/js/sdk.js`; make sure `/packs`, `/widget` and `/api/v1/widget` on the Chatwoot host are reachable from the browser.
 
 ### Same-origin relay (`CHATWOOT_PROXY=1`)

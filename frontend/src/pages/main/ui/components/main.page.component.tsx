@@ -11,6 +11,7 @@ import {
     SubscriptionInfoCollapsedWidget,
     SubscriptionInfoExpandedWidget,
     SubscriptionLinkWidget,
+    SupportLauncher,
     TimelineBlockRenderer
 } from '@widgets/main'
 import {
@@ -25,7 +26,13 @@ import {
     ObsidianLayout,
     TilesLayout
 } from '@pages/main/ui/layouts'
-import { EFFECT_FLAGS, useEffects, useLayoutPreset, usePreviewMode } from '@entities/ui-preset-store'
+import {
+    EFFECT_FLAGS,
+    useEffects,
+    useLayoutPreset,
+    usePreviewMode
+} from '@entities/ui-preset-store'
+import { hasPageLauncher, PAGE_LAUNCHER_CLEARANCE } from '@shared/utils/chatwoot'
 import { useSupportEmail } from '@entities/support-store'
 import { useAppConfig } from '@entities/app-config-store'
 import { FxBlobs, Page, Wordmark } from '@shared/ui'
@@ -118,10 +125,17 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
     }
 
     return (
-        <Page>
+        <Page
+            // Keep the footer (language picker, support link) reachable above
+            // the floating support launcher once the user scrolls to the end.
+            style={hasPageLauncher() ? { paddingBottom: PAGE_LAUNCHER_CLEARANCE } : undefined}
+        >
             {effects.includes('blobs') && layoutPreset !== 'aurora' && <FxBlobs />}
             <Box className="header-wrapper" py="md">
-                <Container maw={layoutPreset === 'obsidian' ? 1320 : 1200} px={{ base: 'md', sm: 'lg', md: 'xl' }}>
+                <Container
+                    maw={layoutPreset === 'obsidian' ? 1320 : 1200}
+                    px={{ base: 'md', sm: 'lg', md: 'xl' }}
+                >
                     <Group justify="space-between">
                         <Group gap="sm" style={{ userSelect: 'none' }} wrap="nowrap">
                             {hasCustomLogo || layoutPreset === 'obsidian' ? (
@@ -129,7 +143,11 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                                     <Image
                                         alt="logo"
                                         fit="contain"
-                                        src={hasCustomLogo ? config.brandingSettings.logoUrl : geologMark}
+                                        src={
+                                            hasCustomLogo
+                                                ? config.brandingSettings.logoUrl
+                                                : geologMark
+                                        }
                                         style={{
                                             width: '32px',
                                             height: '32px',
@@ -162,6 +180,8 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                 block (so it stays sticky through the whole scroll) and its
                 z-index is honoured against the header. */}
             {preview && <PreviewPanel />}
+
+            <SupportLauncher />
 
             <Container
                 maw={layoutPreset === 'obsidian' ? 1320 : 1200}
