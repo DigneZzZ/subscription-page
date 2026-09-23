@@ -64,18 +64,22 @@
             var TOKEN = "<%- chatwootWebsiteToken %>";
             var IDENTIFIER_HASH = "<%- chatwootIdentifierHash %>";
             var SETTINGS = "<%- chatwootSettings %>";
-            if (!BASE || !TOKEN) return;
+            if (!TOKEN) return;
+
+            var settings = {};
+            try {
+              if (SETTINGS) settings = JSON.parse(atob(SETTINGS));
+            } catch (e) {}
+            // CHATWOOT_PROXY=1: the backend relays the widget, so everything is
+            // loaded from this page's own origin and the upstream host stays hidden.
+            if (settings.proxied) BASE = w.location.origin;
+            if (!BASE) return;
 
             var user = null;
             try {
               var el = d.getElementById("sbpg");
               var panel = el && el.dataset.panel ? JSON.parse(atob(el.dataset.panel)) : null;
               user = (panel && panel.response && panel.response.user) || null;
-            } catch (e) {}
-
-            var settings = {};
-            try {
-              if (SETTINGS) settings = JSON.parse(atob(SETTINGS));
             } catch (e) {}
             // Same key i18next-browser-languagedetector caches the page language under.
             var lang = "";

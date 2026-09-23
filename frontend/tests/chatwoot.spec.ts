@@ -39,6 +39,7 @@ test('the widget boots with server settings and identifies the subscriber', asyn
         launcherTitle: '',
         hideMessageBubble: false,
         darkMode: 'dark',
+        proxied: false,
         locale: 'ru'
     })
 
@@ -72,4 +73,13 @@ test('the widget follows the page language and color scheme', async ({ page }) =
     await page.getByRole('menuitem', { name: 'English' }).click()
     const [changed] = await waitForCall(page, 'setLocale', before)
     expect(changed[1]).toBe('en')
+})
+
+test('proxy mode loads the SDK and runs the widget from the page origin', async ({ page }) => {
+    await page.goto('/?chatwoot=proxy')
+    const [run] = await waitForCall(page, 'run')
+    expect(run[1]).toEqual({ websiteToken: 'preview-token', baseUrl: 'http://127.0.0.1:3335' })
+    await expect(page.locator('script[src="http://127.0.0.1:3335/packs/js/sdk.js"]')).toHaveCount(1)
+    const [setUser] = await waitForCall(page, 'setUser')
+    expect(setUser[1]).toBe('demo-obsidian')
 })

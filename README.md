@@ -28,6 +28,7 @@ An optional floating support chat powered by a self-hosted [Chatwoot](https://ww
 | `CHATWOOT_POSITION` | left\|right | right | Corner of the floating bubble |
 | `CHATWOOT_LAUNCHER_TITLE` | string | — | Text next to the bubble; empty shows the icon only |
 | `CHATWOOT_HIDE_BUBBLE` | 0\|1 | 0 | Hide the bubble; open the chat from custom UI via `window.$chatwoot.toggle()` |
+| `CHATWOOT_PROXY` | 0\|1 | 0 | Relay the widget through this backend so the browser never contacts the Chatwoot host (see below) |
 
 Behaviour:
 
@@ -35,7 +36,13 @@ Behaviour:
 - The widget opens in the page language and follows the language picker (`setLocale`), and uses the dark or light scheme of the active `THEME_PRESET` (`setColorScheme`).
 - The Chatwoot SDK is loaded from `CHATWOOT_BASE_URL/packs/js/sdk.js`; make sure `/packs`, `/widget` and `/api/v1/widget` on the Chatwoot host are reachable from the browser.
 
-Preview locally with `node tests/preview-server.mjs` and open `http://127.0.0.1:3335/?chatwoot=1`; the preview serves a stub SDK that records calls in `window.__chatwootCalls`.
+### Same-origin relay (`CHATWOOT_PROXY=1`)
+
+Subscribers behind DNS filters, ad blockers or VPN blocklists may not reach the Chatwoot host at all, so the widget never appears. With `CHATWOOT_PROXY=1` the backend relays the widget under the subscription page domain: the SDK loader (`/packs/js/sdk.js`), the widget iframe (`/widget`), its bundles (`/vite/*`), the widget API (`/api/v1/widget/*`), the ActionCable websocket (`/cable`), attachments (`/rails/active_storage/*`), `/brand-assets/*` and `/audio/*` are forwarded to `CHATWOOT_BASE_URL`. Only these prefixes are relayed (it is not an open proxy) and the page's own `session` cookie is stripped before forwarding. The reverse proxy in front of the container must pass WebSocket upgrades on `/cable` for live agent replies; Caddy does so by default.
+
+In the Chatwoot inbox keep the subscription page domain in **Allowed domains**; the iframe is now same-origin with the page, so `frame-ancestors` and third-party cookie restrictions no longer apply.
+
+Preview locally with `node tests/preview-server.mjs` and open `http://127.0.0.1:3335/?chatwoot=1` (or `?chatwoot=proxy` for relay mode); the preview serves a stub SDK that records calls in `window.__chatwootCalls`.
 
 ## URL commands
 

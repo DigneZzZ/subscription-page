@@ -673,6 +673,7 @@ export class RootService {
                     position: this.configService.get<string>('CHATWOOT_POSITION'),
                     launcherTitle: this.configService.get<string>('CHATWOOT_LAUNCHER_TITLE'),
                     hideBubble: this.configService.get<string>('CHATWOOT_HIDE_BUBBLE'),
+                    proxy: this.configService.get<string>('CHATWOOT_PROXY'),
                 },
                 subscriptionData?.response?.user?.shortUuid,
                 themeBackground.colorScheme,

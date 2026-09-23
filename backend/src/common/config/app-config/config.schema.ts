@@ -73,6 +73,15 @@ export const configSchema = z
                 (v) => v === undefined || ['', '0', '1', 'false', 'true'].includes(v.trim()),
                 'CHATWOOT_HIDE_BUBBLE must be 0 or 1',
             ),
+        // Relay the widget through this backend so the browser never contacts the
+        // Chatwoot host (for subscribers behind DNS filters). See common/chatwoot-proxy.
+        CHATWOOT_PROXY: z
+            .string()
+            .optional()
+            .refine(
+                (v) => v === undefined || ['', '0', '1', 'false', 'true'].includes(v.trim()),
+                'CHATWOOT_PROXY must be 0 or 1',
+            ),
 
         CADDY_AUTH_API_TOKEN: z.optional(z.string()),
         CLOUDFLARE_ZERO_TRUST_CLIENT_ID: z.optional(z.string()),

@@ -9,6 +9,8 @@ export interface IChatwootEnv {
     position?: string;
     launcherTitle?: string;
     hideBubble?: string;
+    // CHATWOOT_PROXY: serve the widget through this backend (see common/chatwoot-proxy)
+    proxy?: string;
 }
 
 // Template variables consumed by frontend/index.html (see the Chatwoot block).
@@ -28,15 +30,25 @@ export interface IChatwootSettings {
     launcherTitle: string;
     hideMessageBubble: boolean;
     darkMode: 'dark' | 'light';
+    // true → index.html loads the SDK from window.location.origin instead of chatwootBaseUrl
+    proxied: boolean;
 }
+
+const parseFlag = (raw: string | undefined): boolean => {
+    const value = raw?.trim().toLowerCase();
+    return value === '1' || value === 'true';
+};
 
 export function resolveChatwootPosition(raw: string | undefined): TChatwootPosition {
     return raw?.trim().toLowerCase() === 'left' ? 'left' : 'right';
 }
 
 export function resolveChatwootHideBubble(raw: string | undefined): boolean {
-    const value = raw?.trim().toLowerCase();
-    return value === '1' || value === 'true';
+    return parseFlag(raw);
+}
+
+export function resolveChatwootProxy(raw: string | undefined): boolean {
+    return parseFlag(raw);
 }
 
 export function buildChatwootRenderVars(
@@ -60,15 +72,18 @@ export function buildChatwootRenderVars(
     const chatwootIdentifierHash =
         secret && identifier ? createHmac('sha256', secret).update(identifier).digest('hex') : '';
 
+    const proxied = resolveChatwootProxy(env.proxy);
     const settings: IChatwootSettings = {
         position: resolveChatwootPosition(env.position),
         launcherTitle: env.launcherTitle ?? '',
         hideMessageBubble: resolveChatwootHideBubble(env.hideBubble),
         darkMode: colorScheme,
+        proxied,
     };
 
     return {
-        chatwootBaseUrl: baseUrl,
+        // In proxy mode the browser must never see the upstream host.
+        chatwootBaseUrl: proxied ? '' : baseUrl,
         chatwootWebsiteToken: websiteToken,
         chatwootIdentifierHash,
         chatwootSettings: Buffer.from(JSON.stringify(settings)).toString('base64'),

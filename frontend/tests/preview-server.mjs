@@ -264,9 +264,11 @@ const server = createServer(async (req, res) => {
                 hwidData: base64({ enabled: true }),
                 metaTitle: 'Geolog VPN — preview',
                 metaDescription: 'Local synthetic preview',
-                ...(options.get('chatwoot') === '1'
+                // ?chatwoot=1 → widget on an "external" base URL (the preview origin);
+                // ?chatwoot=proxy → CHATWOOT_PROXY mode: empty base URL, SDK from the page origin.
+                ...(['1', 'proxy'].includes(options.get('chatwoot') || '')
                     ? {
-                        chatwootBaseUrl: previewOrigin,
+                        chatwootBaseUrl: options.get('chatwoot') === 'proxy' ? '' : previewOrigin,
                         chatwootWebsiteToken: 'preview-token',
                         chatwootIdentifierHash: createHmac('sha256', 'preview-secret')
                             .update(panel.response.user.shortUuid)
@@ -275,7 +277,8 @@ const server = createServer(async (req, res) => {
                             position: 'right',
                             launcherTitle: '',
                             hideMessageBubble: false,
-                            darkMode: 'dark'
+                            darkMode: 'dark',
+                            proxied: options.get('chatwoot') === 'proxy'
                         })
                     }
                     : {

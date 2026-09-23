@@ -4,6 +4,7 @@ import {
     buildChatwootRenderVars,
     resolveChatwootHideBubble,
     resolveChatwootPosition,
+    resolveChatwootProxy,
 } from './chatwoot';
 
 const decodeSettings = (raw: string) => JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
@@ -76,6 +77,7 @@ describe('buildChatwootRenderVars', () => {
             launcherTitle: '',
             hideMessageBubble: false,
             darkMode: 'dark',
+            proxied: false,
         });
         expect(decodeSettings(buildChatwootRenderVars(env, 'x', 'light').chatwootSettings)).toEqual(
             expect.objectContaining({ darkMode: 'light' }),
@@ -93,6 +95,32 @@ describe('buildChatwootRenderVars', () => {
             launcherTitle: 'Поддержка',
             hideMessageBubble: true,
             darkMode: 'dark',
+            proxied: false,
         });
+    });
+
+    it('serves the widget from the page origin when the proxy is enabled', () => {
+        const vars = buildChatwootRenderVars({ ...env, proxy: '1' }, 'x', 'dark');
+        expect(vars.chatwootBaseUrl).toBe('');
+        expect(vars.chatwootWebsiteToken).toBe('tok');
+        expect(vars.chatwootIdentifierHash).not.toBe('');
+        expect(decodeSettings(vars.chatwootSettings)).toEqual(
+            expect.objectContaining({ proxied: true }),
+        );
+    });
+
+    it('ignores the proxy flag without an upstream', () => {
+        const vars = buildChatwootRenderVars({ websiteToken: 'tok', proxy: '1' }, 'x', 'dark');
+        expect(vars.chatwootWebsiteToken).toBe('');
+        expect(vars.chatwootSettings).toBe('');
+    });
+});
+
+describe('resolveChatwootProxy', () => {
+    it('is off by default and on for 1/true', () => {
+        expect(resolveChatwootProxy(undefined)).toBe(false);
+        expect(resolveChatwootProxy('0')).toBe(false);
+        expect(resolveChatwootProxy('1')).toBe(true);
+        expect(resolveChatwootProxy('true')).toBe(true);
     });
 });

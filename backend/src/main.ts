@@ -22,7 +22,10 @@ import { isDevelopment, isDevOrDebugLogsEnabled } from '@common/utils/startup-ap
 import { noRobotsMiddleware, proxyCheckMiddleware } from '@common/middlewares';
 import { getStartMessage } from '@common/utils/startup-app/get-start-message';
 import { customLogFilter } from '@common/utils/filter-logs/filter-logs';
+import { createChatwootProxy } from '@common/chatwoot-proxy';
 import { getRealIp } from '@common/middlewares/get-real-ip';
+
+import { resolveChatwootProxy } from '@modules/root/chatwoot';
 
 import { AppModule } from './app.module';
 
@@ -89,6 +92,16 @@ async function bootstrap(): Promise<void> {
 
     app.use(noRobotsMiddleware, proxyCheckMiddleware, checkAssetsCookieMiddleware, getRealIp);
 
+    // Chatwoot same-origin relay (CHATWOOT_PROXY=1). Mounted before the JSON body
+    // parser and compression so request bodies and upstream encodings stream through.
+    const chatwootProxy = createChatwootProxy({
+        enabled: resolveChatwootProxy(config.get<string>('CHATWOOT_PROXY')),
+        upstream: config.get<string>('CHATWOOT_BASE_URL'),
+    });
+    if (chatwootProxy) {
+        app.use(chatwootProxy.middleware);
+    }
+
     app.useGlobalFilters(new NotFoundExceptionFilter());
 
     app.useStaticAssets(assetsPath, {
@@ -150,6 +163,12 @@ async function bootstrap(): Promise<void> {
     app.enableShutdownHooks();
 
     await app.listen(Number(config.getOrThrow<string>('APP_PORT')));
+
+    if (chatwootProxy) {
+        // ActionCable websocket for live agent replies (/cable).
+        app.getHttpServer().on('upgrade', chatwootProxy.upgrade);
+        logger.info('[CONFIG] CHATWOOT_PROXY: enabled');
+    }
 
     logger.info('\n' + (await getStartMessage()) + '\n');
 }
