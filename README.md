@@ -37,6 +37,19 @@ Behaviour:
 
 Preview locally with `node tests/preview-server.mjs` and open `http://127.0.0.1:3335/?chatwoot=1`; the preview serves a stub SDK that records calls in `window.__chatwootCalls`.
 
+## URL commands
+
+Append a hash to the subscription link to open a specific action right after the page loads, e.g. from a Telegram bot button:
+
+| Link | Action |
+|------|--------|
+| `https://sub.example/<shortUuid>#pay` | Opens the tariff picker. With only `PAYMENT_URL` configured (no tariffs) the browser navigates to that URL in the same tab, because a popup without a click would be blocked. Ignored when payment is not configured |
+| `…#support` | Opens the Chatwoot chat (waits for the widget to boot). Ignored when Chatwoot is not configured |
+| `…#devices` | Opens the device management (HWID) modal when it is enabled and available to this subscriber |
+| `…#reset` | Opens the traffic reset flow when the reset button would be shown |
+
+The fragment is never sent to the server, so it does not appear in proxy logs and does not affect VPN clients that fetch the same URL. A recognised command is removed from the address bar immediately, so the same link works again on the next click; other fragments are left untouched. Changing the hash on an already open page (for example a `href="#pay"` link) triggers the action as well.
+
 ## Health check
 
 The container ships a `HEALTHCHECK` that performs a TCP connect to `APP_PORT` on

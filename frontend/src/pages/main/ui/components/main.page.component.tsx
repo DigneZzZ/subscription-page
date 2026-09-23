@@ -31,6 +31,7 @@ import { useAppConfig } from '@entities/app-config-store'
 import { FxBlobs, Page, Wordmark } from '@shared/ui'
 
 import geologMark from '../../../../assets/geolog/mark.svg'
+import { useUrlActions } from './use-url-actions'
 
 interface IMainPageComponentProps {
     isMobile: boolean
@@ -78,6 +79,8 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
         }
     }, [effects])
     const preview = usePreviewMode()
+
+    useUrlActions()
 
     const brandName = config.brandingSettings.title
     let hasCustomLogo = !!config.brandingSettings.logoUrl

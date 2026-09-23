@@ -256,7 +256,10 @@ const server = createServer(async (req, res) => {
                             }
                         ]
                 ),
-                paymentReset: '',
+                paymentReset:
+                    options.get('reset') === '1'
+                        ? base64({ amount: 99, currency: 'RUB', minPercent: 0, dynamic: false })
+                        : '',
                 supportEmail: '',
                 hwidData: base64({ enabled: true }),
                 metaTitle: 'Geolog VPN — preview',
