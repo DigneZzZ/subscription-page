@@ -69,6 +69,32 @@
     white-space: nowrap;
 }
 
+/* QR-кнопка рядом с «Копировать» — в тон акцентной кнопке. */
+.qrButton {
+    flex-shrink: 0;
+    color: var(--sp-acc);
+    background: rgb(var(--sp-acc-rgb) / 0.1);
+    border: 1px solid rgb(var(--sp-acc-rgb) / 0.32);
+}
+
+/* Модалка QR-кода — та же карточная поверхность, что у виджета ссылки в шапке. */
+.qrModalContent {
+    background: var(--sp-card);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgb(255, 255, 255, 0.1);
+}
+
+.qrModalHeader {
+    background: transparent;
+}
+
+.qrModalTitle {
+    font-weight: 600;
+    color: var(--sp-text);
+}
+
 /* Two-column info grid used inside the narrow left rail of the columns layout.
    minmax(0, 1fr) lets the columns shrink below their content's min-content (the
    traffic meter row uses wrap="nowrap"), so the rail never overflows on mobile. */

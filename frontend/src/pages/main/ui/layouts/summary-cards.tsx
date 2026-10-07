@@ -1,4 +1,19 @@
-import { Badge, Box, Button, Center, CopyButton, Group, Progress, Text } from '@mantine/core'
+import {
+    ActionIcon,
+    Badge,
+    Box,
+    Button,
+    Center,
+    CopyButton,
+    Group,
+    Image,
+    Progress,
+    Stack,
+    Text
+} from '@mantine/core'
+import { modals } from '@mantine/modals'
+import { renderSVG } from 'uqr'
+import { IconCopy, IconQrcode } from '@tabler/icons-react'
 import { ReactNode } from 'react'
 import clsx from 'clsx'
 
@@ -14,6 +29,8 @@ import { InstallationGuideConnector } from '@widgets/main'
 import { formatDate } from '@shared/utils/config-parser'
 import { getLayoutStrings } from '@shared/i18n'
 import { useTranslation } from '@shared/hooks'
+import { getQrColors } from '@shared/utils'
+import { vibrate } from '@shared/utils/vibrate'
 
 import { ILayoutProps } from './layout-props.interface'
 import classes from './layouts.module.css'
@@ -122,30 +139,91 @@ export const LinkCard = () => {
     const s = getLayoutStrings(currentLang)
     const url = subscription.subscriptionUrl
 
+    const handleShowQr = () => {
+        vibrate('tap')
+
+        // QR-код рисуется как SVG со статическими цветами темы на момент
+        // открытия модалки (та же логика, что в виджете ссылки в шапке).
+        const subscriptionQrCode = renderSVG(url, getQrColors())
+
+        modals.open({
+            centered: true,
+            title: s.subscriptionLink,
+            classNames: {
+                content: classes.qrModalContent,
+                header: classes.qrModalHeader,
+                title: classes.qrModalTitle
+            },
+            children: (
+                <Stack align="center">
+                    <Image
+                        src={`data:image/svg+xml;utf8,${encodeURIComponent(subscriptionQrCode)}`}
+                        style={{ borderRadius: 'var(--mantine-radius-md)' }}
+                    />
+                    <Text c="var(--sp-text)" fw={600} size="lg" ta="center">
+                        {t(baseTranslations.scanQrCode)}
+                    </Text>
+                    <Text c="dimmed" size="sm" ta="center">
+                        {t(baseTranslations.scanQrCodeDescription)}
+                    </Text>
+
+                    <CopyButton timeout={2000} value={url}>
+                        {({ copied, copy }) => (
+                            <Button
+                                fullWidth
+                                leftSection={<IconCopy />}
+                                onClick={copy}
+                                radius="md"
+                                variant="light"
+                            >
+                                {copied
+                                    ? t(baseTranslations.linkCopied)
+                                    : t(baseTranslations.copyLink)}
+                            </Button>
+                        )}
+                    </CopyButton>
+                </Stack>
+            )
+        })
+    }
+
     return (
         <Box className={clsx(classes.card, classes.linkCard)}>
             <Text className="sp-mono-label">{s.subscriptionLink}</Text>
             <Box className={classes.linkRow}>
                 <span className={classes.linkUrl}>{url}</span>
-                <CopyButton timeout={2000} value={url}>
-                    {({ copied, copy }) => (
-                        <Button
-                            onClick={copy}
-                            radius="md"
-                            size="xs"
-                            styles={{
-                                root: {
-                                    color: 'var(--sp-acc)',
-                                    background: 'rgba(var(--sp-acc-rgb), 0.1)',
-                                    border: '1px solid rgba(var(--sp-acc-rgb), 0.32)'
-                                }
-                            }}
-                            variant="light"
-                        >
-                            {copied ? t(baseTranslations.linkCopied) : t(baseTranslations.copyLink)}
-                        </Button>
-                    )}
-                </CopyButton>
+                <Group gap="xs" wrap="nowrap">
+                    <ActionIcon
+                        aria-label={t(baseTranslations.scanQrCode)}
+                        className={classes.qrButton}
+                        onClick={handleShowQr}
+                        radius="md"
+                        variant="default"
+                    >
+                        <IconQrcode aria-hidden="true" />
+                    </ActionIcon>
+                    <CopyButton timeout={2000} value={url}>
+                        {({ copied, copy }) => (
+                            <Button
+                                onClick={copy}
+                                radius="md"
+                                size="xs"
+                                styles={{
+                                    root: {
+                                        color: 'var(--sp-acc)',
+                                        background: 'rgba(var(--sp-acc-rgb), 0.1)',
+                                        border: '1px solid rgba(var(--sp-acc-rgb), 0.32)'
+                                    }
+                                }}
+                                variant="light"
+                            >
+                                {copied
+                                    ? t(baseTranslations.linkCopied)
+                                    : t(baseTranslations.copyLink)}
+                            </Button>
+                        )}
+                    </CopyButton>
+                </Group>
             </Box>
         </Box>
     )
