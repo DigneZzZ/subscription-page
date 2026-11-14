@@ -31,6 +31,7 @@ describe('resolveLayoutPreset', () => {
         expect(resolveLayoutPreset('c')).toBe('columns');
         expect(resolveLayoutPreset('e')).toBe('tiles');
         expect(resolveLayoutPreset('f')).toBe('banner');
+        expect(resolveLayoutPreset('g')).toBe('frost');
         expect(resolveLayoutPreset('j')).toBe('aurora');
         expect(resolveLayoutPreset('k')).toBe('network');
         expect(resolveLayoutPreset('l')).toBe('billboard');
@@ -40,6 +41,7 @@ describe('resolveLayoutPreset', () => {
         expect(resolveLayoutPreset('HERO')).toBe('hero');
         expect(resolveLayoutPreset(' Tiles ')).toBe('tiles');
         expect(resolveLayoutPreset('AURORA')).toBe('aurora');
+        expect(resolveLayoutPreset(' Frost ')).toBe('frost');
     });
     it('falls back to obsidian on invalid input (incl. reserved d)', () => {
         expect(resolveLayoutPreset(undefined)).toBe('obsidian');

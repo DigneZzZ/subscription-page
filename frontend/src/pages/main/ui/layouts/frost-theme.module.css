@@ -1,0 +1,74 @@
+/* Scoped semantic pairs follow https://ui.shadcn.com/docs/theming.
+   The existing subscription-page presets remain the only palette source.
+   Apply this scope to both the page and portal surfaces. */
+.scope {
+    --background: var(--sp-bg);
+    --foreground: var(--sp-text);
+    --card: var(--sp-card);
+    --card-foreground: var(--sp-text);
+    --popover: var(--sp-card);
+    --popover-foreground: var(--sp-text);
+    --primary: var(--sp-acc);
+    --primary-foreground: var(--sp-cta-text);
+    --secondary: color-mix(in srgb, var(--sp-text) 7%, var(--sp-card));
+    --secondary-foreground: var(--sp-text);
+    --muted: var(--sp-inset-bg);
+    --muted-foreground: var(--sp-dim);
+    --accent: color-mix(in srgb, var(--sp-acc) 12%, var(--sp-card));
+    --accent-foreground: var(--sp-text);
+    --border: color-mix(in srgb, var(--sp-text) 13%, transparent);
+    --input: color-mix(in srgb, var(--sp-text) 20%, transparent);
+    --ring: color-mix(in srgb, var(--sp-acc) 55%, transparent);
+    --radius: 0.625rem;
+    --fr-bg: var(--background);
+    --fr-card-solid: var(--card);
+    --fr-card: color-mix(in srgb, var(--card) 76%, transparent);
+    --fr-line: var(--border);
+    --fr-line-2: var(--input);
+    --fr-well: color-mix(in srgb, var(--muted) 82%, transparent);
+    --fr-button: color-mix(in srgb, var(--secondary) 86%, transparent);
+    --fr-row: color-mix(in srgb, var(--card) 62%, transparent);
+    --fr-icon: color-mix(in srgb, var(--primary) 9%, var(--sp-bg-soft));
+    --fr-text: var(--foreground);
+    --fr-muted: var(--muted-foreground);
+    --fr-dim: var(--muted-foreground);
+    --fr-accent: var(--primary);
+    --fr-accent-text: var(--primary);
+    --fr-ink: var(--primary-foreground);
+    --fr-success: var(--sp-ok);
+    --fr-warning: #e9a23b;
+    --fr-destructive: #f26464;
+    --fr-specular: rgb(255, 255, 255, 0.08);
+    --fr-shadow: 0 12px 32px -20px rgb(0, 0, 0, 0.65);
+    --fr-ring: var(--ring);
+    --fr-radius: 18px;
+    --fr-control-radius: var(--radius);
+    --fr-safe-bottom: env(safe-area-inset-bottom, 0px);
+    color-scheme: dark;
+}
+
+:global([data-mantine-color-scheme='light']) .scope {
+    --fr-specular: rgb(255, 255, 255, 0.88);
+    --fr-shadow: 0 12px 32px -20px rgb(15, 23, 42, 0.2);
+    --fr-warning: #966208;
+    --fr-destructive: #c93648;
+    color-scheme: light;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .scope {
+        --fr-card: var(--card);
+        --fr-well: var(--muted);
+        --fr-button: var(--secondary);
+        --fr-row: var(--card);
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .scope {
+        --fr-card: var(--card);
+        --fr-well: var(--muted);
+        --fr-button: var(--secondary);
+        --fr-row: var(--card);
+    }
+}

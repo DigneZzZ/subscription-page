@@ -314,11 +314,12 @@ function DevicesFlow({ s, mode }: { mode: DeviceMode; s: IDeviceStrings }) {
     )
 }
 
-export function openDevicesModal(lang: string, mode: DeviceMode): void {
+export function openDevicesModal(lang: string, mode: DeviceMode, onClose?: () => void): void {
     const s = getDeviceStrings(lang)
     modals.open({
         title: s.title,
         centered: true,
+        onClose,
         fullScreen: window.matchMedia('(max-width: 30rem)').matches,
         children: <DevicesFlow mode={mode} s={s} />
     })

@@ -20,6 +20,7 @@ import {
     BillboardLayout,
     ClassicLayout,
     ColumnsLayout,
+    FrostLayout,
     HeroLayout,
     ILayoutProps,
     NetworkLayout,
@@ -66,6 +67,7 @@ const LAYOUT_RENDERERS = {
     billboard: BillboardLayout,
     classic: ClassicLayout,
     columns: ColumnsLayout,
+    frost: FrostLayout,
     hero: HeroLayout,
     network: NetworkLayout,
     tiles: TilesLayout
@@ -122,6 +124,15 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
         isMobile,
         platform,
         SubscriptionInfoBlockRenderer
+    }
+
+    if (layoutPreset === 'frost') {
+        return (
+            <>
+                {preview && <PreviewPanel standalone />}
+                <FrostLayout {...layoutProps} />
+            </>
+        )
     }
 
     return (

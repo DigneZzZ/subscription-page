@@ -11,6 +11,8 @@ import { fileURLToPath } from 'node:url'
 import { createHmac } from 'node:crypto'
 import ejs from 'ejs'
 
+import { THEME_PRESETS } from '../src/shared/constants/theme/presets/theme-presets.ts'
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../dist')
 const base64 = (value) => Buffer.from(JSON.stringify(value)).toString('base64')
 const previewOrigin = 'http://127.0.0.1:3335'
@@ -141,7 +143,9 @@ export function fixture(scenario = 'multiple', lang = 'ru') {
                 apps:
                     key === 'appleTV' || scenario === 'single'
                         ? [app('INCY', true)]
-                        : [app('Happ', false), app('INCY', true), app('Hiddify', true)]
+                        : scenario === 'compact'
+                            ? [app('INCY', true), app('Happ', false)]
+                            : [app('Happ', false), app('INCY', true), app('Hiddify', true)]
             }
         ])
     )
@@ -173,8 +177,11 @@ export function fixture(scenario = 'multiple', lang = 'ru') {
         username: 'GeologVPN_192647_6487',
         userStatus: expired ? 'EXPIRED' : 'ACTIVE',
         isActive: !expired,
-        daysLeft: expired ? -1 : 3650,
-        expiresAt: expired ? '2026-01-01T00:00:00Z' : '2036-09-07T00:00:00Z',
+        daysLeft: expired ? -1 : scenario === 'today' ? 0 : scenario === 'compact' ? 180 : 3650,
+        expiresAt: expired ? '2026-01-01T00:00:00Z' : scenario === 'today'
+            ? new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+            : scenario === 'compact' ? new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString()
+                : '2036-09-07T00:00:00Z',
         trafficLimitBytes: unlimited ? 0 : 999 * 1024 ** 3,
         trafficUsedBytes: 0,
         trafficLimit: unlimited ? '∞' : '999 GiB',
@@ -238,11 +245,15 @@ const server = createServer(async (req, res) => {
         }
         if (url.pathname === '/' || url.pathname === '/demo-obsidian') {
             const html = await readFile(resolve(root, 'index.html'), 'utf8')
+            const themeNumber = Number(options.get('theme'))
+            const themeId = Number.isInteger(themeNumber) && themeNumber >= 1 && themeNumber <= 12
+                ? themeNumber : 9
+            const theme = THEME_PRESETS[themeId]
             const rendered = ejs.render(html, {
                 panelData: base64(panel),
-                paymentUrl: '',
+                paymentUrl: scenario === 'external-payment' ? 'https://payment.example/renew' : '',
                 paymentTariffs: base64(
-                    scenario === 'no-payment'
+                    ['no-payment', 'external-payment'].includes(scenario)
                         ? []
                         : [
                             { id: 101, months: 1, amount: 199, currency: 'RUB', name: '1 месяц' },
@@ -263,10 +274,15 @@ const server = createServer(async (req, res) => {
                         ]
                 ),
                 paymentReset:
-                    options.get('reset') === '1'
-                        ? base64({ amount: 99, currency: 'RUB', minPercent: 0, dynamic: false })
+                    ['1', 'shm'].includes(options.get('reset'))
+                        ? base64({
+                            amount: 99,
+                            currency: 'RUB',
+                            minPercent: Number(options.get('reset-min')) || 0,
+                            dynamic: options.get('reset') === 'shm'
+                        })
                         : '',
-                supportEmail: '',
+                supportEmail: options.get('support') === 'email' ? 'support@example.test' : '',
                 hwidData: base64({ enabled: true }),
                 metaTitle: 'Geolog VPN — preview',
                 metaDescription: 'Local synthetic preview',
@@ -297,14 +313,14 @@ const server = createServer(async (req, res) => {
                         chatwootSettings: ''
                     }),
                 uiPreset: base64({
-                    theme: 9,
+                    theme: themeId,
                     layout: options.get('layout') || 'obsidian',
-                    preview: false,
+                    preview: options.get('preview') === '1',
                     headerPay: true,
                     fx: []
                 }),
-                uiThemeColor: '#080c0d',
-                uiColorScheme: 'dark'
+                uiThemeColor: theme.bg,
+                uiColorScheme: theme.colorScheme
             })
             res.setHeader('Content-Type', 'text/html; charset=utf-8')
             res.end(rendered)

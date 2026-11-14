@@ -9,6 +9,7 @@ export type TLayoutPreset =
     | 'billboard'
     | 'classic'
     | 'columns'
+    | 'frost'
     | 'hero'
     | 'network'
     | 'obsidian'
@@ -34,6 +35,7 @@ const LAYOUTS: TLayoutPreset[] = [
     'billboard',
     'classic',
     'columns',
+    'frost',
     'hero',
     'network',
     'tiles'

@@ -4,6 +4,7 @@ export type TLayoutPreset =
     | 'billboard'
     | 'classic'
     | 'columns'
+    | 'frost'
     | 'hero'
     | 'obsidian'
     | 'network'
@@ -21,6 +22,8 @@ const LAYOUT_ALIASES: Record<string, TLayoutPreset> = {
     hero: 'hero',
     c: 'columns',
     columns: 'columns',
+    g: 'frost',
+    frost: 'frost',
     e: 'tiles',
     tiles: 'tiles',
     f: 'banner',

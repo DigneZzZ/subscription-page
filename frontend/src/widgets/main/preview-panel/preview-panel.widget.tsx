@@ -15,7 +15,7 @@ import { vibrate } from '@shared/utils/vibrate'
 
 import classes from './preview-panel.module.css'
 
-type TLayoutLetter = 'a' | 'b' | 'c' | 'e' | 'f' | 'j' | 'k' | 'l' | 'o'
+type TLayoutLetter = 'a' | 'b' | 'c' | 'e' | 'f' | 'g' | 'j' | 'k' | 'l' | 'o'
 
 interface ILayoutChipDef {
     layout: TLayoutPreset
@@ -33,6 +33,7 @@ const LAYOUT_CHIPS: ILayoutChipDef[] = [
     { letter: 'c', layout: 'columns', name: 'Columns' },
     { letter: 'e', layout: 'tiles', name: 'Tiles' },
     { letter: 'f', layout: 'banner', name: 'Banner' },
+    { letter: 'g', layout: 'frost', name: 'Frost' },
     { letter: 'j', layout: 'aurora', name: 'Aurora' },
     { letter: 'k', layout: 'network', name: 'Network' },
     { letter: 'l', layout: 'billboard', name: 'Billboard' }
@@ -44,7 +45,7 @@ const LAYOUT_LETTERS: Record<TLayoutPreset, TLayoutLetter> = Object.fromEntries(
 
 const THEME_LIST = Object.values(THEME_PRESETS).sort((a, b) => a.id - b.id)
 
-export const PreviewPanel = () => {
+export const PreviewPanel = ({ standalone = false }: { standalone?: boolean }) => {
     const themePreset = useThemePreset()
     const layoutPreset = useLayoutPreset()
     const effects = useEffects()
@@ -54,7 +55,7 @@ export const PreviewPanel = () => {
     const envHint = `THEME_PRESET=${themePreset} LAYOUT_PRESET=${LAYOUT_LETTERS[layoutPreset]}${fxHint}`
 
     return (
-        <Box className={classes.panel}>
+        <Box className={classes.panel} style={standalone ? { top: 8 } : undefined}>
             <Box className={classes.row}>
                 <Text className={classes.rowHint} component="span">
                     LAYOUT →
