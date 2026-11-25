@@ -388,16 +388,15 @@
 
 .expiry[data-expired] .renew {
     position: static;
-    grid-column: 1 / -1;
-    justify-self: stretch;
-    justify-content: center;
-    min-height: 48px;
-    padding: 8px 12px;
-    background: var(--fr-accent);
-    color: var(--fr-ink);
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    text-align: center;
+    grid-column: 2;
+    justify-self: start;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 1px solid color-mix(in srgb, var(--fr-accent) 28%, var(--fr-line-2));
+    background: color-mix(in srgb, var(--fr-accent) 9%, var(--fr-button));
+    color: var(--fr-accent-text);
+    text-align: start;
     white-space: normal;
 }
 
@@ -994,6 +993,13 @@
     background: transparent;
 }
 
+.trafficRecovery {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+}
+
 .trafficPreview > svg {
     color: var(--fr-traffic-color, var(--fr-accent-text));
 }
@@ -1043,15 +1049,20 @@
     overflow-wrap: anywhere;
 }
 
-.trafficPreview[data-traffic-reset]:not([data-traffic-preview='inline']) {
-    border-color: color-mix(in srgb, var(--fr-accent) 38%, var(--fr-line));
-    background: color-mix(in srgb, var(--fr-accent) 10%, var(--fr-card));
+.trafficPreviewStatus {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3px 10px;
 }
 
-.trafficPreview[data-traffic-reset] .trafficPreviewHeader > span:first-child {
-    color: var(--fr-accent-text);
-    font-size: 13px;
-    font-weight: 700;
+.trafficResetText {
+    color: var(--fr-text);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--fr-muted);
+    text-underline-offset: 2px;
 }
 
 .trafficMeta {
@@ -1061,34 +1072,6 @@
     gap: 8px;
     color: var(--fr-muted);
     font-size: 12px;
-}
-
-.trafficResetButton {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    max-width: 100%;
-    min-height: 48px;
-    padding: 8px 12px;
-    border-radius: var(--fr-control-radius);
-    background: var(--fr-accent);
-    color: var(--fr-ink);
-    font-size: 14px;
-    font-weight: 800;
-    text-align: start;
-    overflow-wrap: anywhere;
-}
-
-.trafficResetButton > svg:last-child {
-    margin-inline-start: auto;
-}
-
-.trafficResetPrice {
-    min-width: 0;
-    font-size: 13px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
 }
 
 .note {
@@ -1584,11 +1567,6 @@
         justify-self: start;
     }
 
-    .trafficResetButton {
-        align-self: flex-start;
-        width: fit-content;
-    }
-
     .appName {
         overflow-wrap: anywhere;
     }
@@ -1792,10 +1770,14 @@
         background: color-mix(in srgb, var(--fr-accent) 17%, var(--fr-card));
     }
 
-    .connectButton:hover,
-    .expiry[data-expired] .renew:hover,
-    .trafficResetButton:hover {
+    .connectButton:hover {
         filter: brightness(1.04);
+    }
+
+    .expiry[data-expired] .renew:hover {
+        border-color: color-mix(in srgb, var(--fr-accent) 42%, var(--fr-line-2));
+        background: color-mix(in srgb, var(--fr-accent) 15%, var(--fr-button));
+        box-shadow: none;
     }
 
     .navButton:hover,

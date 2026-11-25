@@ -313,7 +313,7 @@ test('Frost keeps app selection, configuration links and QR sharing functional',
     ).toBeVisible()
 })
 
-test('Frost renewal uses configured tariff IDs and preserves traffic reset', async ({ page }) => {
+test('Frost renewal uses configured tariff IDs and keeps reset in the Shop', async ({ page }) => {
     await page.goto('/?layout=frost&reset=1')
     await page.getByRole('button', { name: 'Продлить', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Магазин', exact: true })).toBeVisible()
@@ -322,13 +322,14 @@ test('Frost renewal uses configured tariff IDs and preserves traffic reset', asy
         'href',
         '/api/pay?shortUuid=demo-obsidian&id=102'
     )
+    await expect(page.getByRole('button', { name: /^Сброс трафика/ })).toBeVisible()
     await page.getByRole('button', { name: 'Трафик', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
     await expect(page.getByRole('progressbar', { name: 'Остаток трафика' })).toHaveAttribute(
         'aria-valuenow',
         '100'
     )
-    await expect(page.getByRole('button', { name: /Сбросить трафик/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
 })
 
 test.describe('Frost traffic preview', () => {
@@ -386,7 +387,7 @@ test.describe('Frost traffic preview', () => {
             await expect(
                 page.getByRole('progressbar', { name: 'Остаток трафика' })
             ).toHaveAttribute('aria-valuenow', '72')
-            await expect(page.getByRole('button', { name: /Сбросить трафик/ })).toBeVisible()
+            await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
             await expect(page.locator(`[data-traffic-preview="${mode}"]`)).not.toBeVisible()
         })
     }
@@ -485,6 +486,7 @@ test.describe('Frost exhausted traffic reset', () => {
             'data-opened-url',
             '/api/pay/reset?shortUuid=demo-obsidian'
         )
+        await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
     })
 
     test('opens the SHM provider from Home in the same click', async ({ page }) => {
@@ -503,9 +505,7 @@ test.describe('Frost exhausted traffic reset', () => {
         await expect(page.getByRole('dialog')).toHaveCount(0)
     })
 
-    test('prioritizes expired renewal and keeps the filled reset button on Traffic', async ({
-        page
-    }) => {
+    test('prioritizes expired renewal and allows reset through the Shop', async ({ page }) => {
         await page.setViewportSize({ width: 320, height: 844 })
         await page.goto('/?layout=frost&scenario=expired-depleted&traffic-preview=inline&reset=1')
 
@@ -547,26 +547,13 @@ test.describe('Frost exhausted traffic reset', () => {
         await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
         await expect(page.getByRole('dialog')).toHaveCount(0)
         await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
+        await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
 
-        const reset = page
-            .getByRole('button', { name: /Сбросить трафик/ })
-            .and(page.locator('[data-traffic-reset-action]'))
-        await expect(reset).toHaveAttribute('aria-haspopup', 'dialog')
-        await expect(reset).toContainText(/99\s*₽/)
-        const hasAccentFill = await reset.evaluate((element) => {
-            const style = getComputedStyle(element)
-            const accent = style.getPropertyValue('--fr-accent').trim()
-            const context = document.createElement('canvas').getContext('2d')
-            if (!context || !accent) return false
-            context.fillStyle = accent
-            const accentColor = context.fillStyle
-            context.fillStyle = style.backgroundColor
-            return context.fillStyle === accentColor
-        })
-        expect(hasAccentFill).toBe(true)
-        await reset.click()
-        await expect(page.getByRole('dialog')).toContainText('Сбросить трафик за 99')
-        await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
+        await page
+            .getByRole('navigation')
+            .getByRole('button', { name: 'Магазин', exact: true })
+            .click()
+        await expect(page.getByRole('button', { name: /^Сброс трафика.*99\s*₽/ })).toBeVisible()
     })
 })
 
@@ -684,20 +671,24 @@ test('Frost hides the catalog for an external payment link and keeps renewal wor
     )
 })
 
-test('Frost keeps static reset confirmation and respects the usage threshold', async ({ page }) => {
-    await page.goto('/?layout=frost&reset=1&reset-min=50')
-    await page.getByRole('button', { name: 'Трафик', exact: true }).click()
-    await expect(page.getByRole('button', { name: /Сбросить трафик/ })).toHaveCount(0)
+test('Frost keeps static reset confirmation and respects the Shop usage threshold', async ({
+    page
+}) => {
+    const shop = page.getByRole('navigation').getByRole('button', { name: 'Магазин', exact: true })
+    const reset = page.getByRole('button', { name: /^Сброс трафика/ })
+    await page.goto('/?layout=frost&scenario=traffic-partial&reset=1&reset-min=50')
+    await shop.click()
+    await expect(reset).toHaveCount(0)
 
-    await page.goto('/?layout=frost&reset=1')
+    await page.goto('/?layout=frost&scenario=traffic-partial&reset=1&reset-min=20')
     await page.evaluate(() => {
         window.open = (url) => {
             document.body.dataset.openedUrl = String(url)
             return null
         }
     })
-    await page.getByRole('button', { name: 'Трафик', exact: true }).click()
-    await page.getByRole('button', { name: /Сбросить трафик/ }).click()
+    await shop.click()
+    await reset.click()
     await expect(page.getByRole('dialog')).toContainText('Сбросить трафик за 99')
     await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
     await page.getByRole('dialog').getByRole('button', { name: 'Оплатить', exact: true }).click()
@@ -707,8 +698,10 @@ test('Frost keeps static reset confirmation and respects the usage threshold', a
     )
 })
 
-test('Frost opens SHM reset even with no subscription catalog', async ({ page }) => {
-    await page.goto('/?layout=frost&scenario=no-payment&reset=shm')
+test('Frost opens SHM reset from an exhausted Home even with no subscription catalog', async ({
+    page
+}) => {
+    await page.goto('/?layout=frost&scenario=traffic-depleted&catalog=off&reset=shm')
     await expect(page.getByRole('button', { name: 'Магазин', exact: true })).toHaveCount(0)
     await page.evaluate(() => {
         window.open = (url) => {
@@ -716,8 +709,10 @@ test('Frost opens SHM reset even with no subscription catalog', async ({ page })
             return null
         }
     })
-    await page.getByRole('button', { name: 'Трафик', exact: true }).click()
-    await page.getByRole('button', { name: /Сбросить трафик/ }).click()
+    await page
+        .getByRole('button', { name: 'Сбросить трафик', exact: true })
+        .and(page.locator('[data-traffic-reset]'))
+        .click()
     await expect(page.locator('body')).toHaveAttribute(
         'data-opened-url',
         '/api/pay/reset?shortUuid=demo-obsidian'

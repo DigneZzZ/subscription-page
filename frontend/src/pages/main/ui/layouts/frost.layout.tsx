@@ -366,14 +366,13 @@ export const FrostLayout = (props: ILayoutProps) => {
 
     const renderTrafficPreview = (mode: 'inline' | 'recovery' | 'separate') => {
         const recoveryOnly = mode === 'recovery'
-        const title = canResetFromHome ? trafficResetTitle : trafficPreviewTitle
-        const PreviewIcon = canResetFromHome ? IconRefresh : IconChartBar
+        const PreviewIcon = canResetFromHome ? IconAlertCircle : IconChartBar
         return (
             <button
                 aria-description={recoveryOnly ? trafficAlert : trafficPreviewDescription}
                 aria-haspopup={canResetFromHome && !reset.dynamic ? 'dialog' : undefined}
-                aria-label={title}
-                className={classes.trafficPreview}
+                aria-label={canResetFromHome ? trafficResetTitle : trafficPreviewTitle}
+                className={clsx(classes.trafficPreview, recoveryOnly && classes.trafficRecovery)}
                 data-traffic-preview={recoveryOnly ? undefined : mode}
                 data-traffic-reset={canResetFromHome || undefined}
                 data-traffic-state={trafficState}
@@ -382,23 +381,26 @@ export const FrostLayout = (props: ILayoutProps) => {
             >
                 <PreviewIcon aria-hidden size={20} />
                 <span className={classes.trafficPreviewBody}>
-                    <span className={classes.trafficPreviewHeader}>
-                        <span>{title}</span>
-                        {!recoveryOnly && (
-                            <>
+                    {!recoveryOnly && (
+                        <>
+                            <span className={classes.trafficPreviewHeader}>
+                                <span>{trafficPreviewTitle}</span>
                                 <strong>{trafficPreviewAmount}</strong>
                                 {!summary.isUnlimited && <span>{trafficPercentLabel}</span>}
-                            </>
-                        )}
-                    </span>
-                    {!recoveryOnly && !summary.isUnlimited && (
-                        <TrafficPreviewMeter percent={trafficPercent} />
+                            </span>
+                            {!summary.isUnlimited && <TrafficPreviewMeter percent={trafficPercent} />}
+                        </>
                     )}
                     {trafficAlert && (
-                        <span className={classes.trafficCondition}>{trafficAlert}</span>
+                        <span className={classes.trafficPreviewStatus}>
+                            <span className={classes.trafficCondition}>{trafficAlert}</span>
+                            {canResetFromHome && (
+                                <span className={classes.trafficResetText}>{trafficResetTitle}</span>
+                            )}
+                        </span>
                     )}
                 </span>
-                <IconChevronRight aria-hidden size={16} />
+                {!canResetFromHome && <IconChevronRight aria-hidden size={16} />}
             </button>
         )
     }
@@ -720,22 +722,6 @@ export const FrostLayout = (props: ILayoutProps) => {
                                 <span className={classes.trafficCondition}>{trafficAlert}</span>
                             )}
                         </p>
-                        {reset.visible && (
-                            <button
-                                aria-haspopup={reset.dynamic ? undefined : 'dialog'}
-                                className={classes.trafficResetButton}
-                                data-traffic-reset-action
-                                onClick={reset.handleReset}
-                                type="button"
-                            >
-                                <IconRefresh aria-hidden size={19} />
-                                <span>{trafficResetTitle}</span>
-                                {!reset.dynamic && reset.priceLabel && (
-                                    <span className={classes.trafficResetPrice}>{reset.priceLabel}</span>
-                                )}
-                                <IconChevronRight aria-hidden size={18} />
-                            </button>
-                        )}
                     </section>
                     {config.baseSettings.showConnectionKeys && (
                         <details className={classes.card} style={{ marginTop: 12 }}>

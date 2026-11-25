@@ -272,7 +272,8 @@ const server = createServer(async (req, res) => {
                 panelData: base64(panel),
                 paymentUrl: scenario === 'external-payment' ? 'https://payment.example/renew' : '',
                 paymentTariffs: base64(
-                    ['no-payment', 'external-payment'].includes(scenario)
+                    ['no-payment', 'external-payment'].includes(scenario) ||
+                    options.get('catalog') === 'off'
                         ? []
                         : [
                             { id: 101, months: 1, amount: 199, currency: 'RUB', name: '1 месяц' },
