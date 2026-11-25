@@ -35,6 +35,7 @@ import { RawKeysWidget, usePaymentModal, useResetTraffic } from '@widgets/main'
 import { useSubscriptionSummary } from '@entities/subscription-summary'
 import { hasPageLauncher, openChatwoot } from '@shared/utils/chatwoot'
 import { useSubscription } from '@entities/subscription-info-store'
+import { useFrostTrafficPreview } from '@entities/ui-preset-store'
 import { getLocalizedText } from '@shared/utils/config-parser'
 import { TemplateEngine } from '@shared/utils/template-engine'
 import { usePaymentTariffs } from '@entities/payment-store'
@@ -89,11 +90,18 @@ const AppIcon = ({ name }: { name: string }) => {
     )
 }
 
+const TrafficPreviewMeter = ({ percent }: { percent: number }) => (
+    <span aria-hidden className={classes.trafficPreviewMeter}>
+        <span className={classes.progressFill} style={{ width: `${percent}%` }} />
+    </span>
+)
+
 export const FrostLayout = (props: ILayoutProps) => {
     const config = useAppConfig()
     const supportEmail = useSupportEmail()
     const subscription = useSubscription()
     const summary = useSubscriptionSummary()
+    const trafficPreview = useFrostTrafficPreview()
     const tariffs = usePaymentTariffs()
     const showShop = tariffs.length > 0
     const { currentLang } = useTranslation()
@@ -101,6 +109,13 @@ export const FrostLayout = (props: ILayoutProps) => {
     const reset = useResetTraffic()
     const ru = currentLang === 'ru'
     const local = (russian: string, english: string) => (ru ? russian : english)
+    const trafficPreviewTitle = local('Остаток трафика', 'Traffic remaining')
+    const trafficPreviewAmount = summary.isUnlimited
+        ? local('Безлимит', 'Unlimited')
+        : summary.remainingLabel
+    const trafficPreviewDescription = summary.isUnlimited
+        ? trafficPreviewAmount
+        : `${trafficPreviewAmount} · ${summary.remainingPercent}%`
     const locale = ru ? 'ru-RU' : 'en-US'
     const [view, setView] = useState<View>('home')
     const [selectedPlatform, setPlatform] = useState(props.platform)
@@ -315,6 +330,28 @@ export const FrostLayout = (props: ILayoutProps) => {
             </a>
         )
 
+    const renderTrafficPreview = (mode: 'inline' | 'separate') => (
+        <button
+            aria-description={trafficPreviewDescription}
+            aria-label={trafficPreviewTitle}
+            className={classes.trafficPreview}
+            data-traffic-preview={mode}
+            onClick={() => navigate('traffic')}
+            type="button"
+        >
+            <IconChartBar aria-hidden size={20} />
+            <span className={classes.trafficPreviewBody}>
+                <span className={classes.trafficPreviewHeader}>
+                    <span>{trafficPreviewTitle}</span>
+                    <strong>{trafficPreviewAmount}</strong>
+                    {!summary.isUnlimited && <span>{summary.remainingPercent}%</span>}
+                </span>
+                {!summary.isUnlimited && <TrafficPreviewMeter percent={summary.remainingPercent} />}
+            </span>
+            <IconChevronRight aria-hidden size={16} />
+        </button>
+    )
+
     return (
         <div className={clsx(classes.page, theme.scope)} data-layout="frost">
             <div className={classes.app}>
@@ -336,61 +373,68 @@ export const FrostLayout = (props: ILayoutProps) => {
                     className={classes.home}
                     hidden={view !== 'home'}
                 >
-                    <div
-                        className={clsx(classes.card, classes.expiry)}
-                        data-state={statusText ? 'off' : 'active'}
-                    >
-                        <div className={classes.expiryTop}>
-                            <div aria-hidden className={classes.calendar}>
-                                <div className={classes.calendarMonth}>{calendarMonth}</div>
-                                <strong className={classes.calendarDay}>{calendarDay}</strong>
-                                <span className={classes.calendarWeekday}>
-                                    {expiresValid && !summary.isIndefinite
-                                        ? summary.expiresAt.toLocaleDateString(locale, {
-                                            weekday: 'short'
-                                        })
-                                        : 'VPN'}
-                                </span>
+                    <div className={classes.homeSummary}>
+                        <div
+                            className={clsx(classes.card, classes.expiry)}
+                            data-state={statusText ? 'off' : 'active'}
+                        >
+                            <div className={classes.expiryTop}>
+                                <div aria-hidden className={classes.calendar}>
+                                    <div className={classes.calendarMonth}>{calendarMonth}</div>
+                                    <strong className={classes.calendarDay}>{calendarDay}</strong>
+                                    <span className={classes.calendarWeekday}>
+                                        {expiresValid && !summary.isIndefinite
+                                            ? summary.expiresAt.toLocaleDateString(locale, {
+                                                weekday: 'short'
+                                            })
+                                            : 'VPN'}
+                                    </span>
+                                </div>
+                                <div className={classes.expiryInfo}>
+                                    <span className={classes.muted}>
+                                        {ru ? 'Действует до' : 'Valid until'}
+                                    </span>
+                                    <div className={classes.expiryDate}>{dateText}</div>
+                                    <p className={classes.muted} role="status">
+                                        {statusText ||
+                                            (summary.isIndefinite ? (
+                                                local('Без ограничения срока', 'No time limit')
+                                            ) : (
+                                                <>
+                                                    {expiresValid &&
+                                                        summary.expiresAt.toLocaleDateString(
+                                                            locale,
+                                                            {
+                                                                weekday: 'long'
+                                                            }
+                                                        )}
+                                                    {' · '}
+                                                    {ru ? 'ещё' : ''}{' '}
+                                                    <b>
+                                                        {Math.max(0, summary.daysLeft)} {daysWord}
+                                                    </b>
+                                                </>
+                                            ))}
+                                    </p>
+                                </div>
+                                {hasPayment && (
+                                    <button className={classes.renew} onClick={renew} type="button">
+                                        <IconRefresh aria-hidden size={16} />
+                                        {ru ? 'Продлить' : 'Renew'}
+                                    </button>
+                                )}
                             </div>
-                            <div className={classes.expiryInfo}>
-                                <span className={classes.muted}>
-                                    {ru ? 'Действует до' : 'Valid until'}
-                                </span>
-                                <div className={classes.expiryDate}>{dateText}</div>
-                                <p className={classes.muted} role="status">
-                                    {statusText ||
-                                        (summary.isIndefinite ? (
-                                            local('Без ограничения срока', 'No time limit')
-                                        ) : (
-                                            <>
-                                                {expiresValid &&
-                                                    summary.expiresAt.toLocaleDateString(locale, {
-                                                        weekday: 'long'
-                                                    })}
-                                                {' · '}
-                                                {ru ? 'ещё' : ''}{' '}
-                                                <b>
-                                                    {Math.max(0, summary.daysLeft)} {daysWord}
-                                                </b>
-                                            </>
-                                        ))}
-                                </p>
-                            </div>
-                            {hasPayment && (
-                                <button className={classes.renew} onClick={renew} type="button">
-                                    <IconRefresh aria-hidden size={16} />
-                                    {ru ? 'Продлить' : 'Renew'}
-                                </button>
+                            {!isExpired && !summary.isIndefinite && expiresValid && (
+                                <FrostTimeline
+                                    dateText={dateText}
+                                    expiresAt={summary.expiresAt}
+                                    locale={locale}
+                                    now={now}
+                                />
                             )}
+                            {trafficPreview === 'inline' && renderTrafficPreview('inline')}
                         </div>
-                        {!isExpired && !summary.isIndefinite && expiresValid && (
-                            <FrostTimeline
-                                dateText={dateText}
-                                expiresAt={summary.expiresAt}
-                                locale={locale}
-                                now={now}
-                            />
-                        )}
+                        {trafficPreview === 'separate' && renderTrafficPreview('separate')}
                     </div>
 
                     {props.atLeastOnePlatformApp && activeApp && (
@@ -794,21 +838,54 @@ export const FrostLayout = (props: ILayoutProps) => {
                         ] as const
                     )
                         .filter(([key]) => key !== 'shop' || showShop)
-                        .map(([key, Icon, title]) => (
-                            <button
-                                aria-current={view === key ? 'page' : undefined}
-                                className={clsx(
-                                    classes.navButton,
-                                    view === key && classes.navActive
-                                )}
-                                key={key}
-                                onClick={() => navigate(key)}
-                                type="button"
-                            >
-                                <Icon aria-hidden size={26} stroke={1.9} />
-                                <span>{title}</span>
-                            </button>
-                        ))}
+                        .map(([key, Icon, title]) => {
+                            const showTrafficPreview =
+                                trafficPreview === 'nav' && view === 'home' && key === 'traffic'
+
+                            return (
+                                <button
+                                    aria-current={view === key ? 'page' : undefined}
+                                    aria-description={
+                                        showTrafficPreview ? trafficPreviewDescription : undefined
+                                    }
+                                    className={clsx(
+                                        classes.navButton,
+                                        view === key && classes.navActive
+                                    )}
+                                    data-traffic-preview={showTrafficPreview ? 'nav' : undefined}
+                                    key={key}
+                                    onClick={() => navigate(key)}
+                                    type="button"
+                                >
+                                    <Icon aria-hidden size={26} stroke={1.9} />
+                                    <span
+                                        className={
+                                            showTrafficPreview ? classes.navTrafficLabel : undefined
+                                        }
+                                    >
+                                        {title}
+                                        {showTrafficPreview && (
+                                            <span aria-hidden className={classes.navTrafficMeta}>
+                                                {summary.isUnlimited ? (
+                                                    <span className={classes.navTrafficUnlimited}>
+                                                        ∞
+                                                    </span>
+                                                ) : (
+                                                    <>
+                                                        <TrafficPreviewMeter
+                                                            percent={summary.remainingPercent}
+                                                        />
+                                                        <span className={classes.navTrafficAmount}>
+                                                            {trafficPreviewAmount}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </span>
+                                        )}
+                                    </span>
+                                </button>
+                            )
+                        })}
                 </nav>
             </div>
 

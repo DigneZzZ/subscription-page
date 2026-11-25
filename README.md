@@ -9,7 +9,8 @@ Configure the theme and layout via environment variables:
 | Variable | Options | Default | Description |
 |----------|---------|---------|-------------|
 | `THEME_PRESET` | 1–12 | 9 | Color theme: 1 Graphite+Amber, 2 Midnight+Gold, 3 Graphite+Copper, 4 Rose Gold, 5 Graphite+Wine, 6 Obsidian+Platinum, 7 Neon/Cyber, 8 Light Minimal, 9 Emerald Night, 10 Deep Sapphire, 11 Ruby Noir, 12 Lavender Dusk |
-| `LAYOUT_PRESET` | a\|b\|c\|e\|f\|j\|k\|l\|o | o | Page layout: a=classic, b=hero, c=columns, e=tiles, f=banner, j=aurora (animated glass), k=network (node map), l=billboard (poster type), o=obsidian (crystal, subscription and multi-app setup) |
+| `LAYOUT_PRESET` | a\|b\|c\|e\|f\|g\|j\|k\|l\|o | o | Page layout: a=classic, b=hero, c=columns, e=tiles, f=banner, g=frost, j=aurora (animated glass), k=network (node map), l=billboard (poster type), o=obsidian (crystal, subscription and multi-app setup) |
+| `FROST_TRAFFIC_PREVIEW` | off\|separate\|inline\|nav | off | Traffic preview in Frost: `separate` below the expiry card, `inline` inside the expiry card, `nav` in the Traffic navigation button. Selecting it opens the Traffic tab. |
 | `PREVIEW` | 0\|1 | 0 | Show on-page design picker (theme/layout switcher); selection not persisted |
 | `HEADER_PAY_BUTTON` | 0\|1 | 1 | Header Pay button; hide (0) when a layout's own Renew CTA is enough (classic has no own CTA — keep 1) |
 | `EFFECTS` | csv\|all\|none | none | Visual effects on any layout: blobs, glass, shimmer, pulse, glow (respects prefers-reduced-motion) |

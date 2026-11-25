@@ -129,6 +129,13 @@
     margin-top: 12px;
 }
 
+.homeSummary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
 .header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -784,6 +791,35 @@
     color: var(--fr-accent-text) !important;
 }
 
+.navTrafficLabel {
+    display: grid;
+    gap: 1px;
+    min-width: 0;
+    line-height: 1;
+}
+
+.navTrafficMeta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.navTrafficMeta .trafficPreviewMeter {
+    flex: 1;
+    height: 3px;
+}
+
+.navTrafficUnlimited {
+    color: var(--fr-accent-text);
+    font-size: 12px;
+    line-height: 8px;
+}
+
+.navTrafficAmount {
+    display: none;
+}
+
 .viewTitle {
     display: flex;
     align-items: center;
@@ -853,6 +889,68 @@
     height: 100%;
     border-radius: 4px;
     background: var(--fr-accent);
+}
+
+.trafficPreview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 12px;
+    border: 1px solid var(--fr-line);
+    border-radius: var(--fr-radius);
+    background: var(--fr-card);
+    text-align: start;
+}
+
+.trafficPreview[data-traffic-preview='inline'] {
+    min-height: 44px;
+    padding: 8px 0 0;
+    border: 0;
+    border-top: 1px solid var(--fr-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+.trafficPreview > svg {
+    color: var(--fr-accent-text);
+}
+
+.trafficPreviewBody {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.trafficPreviewHeader {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 6px;
+    color: var(--fr-muted);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.trafficPreviewHeader > span:first-child {
+    margin-inline-end: auto;
+}
+
+.trafficPreviewHeader strong {
+    color: var(--fr-text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.trafficPreviewMeter {
+    display: block;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--fr-line);
 }
 
 .trafficMeta {
@@ -1429,6 +1527,23 @@
         background: var(--fr-button);
     }
 
+    .navTrafficLabel {
+        flex: 1;
+        gap: 3px;
+        text-align: start;
+    }
+
+    .navTrafficMeta {
+        justify-content: flex-start;
+    }
+
+    .navTrafficAmount {
+        display: inline;
+        color: var(--fr-muted);
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
     .connectActions,
     .checkout {
         padding: 0;
@@ -1557,6 +1672,10 @@
     .appChoice:hover,
     .tariff:hover {
         border-color: color-mix(in srgb, var(--fr-accent) 48%, var(--fr-line-2));
+    }
+
+    .trafficPreview:hover .trafficPreviewHeader {
+        color: var(--fr-text);
     }
 
     .shareButton:hover {

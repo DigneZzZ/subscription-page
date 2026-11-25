@@ -1,5 +1,8 @@
+import { configSchema } from '@common/config/app-config';
+
 import {
     resolveEffects,
+    resolveFrostTrafficPreview,
     resolveHeaderPayButton,
     resolveLayoutPreset,
     resolvePreviewMode,
@@ -77,6 +80,27 @@ describe('resolvePreviewMode', () => {
         expect(resolvePreviewMode('0')).toBe(false);
         expect(resolvePreviewMode(undefined)).toBe(false);
         expect(resolvePreviewMode('yes')).toBe(false);
+    });
+});
+
+describe('FROST_TRAFFIC_PREVIEW', () => {
+    it.each([
+        [undefined, 'off'],
+        ['', 'off'],
+        ['preview', 'off'],
+        ['off', 'off'],
+        ['separate', 'separate'],
+        [' Inline ', 'inline'],
+        ['NAV', 'nav'],
+    ])('resolves %p to %s after environment validation', (raw, expected) => {
+        const config = configSchema.parse({
+            REMNAWAVE_PANEL_URL: 'https://panel.example.test',
+            REMNAWAVE_API_TOKEN: 'test-token',
+            INTERNAL_JWT_SECRET: 'test-secret',
+            FROST_TRAFFIC_PREVIEW: raw,
+        });
+
+        expect(resolveFrostTrafficPreview(config.FROST_TRAFFIC_PREVIEW)).toBe(expected);
     });
 });
 

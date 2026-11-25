@@ -74,6 +74,13 @@ export function resolvePreviewMode(raw: string | undefined): boolean {
     return raw === '1' || raw === 'true';
 }
 
+type TFrostTrafficPreview = 'inline' | 'nav' | 'off' | 'separate';
+
+export function resolveFrostTrafficPreview(raw: string | undefined): TFrostTrafficPreview {
+    const mode = raw?.trim().toLowerCase();
+    return mode === 'separate' || mode === 'inline' || mode === 'nav' ? mode : 'off';
+}
+
 /* HEADER_PAY_BUTTON: '0'/'false' прячут кнопку «Оплатить» в шапке
    (в раскладках b/c/e/f есть своя CTA «Продлить»; в classic шапочная —
    единственная точка оплаты, там прятать не стоит). Дефолт — показывать. */

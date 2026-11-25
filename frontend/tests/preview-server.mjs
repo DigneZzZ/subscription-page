@@ -23,6 +23,11 @@ const expiryScenarios = {
     'expiry-long': { daysLeft: 1826, expiresAt: '2031-11-25T12:00:00Z' },
     'expiry-indefinite': { daysLeft: 26000, expiresAt: '2099-01-01T12:00:00Z' }
 }
+const trafficScenarios = new Map([
+    ['traffic-partial', { limit: 100, used: 28 }],
+    ['traffic-depleted', { limit: 100, used: 100 }],
+    ['unlimited', { limit: 0, used: 0 }]
+])
 // Stand-in for Chatwoot's /packs/js/sdk.js: records every SDK call on
 // window.__chatwootCalls and fires chatwoot:ready, exactly like the real SDK
 // does after boot. No network, no iframe.
@@ -177,23 +182,25 @@ export function fixture(scenario = 'multiple', lang = 'ru') {
         svgLibrary: { Device: icon },
         platforms
     })
-    const unlimited = scenario === 'unlimited'
     const expired = scenario === 'expired'
+    const trafficLimited = scenario === 'traffic-depleted'
+    const halfYearExpiry = scenario === 'compact' || scenario === 'traffic-partial'
+    const traffic = trafficScenarios.get(scenario) ?? { limit: 999, used: 0 }
     const user = {
         shortUuid: 'demo-obsidian',
         username: scenario === 'long-name' ? 'W'.repeat(36) : 'GeologVPN_192647_6487',
-        userStatus: expired ? 'EXPIRED' : 'ACTIVE',
-        isActive: !expired,
-        daysLeft: expired ? -1 : scenario === 'today' ? 0 : scenario === 'compact' ? 180 : 3650,
+        userStatus: expired ? 'EXPIRED' : trafficLimited ? 'LIMITED' : 'ACTIVE',
+        isActive: !expired && !trafficLimited,
+        daysLeft: expired ? -1 : scenario === 'today' ? 0 : halfYearExpiry ? 180 : 3650,
         expiresAt: expired ? '2026-01-01T00:00:00Z' : scenario === 'today'
             ? new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
-            : scenario === 'compact' ? new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString()
+            : halfYearExpiry ? new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString()
                 : '2036-09-07T00:00:00Z',
         ...expiryScenarios[scenario],
-        trafficLimitBytes: unlimited ? 0 : 999 * 1024 ** 3,
-        trafficUsedBytes: 0,
-        trafficLimit: unlimited ? '∞' : '999 GiB',
-        trafficUsed: '0 GiB'
+        trafficLimitBytes: traffic.limit * 1024 ** 3,
+        trafficUsedBytes: traffic.used * 1024 ** 3,
+        trafficLimit: traffic.limit ? `${traffic.limit} GiB` : '∞',
+        trafficUsed: `${traffic.used} GiB`
     }
     return {
         config,
@@ -324,6 +331,7 @@ const server = createServer(async (req, res) => {
                     theme: themeId,
                     layout: options.get('layout') || 'obsidian',
                     preview: options.get('preview') === '1',
+                    frostTrafficPreview: options.get('traffic-preview') ?? undefined,
                     headerPay: true,
                     fx: []
                 }),

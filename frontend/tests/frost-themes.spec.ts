@@ -37,8 +37,7 @@ for (const preset of Object.values(THEME_PRESETS)) {
 
         const card = page
             .getByRole('region', { name: 'Подписка', exact: true })
-            .locator(':scope > div')
-            .first()
+            .locator('[data-state="active"]')
         const surface = await card.evaluate((element) => {
             const style = getComputedStyle(element)
             const canvas = document.createElement('canvas')

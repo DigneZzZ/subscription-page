@@ -19,6 +19,7 @@ import { IGNORED_HEADERS } from '@common/constants';
 import { sanitizeUsername } from '@common/utils';
 
 import {
+    resolveFrostTrafficPreview,
     resolveLayoutPreset,
     resolvePreviewMode,
     resolveThemePreset,
@@ -663,6 +664,9 @@ export class RootService {
                 this.configService.get<string>('LAYOUT_PRESET'),
             );
             const previewMode = resolvePreviewMode(this.configService.get<string>('PREVIEW'));
+            const frostTrafficPreview = resolveFrostTrafficPreview(
+                this.configService.get<string>('FROST_TRAFFIC_PREVIEW'),
+            );
             const themeBackground = THEME_BACKGROUNDS[themePreset];
 
             const chatwoot = buildChatwootRenderVars(
@@ -694,6 +698,7 @@ export class RootService {
                         theme: themePreset,
                         layout: layoutPreset,
                         preview: previewMode,
+                        frostTrafficPreview,
                     }),
                 ).toString('base64'),
                 // Server-rendered initial background so first paint matches the

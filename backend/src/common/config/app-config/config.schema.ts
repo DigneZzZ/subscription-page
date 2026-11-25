@@ -258,6 +258,11 @@ export const configSchema = z
             .string()
             .optional()
             .transform((v) => (v && v.length > 0 ? v : undefined)),
+        // Frost traffic preview: off (default), separate, inline, or nav.
+        FROST_TRAFFIC_PREVIEW: z
+            .string()
+            .optional()
+            .transform((v) => (v && v.length > 0 ? v : undefined)),
         // On-page theme/layout design picker: "1"/"true" enables it, anything
         // else disables it. Default disabled.
         // Visual effects on any layout: csv of blobs|glass|shimmer|pulse|glow, or all/none

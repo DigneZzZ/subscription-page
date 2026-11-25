@@ -331,6 +331,92 @@ test('Frost renewal uses configured tariff IDs and preserves traffic reset', asy
     await expect(page.getByRole('button', { name: /Сбросить трафик/ })).toBeVisible()
 })
 
+test.describe('Frost traffic preview', () => {
+    test.use({ viewport: { width: 320, height: 844 } })
+
+    test('is hidden for older payloads, off and unknown modes', async ({ page }) => {
+        const url = '/?layout=frost&scenario=traffic-partial'
+        const navTraffic = page
+            .getByRole('navigation')
+            .getByRole('button', { name: 'Трафик', exact: true })
+
+        await page.goto(url)
+        await expect(navTraffic).toBeVisible()
+        await expect(page.locator('[data-traffic-preview]')).toHaveCount(0)
+
+        await page.goto(`${url}&traffic-preview=off`)
+        await expect(navTraffic).toBeVisible()
+        await expect(page.locator('[data-traffic-preview]')).toHaveCount(0)
+
+        await page.goto(`${url}&traffic-preview=unknown`)
+        await expect(navTraffic).toBeVisible()
+        await expect(page.locator('[data-traffic-preview]')).toHaveCount(0)
+    })
+
+    for (const mode of ['separate', 'inline', 'nav'] as const) {
+        test(`shows the ${mode} placement and opens traffic management`, async ({ page }) => {
+            await page.goto(
+                `/?layout=frost&scenario=traffic-partial&traffic-preview=${mode}&reset=1&reset-min=20`
+            )
+
+            const home = page.getByRole('region', { name: 'Подписка' })
+            const expiry = home.locator('[data-state="active"]')
+            const navTraffic = page
+                .getByRole('navigation')
+                .getByRole('button', { name: 'Трафик', exact: true })
+            const summaryButton = { name: 'Остаток трафика', exact: true }
+            const preview = {
+                separate: home
+                    .locator('[data-state="active"] + [data-traffic-preview="separate"]')
+                    .and(home.getByRole('button', summaryButton)),
+                inline: expiry.getByRole('button', summaryButton),
+                nav: navTraffic
+            }[mode]
+
+            await expect(preview).toHaveAttribute('data-traffic-preview', mode)
+            await expect(preview).toHaveAccessibleDescription(/72(?:[.,]0)? Gi?B.*72%/)
+            await expect(page.locator('[data-traffic-preview]')).toHaveCount(1)
+            if (mode !== 'nav') await expect(preview).toContainText('72%')
+            await preview.click()
+
+            await expect(navTraffic).toHaveAttribute('aria-current', 'page')
+            await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
+            await expect(
+                page.getByRole('progressbar', { name: 'Остаток трафика' })
+            ).toHaveAttribute('aria-valuenow', '72')
+            await expect(page.getByRole('button', { name: /Сбросить трафик/ })).toBeVisible()
+            await expect(page.locator(`[data-traffic-preview="${mode}"]`)).not.toBeVisible()
+        })
+    }
+
+    test('represents depleted and unlimited traffic without a misleading gauge', async ({
+        page
+    }) => {
+        await page.goto('/?layout=frost&scenario=traffic-depleted&traffic-preview=inline')
+        await expect(
+            page.getByRole('button', { name: 'Остаток трафика', exact: true })
+        ).toHaveAccessibleDescription(/0 B.*0%/)
+
+        await page.goto('/?layout=frost&scenario=unlimited&traffic-preview=nav')
+        const navTraffic = page
+            .getByRole('navigation')
+            .getByRole('button', { name: 'Трафик', exact: true })
+        await expect(navTraffic).toHaveAccessibleDescription('Безлимит')
+        await expect(navTraffic.getByText('∞', { exact: true })).toBeVisible()
+        await expect(navTraffic).not.toContainText('%')
+    })
+
+    test('does not change the Obsidian layout', async ({ page }) => {
+        await page.goto('/?layout=obsidian&scenario=traffic-partial&traffic-preview=separate')
+        const summary = page.getByRole('region', { name: 'Ваша подписка' })
+        await expect(summary.getByRole('progressbar', { name: 'Трафик' })).toHaveAttribute(
+            'aria-valuenow',
+            '28'
+        )
+        await expect(page.locator('[data-traffic-preview]')).toHaveCount(0)
+    })
+})
+
 test('Frost device removal requires confirmation and handles authorization expiry', async ({
     page
 }) => {

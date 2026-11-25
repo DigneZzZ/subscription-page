@@ -3,6 +3,9 @@ import { create } from 'zustand'
 export const EFFECT_FLAGS = ['blobs', 'glass', 'shimmer', 'pulse', 'glow'] as const
 export type TEffectFlag = (typeof EFFECT_FLAGS)[number]
 
+const FROST_TRAFFIC_PREVIEWS = ['off', 'separate', 'inline', 'nav'] as const
+export type TFrostTrafficPreview = (typeof FROST_TRAFFIC_PREVIEWS)[number]
+
 export type TLayoutPreset =
     | 'aurora'
     | 'banner'
@@ -22,6 +25,7 @@ interface IUiPresetState {
         toggleEffect: (flag: TEffectFlag) => void
     }
     effects: TEffectFlag[]
+    frostTrafficPreview: TFrostTrafficPreview
     headerPay: boolean
     layoutPreset: TLayoutPreset
     preview: boolean
@@ -41,8 +45,15 @@ const LAYOUTS: TLayoutPreset[] = [
     'tiles'
 ]
 
-const readInitialPreset = (): { effects: TEffectFlag[]; headerPay: boolean; layout: TLayoutPreset; preview: boolean; theme: number } => {
-    const fallback = { effects: [] as TEffectFlag[], headerPay: true, layout: 'obsidian' as TLayoutPreset, preview: false, theme: 9 }
+const readInitialPreset = (): Omit<IUiPresetState, 'actions'> => {
+    const fallback = {
+        effects: [],
+        frostTrafficPreview: 'off',
+        headerPay: true,
+        layoutPreset: 'obsidian',
+        preview: false,
+        themePreset: 9
+    } as const satisfies Omit<IUiPresetState, 'actions'>
     try {
         const div = document.getElementById('ui')
         if (!div?.dataset.preset) return fallback
@@ -51,27 +62,24 @@ const readInitialPreset = (): { effects: TEffectFlag[]; headerPay: boolean; layo
             effects: Array.isArray(parsed.fx)
                 ? EFFECT_FLAGS.filter((flag) => parsed.fx.includes(flag))
                 : [],
+            frostTrafficPreview: FROST_TRAFFIC_PREVIEWS.includes(parsed.frostTrafficPreview)
+                ? parsed.frostTrafficPreview
+                : fallback.frostTrafficPreview,
             headerPay: parsed.headerPay !== false,
-            layout: LAYOUTS.includes(parsed.layout) ? parsed.layout : fallback.layout,
+            layoutPreset: LAYOUTS.includes(parsed.layout) ? parsed.layout : fallback.layoutPreset,
             preview: parsed.preview === true,
-            theme:
+            themePreset:
                 Number.isInteger(parsed.theme) && parsed.theme >= 1 && parsed.theme <= 12
                     ? parsed.theme
-                    : fallback.theme
+                    : fallback.themePreset
         }
     } catch {
         return fallback
     }
 }
 
-const initial = readInitialPreset()
-
 export const useUiPresetStore = create<IUiPresetState>()((set) => ({
-    effects: initial.effects,
-    headerPay: initial.headerPay,
-    themePreset: initial.theme,
-    layoutPreset: initial.layout,
-    preview: initial.preview,
+    ...readInitialPreset(),
     actions: {
         setThemePreset: (theme) => set({ themePreset: theme }),
         setLayoutPreset: (layout) => set({ layoutPreset: layout }),
@@ -85,6 +93,7 @@ export const useUiPresetStore = create<IUiPresetState>()((set) => ({
 }))
 
 export const useEffects = () => useUiPresetStore((state) => state.effects)
+export const useFrostTrafficPreview = () => useUiPresetStore((state) => state.frostTrafficPreview)
 export const useHeaderPayButton = () => useUiPresetStore((state) => state.headerPay)
 export const useThemePreset = () => useUiPresetStore((state) => state.themePreset)
 export const useLayoutPreset = () => useUiPresetStore((state) => state.layoutPreset)
