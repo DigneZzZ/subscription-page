@@ -16,6 +16,13 @@ import { THEME_PRESETS } from '../src/shared/constants/theme/presets/theme-prese
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../dist')
 const base64 = (value) => Buffer.from(JSON.stringify(value)).toString('base64')
 const previewOrigin = 'http://127.0.0.1:3335'
+const expiryScenarios = {
+    'expiry-today': { daysLeft: 0, expiresAt: '2026-11-25T14:00:00Z' },
+    'expiry-short': { daysLeft: 4, expiresAt: '2026-11-29T12:00:00Z' },
+    'expiry-monthly': { daysLeft: 181, expiresAt: '2027-05-25T12:00:00Z' },
+    'expiry-long': { daysLeft: 1826, expiresAt: '2031-11-25T12:00:00Z' },
+    'expiry-indefinite': { daysLeft: 26000, expiresAt: '2099-01-01T12:00:00Z' }
+}
 // Stand-in for Chatwoot's /packs/js/sdk.js: records every SDK call on
 // window.__chatwootCalls and fires chatwoot:ready, exactly like the real SDK
 // does after boot. No network, no iframe.
@@ -174,7 +181,7 @@ export function fixture(scenario = 'multiple', lang = 'ru') {
     const expired = scenario === 'expired'
     const user = {
         shortUuid: 'demo-obsidian',
-        username: 'GeologVPN_192647_6487',
+        username: scenario === 'long-name' ? 'W'.repeat(36) : 'GeologVPN_192647_6487',
         userStatus: expired ? 'EXPIRED' : 'ACTIVE',
         isActive: !expired,
         daysLeft: expired ? -1 : scenario === 'today' ? 0 : scenario === 'compact' ? 180 : 3650,
@@ -182,6 +189,7 @@ export function fixture(scenario = 'multiple', lang = 'ru') {
             ? new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
             : scenario === 'compact' ? new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString()
                 : '2036-09-07T00:00:00Z',
+        ...expiryScenarios[scenario],
         trafficLimitBytes: unlimited ? 0 : 999 * 1024 ** 3,
         trafficUsedBytes: 0,
         trafficLimit: unlimited ? '∞' : '999 GiB',

@@ -47,6 +47,8 @@ import brandLogo from '../../../../assets/frost/mark.svg'
 import happIcon from '../../../../assets/frost/happ.jpg'
 import incyIcon from '../../../../assets/frost/incy.jpg'
 import { ILayoutProps } from './layout-props.interface'
+import { FrostHomeScreen } from './frost-home-screen'
+import { FrostTimeline } from './frost-timeline'
 import { LanguageFooter } from './summary-cards'
 import { FrostDevices } from './frost-devices'
 import theme from './frost-theme.module.css'
@@ -208,25 +210,18 @@ export const FrostLayout = (props: ILayoutProps) => {
     const daysWord = ru
         ? dayForms[new Intl.PluralRules('ru').select(Math.max(0, summary.daysLeft))]
         : 'days'
-    let statusText = ''
-    if (
+    const now = new Date()
+    const isExpired =
         summary.userStatus === 'EXPIRED' ||
-        (!summary.isIndefinite && expiresValid && summary.expiresAt.getTime() <= Date.now())
-    ) {
+        (!summary.isIndefinite && expiresValid && summary.expiresAt <= now)
+    let statusText = ''
+    if (isExpired) {
         statusText = local('Подписка истекла', 'Subscription expired')
     } else if (summary.userStatus === 'LIMITED') {
         statusText = local('Трафик исчерпан', 'Traffic limit reached')
     } else if (!summary.isActive) {
         statusText = local('Подписка отключена', 'Subscription disabled')
     }
-    const now = new Date()
-    const timelineLabels = [0, 3, 6, 9, 12].map((offset) => {
-        const date = new Date(now.getFullYear(), now.getMonth() + offset, 1)
-        return date.getMonth() === 0
-            ? String(date.getFullYear())
-            : date.toLocaleDateString(locale, { month: 'short' }).replace('.', '')
-    })
-
     useEffect(() => {
         if (!connectAttempt) return undefined
         let leftPage = false
@@ -329,9 +324,18 @@ export const FrostLayout = (props: ILayoutProps) => {
                         <span>{config.brandingSettings.title}</span>
                     </div>
                     {help(classes.help)}
+                    {summary.username && (
+                        <h1 className={classes.subscriptionName} dir="auto">
+                            {summary.username}
+                        </h1>
+                    )}
                 </header>
 
-                <section aria-label={ru ? 'Подписка' : 'Subscription'} hidden={view !== 'home'}>
+                <section
+                    aria-label={ru ? 'Подписка' : 'Subscription'}
+                    className={classes.home}
+                    hidden={view !== 'home'}
+                >
                     <div
                         className={clsx(classes.card, classes.expiry)}
                         data-state={statusText ? 'off' : 'active'}
@@ -379,29 +383,18 @@ export const FrostLayout = (props: ILayoutProps) => {
                                 </button>
                             )}
                         </div>
-                        <div
-                            aria-label={ru ? 'Срок подписки' : 'Subscription timeline'}
-                            className={classes.timeline}
-                        >
-                            <div
-                                className={classes.timelineFill}
-                                style={{
-                                    width: `${summary.isIndefinite ? 100 : Math.max(0, Math.min(100, (summary.daysLeft / 365) * 100))}%`
-                                }}
+                        {!isExpired && !summary.isIndefinite && expiresValid && (
+                            <FrostTimeline
+                                dateText={dateText}
+                                expiresAt={summary.expiresAt}
+                                locale={locale}
+                                now={now}
                             />
-                            <div aria-hidden className={classes.timelineLabels}>
-                                {timelineLabels.map((label, index) => (
-                                    <span key={index}>{label}</span>
-                                ))}
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     {props.atLeastOnePlatformApp && activeApp && (
-                        <section
-                            className={clsx(classes.card, classes.connectionCard)}
-                            style={{ marginTop: 12 }}
-                        >
+                        <section className={clsx(classes.card, classes.connectionCard)}>
                             <div className={classes.connectionHeading}>
                                 <h2 className={classes.sectionHeading}>
                                     {ru ? 'Подключение' : 'Connection'}
@@ -554,18 +547,21 @@ export const FrostLayout = (props: ILayoutProps) => {
                         </section>
                     )}
                     {!props.atLeastOnePlatformApp && (
-                        <p className={clsx(classes.card, classes.empty)} style={{ marginTop: 12 }}>
+                        <p className={clsx(classes.card, classes.empty)}>
                             {ru
                                 ? 'Приложения для подключения пока не настроены.'
                                 : 'Connection apps have not been configured.'}
                         </p>
                     )}
-                    {help(classes.support, true)}
-                    {supportEmail && supportUrl && (
-                        <a className={classes.support} href={`mailto:${supportEmail}`}>
-                            {local('Написать на email', 'Email support')}
-                        </a>
-                    )}
+                    <div className={classes.homeFooter}>
+                        {help(classes.support, true)}
+                        {supportEmail && supportUrl && (
+                            <a className={classes.support} href={`mailto:${supportEmail}`}>
+                                {local('Написать на email', 'Email support')}
+                            </a>
+                        )}
+                        <FrostHomeScreen ru={ru} />
+                    </div>
                 </section>
 
                 <section hidden={view !== 'traffic'}>
@@ -748,6 +744,9 @@ export const FrostLayout = (props: ILayoutProps) => {
                                 target="_blank"
                             >
                                 <IconDownload aria-hidden size={22} />
+                                <span className={classes.downloadLabel}>
+                                    {ru ? 'Скачать приложение' : 'Download app'}
+                                </span>
                             </a>
                         )}
                         {connectUrl ? (
