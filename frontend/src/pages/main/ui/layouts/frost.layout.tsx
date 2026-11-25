@@ -57,6 +57,14 @@ import { FrostShare } from './frost-share'
 import classes from './frost.module.css'
 
 type View = 'devices' | 'home' | 'shop' | 'traffic'
+type TrafficState = 'critical' | 'exhausted' | 'low' | 'normal'
+
+const getTrafficState = (percent: number): TrafficState => {
+    if (percent === 0) return 'exhausted'
+    if (percent <= 5) return 'critical'
+    if (percent <= 20) return 'low'
+    return 'normal'
+}
 
 const platformIcons = {
     ios: IconBrandApple,
@@ -109,13 +117,28 @@ export const FrostLayout = (props: ILayoutProps) => {
     const reset = useResetTraffic()
     const ru = currentLang === 'ru'
     const local = (russian: string, english: string) => (ru ? russian : english)
+    const limitBytes = Number(subscription.user.trafficLimitBytes)
+    const trafficPercent = summary.isUnlimited
+        ? 100
+        : Math.min(100, (summary.remainingBytes / limitBytes) * 100)
+    const trafficState = getTrafficState(trafficPercent)
+    const trafficAlert = {
+        normal: '',
+        low: local('Мало трафика', 'Low traffic remaining'),
+        critical: local('Трафик на исходе', 'Traffic almost used up'),
+        exhausted: local('Трафик исчерпан', 'Traffic limit reached')
+    }[trafficState]
+    const canResetFromHome = trafficState === 'exhausted' && reset.visible
     const trafficPreviewTitle = local('Остаток трафика', 'Traffic remaining')
+    const trafficResetTitle = local('Сбросить трафик', 'Reset traffic')
     const trafficPreviewAmount = summary.isUnlimited
         ? local('Безлимит', 'Unlimited')
         : summary.remainingLabel
+    const trafficPercentLabel =
+        trafficPercent > 0 && trafficPercent < 1 ? '<1%' : `${summary.remainingPercent}%`
     const trafficPreviewDescription = summary.isUnlimited
         ? trafficPreviewAmount
-        : `${trafficPreviewAmount} · ${summary.remainingPercent}%`
+        : [trafficPreviewAmount, trafficPercentLabel, trafficAlert].filter(Boolean).join(' · ')
     const locale = ru ? 'ru-RU' : 'en-US'
     const [view, setView] = useState<View>('home')
     const [selectedPlatform, setPlatform] = useState(props.platform)
@@ -292,6 +315,10 @@ export const FrostLayout = (props: ILayoutProps) => {
         setView(next)
         window.scrollTo({ top: 0, behavior: 'instant' })
     }
+    const openTrafficFromHome = () => {
+        navigate('traffic')
+        if (canResetFromHome) reset.handleReset()
+    }
     const renew = () => {
         if (tariffs.length) {
             setShopOpen(true)
@@ -330,27 +357,44 @@ export const FrostLayout = (props: ILayoutProps) => {
             </a>
         )
 
-    const renderTrafficPreview = (mode: 'inline' | 'separate') => (
-        <button
-            aria-description={trafficPreviewDescription}
-            aria-label={trafficPreviewTitle}
-            className={classes.trafficPreview}
-            data-traffic-preview={mode}
-            onClick={() => navigate('traffic')}
-            type="button"
-        >
-            <IconChartBar aria-hidden size={20} />
-            <span className={classes.trafficPreviewBody}>
-                <span className={classes.trafficPreviewHeader}>
-                    <span>{trafficPreviewTitle}</span>
-                    <strong>{trafficPreviewAmount}</strong>
-                    {!summary.isUnlimited && <span>{summary.remainingPercent}%</span>}
+    const renderTrafficPreview = (mode: 'inline' | 'recovery' | 'separate') => {
+        const recoveryOnly = mode === 'recovery'
+        const title = canResetFromHome ? trafficResetTitle : trafficPreviewTitle
+        const PreviewIcon = canResetFromHome ? IconRefresh : IconChartBar
+        return (
+            <button
+                aria-description={recoveryOnly ? trafficAlert : trafficPreviewDescription}
+                aria-haspopup={canResetFromHome && !reset.dynamic ? 'dialog' : undefined}
+                aria-label={title}
+                className={classes.trafficPreview}
+                data-traffic-preview={recoveryOnly ? undefined : mode}
+                data-traffic-reset={canResetFromHome || undefined}
+                data-traffic-state={trafficState}
+                onClick={openTrafficFromHome}
+                type="button"
+            >
+                <PreviewIcon aria-hidden size={20} />
+                <span className={classes.trafficPreviewBody}>
+                    <span className={classes.trafficPreviewHeader}>
+                        <span>{title}</span>
+                        {!recoveryOnly && (
+                            <>
+                                <strong>{trafficPreviewAmount}</strong>
+                                {!summary.isUnlimited && <span>{trafficPercentLabel}</span>}
+                            </>
+                        )}
+                    </span>
+                    {!recoveryOnly && !summary.isUnlimited && (
+                        <TrafficPreviewMeter percent={trafficPercent} />
+                    )}
+                    {trafficAlert && (
+                        <span className={classes.trafficCondition}>{trafficAlert}</span>
+                    )}
                 </span>
-                {!summary.isUnlimited && <TrafficPreviewMeter percent={summary.remainingPercent} />}
-            </span>
-            <IconChevronRight aria-hidden size={16} />
-        </button>
-    )
+                <IconChevronRight aria-hidden size={16} />
+            </button>
+        )
+    }
 
     return (
         <div className={clsx(classes.page, theme.scope)} data-layout="frost">
@@ -435,6 +479,9 @@ export const FrostLayout = (props: ILayoutProps) => {
                             {trafficPreview === 'inline' && renderTrafficPreview('inline')}
                         </div>
                         {trafficPreview === 'separate' && renderTrafficPreview('separate')}
+                        {canResetFromHome &&
+                            (trafficPreview === 'off' || trafficPreview === 'nav') &&
+                            renderTrafficPreview('recovery')}
                     </div>
 
                     {props.atLeastOnePlatformApp && activeApp && (
@@ -610,7 +657,7 @@ export const FrostLayout = (props: ILayoutProps) => {
 
                 <section hidden={view !== 'traffic'}>
                     <h1 className={classes.viewTitle}>{ru ? 'Трафик' : 'Traffic'}</h1>
-                    <section className={classes.card}>
+                    <section className={classes.card} data-traffic-state={trafficState}>
                         <div className={classes.trafficHeader}>
                             <div className={classes.iconBox}>
                                 <IconWorld aria-hidden size={22} />
@@ -640,16 +687,26 @@ export const FrostLayout = (props: ILayoutProps) => {
                             aria-valuemax={100}
                             aria-valuemin={0}
                             aria-valuenow={summary.remainingPercent}
+                            aria-valuetext={
+                                trafficAlert
+                                    ? `${trafficPercentLabel} · ${trafficAlert}`
+                                    : undefined
+                            }
                             className={classes.progress}
                             role="progressbar"
                         >
                             <div
                                 className={classes.progressFill}
-                                style={{ width: `${summary.remainingPercent}%` }}
+                                style={{ width: `${trafficPercent}%` }}
                             />
                         </div>
                         <p className={classes.trafficMeta}>
-                            {ru ? 'использовано' : 'used'} {summary.trafficUsed}
+                            <span>
+                                {ru ? 'использовано' : 'used'} {summary.trafficUsed}
+                            </span>
+                            {trafficAlert && (
+                                <span className={classes.trafficCondition}>{trafficAlert}</span>
+                            )}
                         </p>
                         {reset.visible && (
                             <button
@@ -853,6 +910,9 @@ export const FrostLayout = (props: ILayoutProps) => {
                                         view === key && classes.navActive
                                     )}
                                     data-traffic-preview={showTrafficPreview ? 'nav' : undefined}
+                                    data-traffic-state={
+                                        showTrafficPreview ? trafficState : undefined
+                                    }
                                     key={key}
                                     onClick={() => navigate(key)}
                                     type="button"
@@ -873,7 +933,7 @@ export const FrostLayout = (props: ILayoutProps) => {
                                                 ) : (
                                                     <>
                                                         <TrafficPreviewMeter
-                                                            percent={summary.remainingPercent}
+                                                            percent={trafficPercent}
                                                         />
                                                         <span className={classes.navTrafficAmount}>
                                                             {trafficPreviewAmount}

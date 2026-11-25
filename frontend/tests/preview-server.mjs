@@ -25,6 +25,9 @@ const expiryScenarios = {
 }
 const trafficScenarios = new Map([
     ['traffic-partial', { limit: 100, used: 28 }],
+    ['traffic-low', { limit: 100, used: 80 }],
+    ['traffic-critical', { limit: 100, used: 95 }],
+    ['traffic-nearly-depleted', { limit: 100, used: 99.75 }],
     ['traffic-depleted', { limit: 100, used: 100 }],
     ['unlimited', { limit: 0, used: 0 }]
 ])

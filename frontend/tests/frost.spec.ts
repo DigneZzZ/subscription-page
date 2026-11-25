@@ -374,6 +374,7 @@ test.describe('Frost traffic preview', () => {
             }[mode]
 
             await expect(preview).toHaveAttribute('data-traffic-preview', mode)
+            await expect(preview).toHaveAttribute('data-traffic-state', 'normal')
             await expect(preview).toHaveAccessibleDescription(/72(?:[.,]0)? Gi?B.*72%/)
             await expect(page.locator('[data-traffic-preview]')).toHaveCount(1)
             if (mode !== 'nav') await expect(preview).toContainText('72%')
@@ -381,6 +382,7 @@ test.describe('Frost traffic preview', () => {
 
             await expect(navTraffic).toHaveAttribute('aria-current', 'page')
             await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
+            await expect(page.getByRole('dialog')).toHaveCount(0)
             await expect(
                 page.getByRole('progressbar', { name: 'Остаток трафика' })
             ).toHaveAttribute('aria-valuenow', '72')
@@ -389,21 +391,53 @@ test.describe('Frost traffic preview', () => {
         })
     }
 
+    for (const { mode, percent, scenario, state } of [
+        { mode: 'inline', percent: 20, scenario: 'traffic-low', state: 'low' },
+        { mode: 'nav', percent: 5, scenario: 'traffic-critical', state: 'critical' },
+        { mode: 'separate', percent: 0, scenario: 'traffic-nearly-depleted', state: 'critical' }
+    ]) {
+        test(`marks ${scenario} on the ${mode} preview and Traffic without a Home reset CTA`, async ({
+            page
+        }) => {
+            await page.goto(`/?layout=frost&scenario=${scenario}&traffic-preview=${mode}&reset=1`)
+            const preview = page.locator(`[data-traffic-preview="${mode}"]`)
+            await expect(preview).toHaveAttribute('data-traffic-state', state)
+            const warningColor = await preview.evaluate(
+                (element, token) => getComputedStyle(element).getPropertyValue(token).trim(),
+                state === 'low' ? '--fr-warning' : '--fr-destructive'
+            )
+            expect(warningColor).not.toBe('')
+            await expect(preview).toHaveCSS('--fr-traffic-color', warningColor)
+            if (percent === 0) await expect(preview).toHaveAccessibleDescription(/<1%/)
+            await expect(page.locator('[data-traffic-reset]')).toHaveCount(0)
+            await preview.click()
+
+            const progress = page.getByRole('progressbar', { name: 'Остаток трафика' })
+            const card = page.locator('[data-traffic-state]').filter({ has: progress })
+            await expect(card).toHaveAttribute('data-traffic-state', state)
+            await expect(card).toHaveCSS('--fr-traffic-color', warningColor)
+            await expect(progress).toHaveAttribute('aria-valuenow', String(percent))
+            await expect(page.getByRole('dialog')).toHaveCount(0)
+        })
+    }
+
     test('represents depleted and unlimited traffic without a misleading gauge', async ({
         page
     }) => {
         await page.goto('/?layout=frost&scenario=traffic-depleted&traffic-preview=inline')
-        await expect(
-            page.getByRole('button', { name: 'Остаток трафика', exact: true })
-        ).toHaveAccessibleDescription(/0 B.*0%/)
+        const preview = page.getByRole('button', { name: 'Остаток трафика', exact: true })
+        await expect(preview).toHaveAccessibleDescription(/0 B.*0%/)
+        await expect(preview).toHaveAttribute('data-traffic-state', 'exhausted')
+        await expect(page.locator('[data-traffic-reset]')).toHaveCount(0)
 
-        await page.goto('/?layout=frost&scenario=unlimited&traffic-preview=nav')
+        await page.goto('/?layout=frost&scenario=unlimited&traffic-preview=nav&reset=1&reset-min=0')
         const navTraffic = page
             .getByRole('navigation')
             .getByRole('button', { name: 'Трафик', exact: true })
         await expect(navTraffic).toHaveAccessibleDescription('Безлимит')
         await expect(navTraffic.getByText('∞', { exact: true })).toBeVisible()
         await expect(navTraffic).not.toContainText('%')
+        await expect(page.locator('[data-traffic-reset]')).toHaveCount(0)
     })
 
     test('does not change the Obsidian layout', async ({ page }) => {
@@ -414,6 +448,59 @@ test.describe('Frost traffic preview', () => {
             '28'
         )
         await expect(page.locator('[data-traffic-preview]')).toHaveCount(0)
+    })
+})
+
+test.describe('Frost exhausted traffic reset', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.addInitScript(() => {
+            window.open = (url) => {
+                document.body.dataset.openedUrl = String(url)
+                return null
+            }
+        })
+    })
+
+    test('opens the existing confirmation from Home with traffic preview off', async ({ page }) => {
+        await page.goto('/?layout=frost&scenario=traffic-depleted&traffic-preview=off&reset=1')
+        const resetButton = page
+            .getByRole('button', { name: 'Сбросить трафик', exact: true })
+            .and(page.locator('[data-traffic-reset]'))
+        await expect(resetButton).toBeVisible()
+        await expect(page.locator('[data-traffic-preview]')).toHaveCount(0)
+        await resetButton.click()
+
+        const dialog = page.getByRole('dialog')
+        await expect(dialog).toContainText('Сбросить трафик за 99')
+        await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
+        const progress = page.getByRole('progressbar', {
+            includeHidden: true,
+            name: 'Остаток трафика'
+        })
+        const card = page.locator('[data-traffic-state]').filter({ has: progress })
+        await expect(card).toBeVisible()
+        await expect(card).toHaveAttribute('data-traffic-state', 'exhausted')
+        await dialog.getByRole('button', { name: 'Оплатить', exact: true }).click()
+        await expect(page.locator('body')).toHaveAttribute(
+            'data-opened-url',
+            '/api/pay/reset?shortUuid=demo-obsidian'
+        )
+    })
+
+    test('opens the SHM provider from Home in the same click', async ({ page }) => {
+        await page.goto('/?layout=frost&scenario=traffic-depleted&traffic-preview=nav&reset=shm')
+        const resetButton = page
+            .getByRole('button', { name: 'Сбросить трафик', exact: true })
+            .and(page.locator('[data-traffic-reset]'))
+        await expect(resetButton).toBeVisible()
+        await resetButton.click()
+
+        await expect(page.locator('body')).toHaveAttribute(
+            'data-opened-url',
+            '/api/pay/reset?shortUuid=demo-obsidian'
+        )
+        await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
+        await expect(page.getByRole('dialog')).toHaveCount(0)
     })
 })
 
