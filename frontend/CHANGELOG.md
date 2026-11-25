@@ -1,5 +1,39 @@
 # Changelog
 
+## [7.9.0](https://github.com/DigneZzZ/subscription-page/compare/v7.8.0...v7.9.0) (2026-11-25)
+
+
+### Features
+
+* Aurora layout (LAYOUT_PRESET=j) ([f52feee](https://github.com/DigneZzZ/subscription-page/commit/f52feee5a648923b44815e017923f86cc7d85069))
+* **chatwoot:** page-styled support launcher, CHATWOOT_LAUNCHER modes ([acf6b03](https://github.com/DigneZzZ/subscription-page/commit/acf6b03b92a90a3465166ceab1f6abd65ea18607))
+* **chatwoot:** same-origin relay for the widget (CHATWOOT_PROXY=1) ([856421e](https://github.com/DigneZzZ/subscription-page/commit/856421e7afba8af3513ccfbaa4156b5fc54fadd0))
+* **chatwoot:** sync widget locale/theme, env appearance options, tests ([e2e9618](https://github.com/DigneZzZ/subscription-page/commit/e2e9618d77bd011926b4d3bd54de5839b91104cc))
+* EFFECTS env — visual effects toggleable on any layout ([cff6d7d](https://github.com/DigneZzZ/subscription-page/commit/cff6d7dfbf5955c704c23acc042ff29715d4302f))
+* EFFECTS env — эффекты включаются на любой раскладке ([5050f06](https://github.com/DigneZzZ/subscription-page/commit/5050f062492f219115116a3faedc322594bcebca))
+* **frontend:** add configurable Frost traffic preview ([00693d4](https://github.com/DigneZzZ/subscription-page/commit/00693d420f8ef912b9aaf58e9f3793a134d7b941))
+* **frontend:** add Frost subscription layout ([03f8ff3](https://github.com/DigneZzZ/subscription-page/commit/03f8ff3c0d5521eb59fe9eae5e894f9a790aad5b))
+* **frontend:** Aurora layout (LAYOUT_PRESET=j) — animated blobs, glass hero, ring-as-reset-button ([3925e17](https://github.com/DigneZzZ/subscription-page/commit/3925e17fdef01ee254c5b844573f8d113b619cb7))
+* **frontend:** improve Frost subscription experience ([7baac67](https://github.com/DigneZzZ/subscription-page/commit/7baac677eba5098712a6e7bb61e97d620bc48056))
+* **frontend:** Network (k) and Billboard (l) layouts ([6f138a7](https://github.com/DigneZzZ/subscription-page/commit/6f138a7c2d2d1ea307c52ca8794994846ba31caa))
+* **frontend:** prioritize expired Frost subscription renewal ([8c7390b](https://github.com/DigneZzZ/subscription-page/commit/8c7390bcf7c47742b068dc09336ef5cf5f3bf6cf))
+* **frontend:** QR code button in the subscription link card ([03730c3](https://github.com/DigneZzZ/subscription-page/commit/03730c39f4ec658dc4ff5acbd7c511776f668443))
+* **frontend:** show Frost traffic warnings and reset shortcut ([ab340de](https://github.com/DigneZzZ/subscription-page/commit/ab340def7acfcd6c37f8cde62e52b5c90824eaa7))
+* **frontend:** URL hash commands #pay, #support, #devices, #reset ([2d8dfc4](https://github.com/DigneZzZ/subscription-page/commit/2d8dfc4a8eb03518ca74be258751191ee53dbe28))
+* Network (k) и Billboard (l) раскладки ([1b5b12b](https://github.com/DigneZzZ/subscription-page/commit/1b5b12b3274fb747a4a689c6a55a40d20e805cb2))
+* optional header Pay button (HEADER_PAY_BUTTON) + 4 new color themes ([25cb88a](https://github.com/DigneZzZ/subscription-page/commit/25cb88af5e20e9e53dab129a957b549ede07b967))
+* optional header Pay button + themes 9-12 ([72f589f](https://github.com/DigneZzZ/subscription-page/commit/72f589f1626400f467825b29be63335be1226652))
+
+
+### Bug Fixes
+
+* **frontend:** flatten single-tariff periods in the tariff picker ([2ea0833](https://github.com/DigneZzZ/subscription-page/commit/2ea08337fc508e5a96393a8de1837e3b38accdab))
+* **frontend:** keep Frost traffic reset contextual ([ba2a7c7](https://github.com/DigneZzZ/subscription-page/commit/ba2a7c77fd37fc20515c2c55ce90910e652d5720))
+* **frontend:** restore Frost traffic reset text action ([6762a40](https://github.com/DigneZzZ/subscription-page/commit/6762a40cedf7c9529327e759a67f2448738e1ea6))
+* **frontend:** show subscription username in all layout summaries ([5b266fe](https://github.com/DigneZzZ/subscription-page/commit/5b266fed01e16be087dfad0fe5c818b74fe28f4e))
+* show subscription username in all layout summaries ([e5b3a11](https://github.com/DigneZzZ/subscription-page/commit/e5b3a112539b0ba48bdd968a07055c4b972b478f))
+* одиночные периоды в выборе тарифа — без группировки ([342b329](https://github.com/DigneZzZ/subscription-page/commit/342b3292e3c3d00906ebe5c0785bcf00030c0587))
+
 ## [7.8.0](https://github.com/DigneZzZ/subscription-page/compare/v7.7.0...v7.8.0) (2026-07-18)
 
 
