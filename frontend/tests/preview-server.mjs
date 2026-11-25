@@ -29,6 +29,7 @@ const trafficScenarios = new Map([
     ['traffic-critical', { limit: 100, used: 95 }],
     ['traffic-nearly-depleted', { limit: 100, used: 99.75 }],
     ['traffic-depleted', { limit: 100, used: 100 }],
+    ['expired-depleted', { limit: 100, used: 100 }],
     ['unlimited', { limit: 0, used: 0 }]
 ])
 // Stand-in for Chatwoot's /packs/js/sdk.js: records every SDK call on
@@ -185,7 +186,7 @@ export function fixture(scenario = 'multiple', lang = 'ru') {
         svgLibrary: { Device: icon },
         platforms
     })
-    const expired = scenario === 'expired'
+    const expired = scenario === 'expired' || scenario === 'expired-depleted'
     const trafficLimited = scenario === 'traffic-depleted'
     const halfYearExpiry = scenario === 'compact' || scenario === 'traffic-partial'
     const traffic = trafficScenarios.get(scenario) ?? { limit: 999, used: 0 }

@@ -502,6 +502,72 @@ test.describe('Frost exhausted traffic reset', () => {
         await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
         await expect(page.getByRole('dialog')).toHaveCount(0)
     })
+
+    test('prioritizes expired renewal and keeps the filled reset button on Traffic', async ({
+        page
+    }) => {
+        await page.setViewportSize({ width: 320, height: 844 })
+        await page.goto('/?layout=frost&scenario=expired-depleted&traffic-preview=inline&reset=1')
+
+        const expiry = page.locator('[data-expired]')
+        const status = expiry.getByRole('status')
+        const dateLabel = expiry.getByText('Действовала до', { exact: true })
+        await expect(status).toHaveText('Подписка истекла')
+        await expect(dateLabel).toBeVisible()
+        const [statusY, dateLabelY] = await Promise.all([
+            status.evaluate((element) => element.getBoundingClientRect().top),
+            dateLabel.evaluate((element) => element.getBoundingClientRect().top)
+        ])
+        expect(statusY).toBeLessThan(dateLabelY)
+        await expect(
+            page.locator('[data-renewal-needed]').getByRole('link', { name: /Подключиться в/ })
+        ).toBeVisible()
+        await expect(page.locator('[data-traffic-reset]')).toHaveCount(0)
+
+        const renew = expiry.getByRole('button', { name: 'Продлить подписку', exact: true })
+        await expect(renew).toBeInViewport({ ratio: 1 })
+        expect(
+            await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+        ).toBe(true)
+        await renew.click()
+        await expect(page.getByRole('heading', { name: 'Магазин', exact: true })).toBeVisible()
+        await page.getByRole('button', { name: /3 месяца/ }).click()
+        await expect(page.getByRole('link', { name: /Оплатить/ })).toHaveAttribute(
+            'href',
+            '/api/pay?shortUuid=demo-obsidian&id=102'
+        )
+
+        await page
+            .getByRole('navigation')
+            .getByRole('button', { name: 'Подписка', exact: true })
+            .click()
+        const preview = page.getByRole('button', { name: 'Остаток трафика', exact: true })
+        await expect(preview).toHaveAttribute('data-traffic-state', 'exhausted')
+        await preview.click()
+        await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
+        await expect(page.getByRole('dialog')).toHaveCount(0)
+        await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
+
+        const reset = page
+            .getByRole('button', { name: /Сбросить трафик/ })
+            .and(page.locator('[data-traffic-reset-action]'))
+        await expect(reset).toHaveAttribute('aria-haspopup', 'dialog')
+        await expect(reset).toContainText(/99\s*₽/)
+        const hasAccentFill = await reset.evaluate((element) => {
+            const style = getComputedStyle(element)
+            const accent = style.getPropertyValue('--fr-accent').trim()
+            const context = document.createElement('canvas').getContext('2d')
+            if (!context || !accent) return false
+            context.fillStyle = accent
+            const accentColor = context.fillStyle
+            context.fillStyle = style.backgroundColor
+            return context.fillStyle === accentColor
+        })
+        expect(hasAccentFill).toBe(true)
+        await reset.click()
+        await expect(page.getByRole('dialog')).toContainText('Сбросить трафик за 99')
+        await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
+    })
 })
 
 test('Frost device removal requires confirmation and handles authorization expiry', async ({

@@ -1,4 +1,5 @@
 import {
+    IconAlertCircle,
     IconBrandAndroid,
     IconBrandApple,
     IconBrandTelegram,
@@ -128,7 +129,6 @@ export const FrostLayout = (props: ILayoutProps) => {
         critical: local('Трафик на исходе', 'Traffic almost used up'),
         exhausted: local('Трафик исчерпан', 'Traffic limit reached')
     }[trafficState]
-    const canResetFromHome = trafficState === 'exhausted' && reset.visible
     const trafficPreviewTitle = local('Остаток трафика', 'Traffic remaining')
     const trafficResetTitle = local('Сбросить трафик', 'Reset traffic')
     const trafficPreviewAmount = summary.isUnlimited
@@ -252,6 +252,13 @@ export const FrostLayout = (props: ILayoutProps) => {
     const isExpired =
         summary.userStatus === 'EXPIRED' ||
         (!summary.isIndefinite && expiresValid && summary.expiresAt <= now)
+    const canResetFromHome = !isExpired && trafficState === 'exhausted' && reset.visible
+    const expiryLabel = isExpired
+        ? local('Действовала до', 'Was valid until')
+        : local('Действует до', 'Valid until')
+    const renewLabel = isExpired
+        ? local('Продлить подписку', 'Renew subscription')
+        : local('Продлить', 'Renew')
     let statusText = ''
     if (isExpired) {
         statusText = local('Подписка истекла', 'Subscription expired')
@@ -420,8 +427,15 @@ export const FrostLayout = (props: ILayoutProps) => {
                     <div className={classes.homeSummary}>
                         <div
                             className={clsx(classes.card, classes.expiry)}
+                            data-expired={isExpired || undefined}
                             data-state={statusText ? 'off' : 'active'}
                         >
+                            {isExpired && (
+                                <p className={classes.expiryStatus} role="status">
+                                    <IconAlertCircle aria-hidden size={19} />
+                                    <span>{statusText}</span>
+                                </p>
+                            )}
                             <div className={classes.expiryTop}>
                                 <div aria-hidden className={classes.calendar}>
                                     <div className={classes.calendarMonth}>{calendarMonth}</div>
@@ -435,36 +449,34 @@ export const FrostLayout = (props: ILayoutProps) => {
                                     </span>
                                 </div>
                                 <div className={classes.expiryInfo}>
-                                    <span className={classes.muted}>
-                                        {ru ? 'Действует до' : 'Valid until'}
-                                    </span>
+                                    <span className={classes.muted}>{expiryLabel}</span>
                                     <div className={classes.expiryDate}>{dateText}</div>
-                                    <p className={classes.muted} role="status">
-                                        {statusText ||
-                                            (summary.isIndefinite ? (
-                                                local('Без ограничения срока', 'No time limit')
-                                            ) : (
-                                                <>
-                                                    {expiresValid &&
-                                                        summary.expiresAt.toLocaleDateString(
-                                                            locale,
-                                                            {
-                                                                weekday: 'long'
-                                                            }
-                                                        )}
-                                                    {' · '}
-                                                    {ru ? 'ещё' : ''}{' '}
-                                                    <b>
-                                                        {Math.max(0, summary.daysLeft)} {daysWord}
-                                                    </b>
-                                                </>
-                                            ))}
-                                    </p>
+                                    {!isExpired && (
+                                        <p className={classes.muted} role="status">
+                                            {statusText ||
+                                                (summary.isIndefinite ? (
+                                                    local('Без ограничения срока', 'No time limit')
+                                                ) : (
+                                                    <>
+                                                        {expiresValid &&
+                                                            summary.expiresAt.toLocaleDateString(
+                                                                locale,
+                                                                { weekday: 'long' }
+                                                            )}
+                                                        {' · '}
+                                                        {ru ? 'ещё' : ''}{' '}
+                                                        <b>
+                                                            {Math.max(0, summary.daysLeft)} {daysWord}
+                                                        </b>
+                                                    </>
+                                                ))}
+                                        </p>
+                                    )}
                                 </div>
                                 {hasPayment && (
                                     <button className={classes.renew} onClick={renew} type="button">
                                         <IconRefresh aria-hidden size={16} />
-                                        {ru ? 'Продлить' : 'Renew'}
+                                        {renewLabel}
                                     </button>
                                 )}
                             </div>
@@ -710,14 +722,18 @@ export const FrostLayout = (props: ILayoutProps) => {
                         </p>
                         {reset.visible && (
                             <button
-                                className={classes.actionRow}
+                                aria-haspopup={reset.dynamic ? undefined : 'dialog'}
+                                className={classes.trafficResetButton}
+                                data-traffic-reset-action
                                 onClick={reset.handleReset}
                                 type="button"
                             >
                                 <IconRefresh aria-hidden size={19} />
-                                <b>{ru ? 'Сбросить трафик' : 'Reset traffic'}</b>
-                                <span>{reset.dynamic ? '' : reset.priceLabel}</span>
-                                <IconChevronRight aria-hidden size={20} />
+                                <span>{trafficResetTitle}</span>
+                                {!reset.dynamic && reset.priceLabel && (
+                                    <span className={classes.trafficResetPrice}>{reset.priceLabel}</span>
+                                )}
+                                <IconChevronRight aria-hidden size={18} />
                             </button>
                         )}
                     </section>
@@ -831,7 +847,11 @@ export const FrostLayout = (props: ILayoutProps) => {
                 </div>
             </div>
 
-            <div className={classes.dock} data-home={view === 'home'}>
+            <div
+                className={classes.dock}
+                data-home={view === 'home'}
+                data-renewal-needed={(view === 'home' && isExpired && hasPayment) || undefined}
+            >
                 {view === 'home' && activeApp && (
                     <div className={classes.connectActions}>
                         {download && (

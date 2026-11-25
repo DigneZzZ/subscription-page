@@ -229,10 +229,31 @@
     gap: 10px;
 }
 
+.expiry[data-expired] {
+    gap: 12px;
+    border-color: color-mix(in srgb, var(--fr-destructive) 46%, var(--fr-line));
+    background-color: color-mix(in srgb, var(--fr-destructive) 10%, var(--fr-card));
+}
+
+.expiryStatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: color-mix(in srgb, var(--fr-destructive) 70%, var(--fr-text));
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
 .expiryTop {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.expiry[data-expired] .expiryTop {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
 }
 
 .calendar {
@@ -321,6 +342,10 @@
     font-size: 13px;
 }
 
+.expiry[data-expired] .expiryInfo > .muted:first-child {
+    padding-right: 0;
+}
+
 .expiryInfo b {
     color: var(--fr-text);
     font-weight: 700;
@@ -333,6 +358,11 @@
     letter-spacing: -0.02em;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+}
+
+.expiry[data-expired] .expiryDate {
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .renew {
@@ -354,6 +384,26 @@
 
 .renew svg {
     color: var(--fr-accent-text);
+}
+
+.expiry[data-expired] .renew {
+    position: static;
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    justify-content: center;
+    min-height: 48px;
+    padding: 8px 12px;
+    background: var(--fr-accent);
+    color: var(--fr-ink);
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    text-align: center;
+    white-space: normal;
+}
+
+.expiry[data-expired] .renew svg {
+    display: block;
+    color: currentColor;
 }
 
 .timeline {
@@ -762,6 +812,12 @@
     box-shadow: inset 0 0 0 1px rgb(0, 0, 0, 0.2);
 }
 
+.dock[data-renewal-needed] .connectButton {
+    background: var(--fr-button);
+    color: var(--fr-text) !important;
+    box-shadow: inset 0 0 0 1px var(--fr-line-2);
+}
+
 .nav {
     display: flex;
     height: calc(57px + var(--fr-safe-bottom));
@@ -1007,29 +1063,32 @@
     font-size: 12px;
 }
 
-.actionRow {
+.trafficResetButton {
     display: flex;
     align-items: center;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
     min-height: 48px;
-    margin-bottom: -8px;
-    padding: 0;
-    border: 0;
-    border-top: 1px solid var(--fr-line);
-    background: none;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    text-align: left;
+    padding: 8px 12px;
+    border-radius: var(--fr-control-radius);
+    background: var(--fr-accent);
+    color: var(--fr-ink);
+    font-size: 14px;
+    font-weight: 800;
+    text-align: start;
+    overflow-wrap: anywhere;
 }
 
-.actionRow > span:first-of-type {
-    flex: 1;
+.trafficResetButton > svg:last-child {
+    margin-inline-start: auto;
 }
 
-.actionRow > span:last-child {
-    color: var(--fr-muted);
+.trafficResetPrice {
+    min-width: 0;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
 .note {
@@ -1525,6 +1584,11 @@
         justify-self: start;
     }
 
+    .trafficResetButton {
+        align-self: flex-start;
+        width: fit-content;
+    }
+
     .appName {
         overflow-wrap: anywhere;
     }
@@ -1728,7 +1792,9 @@
         background: color-mix(in srgb, var(--fr-accent) 17%, var(--fr-card));
     }
 
-    .connectButton:hover {
+    .connectButton:hover,
+    .expiry[data-expired] .renew:hover,
+    .trafficResetButton:hover {
         filter: brightness(1.04);
     }
 
