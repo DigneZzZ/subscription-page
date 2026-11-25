@@ -718,8 +718,28 @@ export const FrostLayout = (props: ILayoutProps) => {
                             <span>
                                 {ru ? 'использовано' : 'used'} {summary.trafficUsed}
                             </span>
-                            {trafficAlert && (
-                                <span className={classes.trafficCondition}>{trafficAlert}</span>
+                            {(trafficAlert || reset.visible) && (
+                                <span className={classes.trafficMetaActions}>
+                                    {trafficAlert && (
+                                        <span className={classes.trafficCondition}>{trafficAlert}</span>
+                                    )}
+                                    {reset.visible && (
+                                        <button
+                                            aria-haspopup={reset.dynamic ? undefined : 'dialog'}
+                                            className={classes.trafficResetAction}
+                                            data-traffic-reset-action
+                                            onClick={reset.handleReset}
+                                            type="button"
+                                        >
+                                            <span className={classes.trafficResetText}>
+                                                {trafficResetTitle}
+                                            </span>
+                                            {!reset.dynamic && reset.priceLabel && (
+                                                <span>{reset.priceLabel}</span>
+                                            )}
+                                        </button>
+                                    )}
+                                </span>
                             )}
                         </p>
                     </section>

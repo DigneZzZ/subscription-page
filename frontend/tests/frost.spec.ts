@@ -5,6 +5,10 @@ import { devices, expect, test } from '@playwright/test'
 const homeScreenLabel = 'На экран «Домой»'
 const telegramFrostUrl = (platform: string) =>
     `/?layout=frost#tgWebAppVersion=8.0&tgWebAppPlatform=${platform}`
+const trafficResetAction = (page: Page) =>
+    page
+        .getByRole('button', { name: /^Сбросить трафик/ })
+        .and(page.locator('[data-traffic-reset-action]'))
 
 const mockTelegramHomeScreen = (
     page: Page,
@@ -313,7 +317,9 @@ test('Frost keeps app selection, configuration links and QR sharing functional',
     ).toBeVisible()
 })
 
-test('Frost renewal uses configured tariff IDs and keeps reset in the Shop', async ({ page }) => {
+test('Frost renewal uses configured tariff IDs and keeps configured reset available', async ({
+    page
+}) => {
     await page.goto('/?layout=frost&reset=1')
     await page.getByRole('button', { name: 'Продлить', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Магазин', exact: true })).toBeVisible()
@@ -329,7 +335,7 @@ test('Frost renewal uses configured tariff IDs and keeps reset in the Shop', asy
         'aria-valuenow',
         '100'
     )
-    await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
+    await expect(trafficResetAction(page)).toBeVisible()
 })
 
 test.describe('Frost traffic preview', () => {
@@ -387,7 +393,13 @@ test.describe('Frost traffic preview', () => {
             await expect(
                 page.getByRole('progressbar', { name: 'Остаток трафика' })
             ).toHaveAttribute('aria-valuenow', '72')
-            await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
+            const reset = trafficResetAction(page)
+            await expect(reset).toBeVisible()
+            await expect(reset).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+            await expect(reset.getByText('Сбросить трафик', { exact: true })).toHaveCSS(
+                'text-decoration-line',
+                'underline'
+            )
             await expect(page.locator(`[data-traffic-preview="${mode}"]`)).not.toBeVisible()
         })
     }
@@ -400,7 +412,9 @@ test.describe('Frost traffic preview', () => {
         test(`marks ${scenario} on the ${mode} preview and Traffic without a Home reset CTA`, async ({
             page
         }) => {
-            await page.goto(`/?layout=frost&scenario=${scenario}&traffic-preview=${mode}&reset=1`)
+            await page.goto(
+                `/?layout=frost&scenario=${scenario}&traffic-preview=${mode}&reset=1&reset-min=20`
+            )
             const preview = page.locator(`[data-traffic-preview="${mode}"]`)
             await expect(preview).toHaveAttribute('data-traffic-state', state)
             const warningColor = await preview.evaluate(
@@ -418,6 +432,7 @@ test.describe('Frost traffic preview', () => {
             await expect(card).toHaveAttribute('data-traffic-state', state)
             await expect(card).toHaveCSS('--fr-traffic-color', warningColor)
             await expect(progress).toHaveAttribute('aria-valuenow', String(percent))
+            await expect(trafficResetAction(page)).toBeVisible()
             await expect(page.getByRole('dialog')).toHaveCount(0)
         })
     }
@@ -430,6 +445,9 @@ test.describe('Frost traffic preview', () => {
         await expect(preview).toHaveAccessibleDescription(/0 B.*0%/)
         await expect(preview).toHaveAttribute('data-traffic-state', 'exhausted')
         await expect(page.locator('[data-traffic-reset]')).toHaveCount(0)
+        await preview.click()
+        await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
+        await expect(trafficResetAction(page)).toHaveCount(0)
 
         await page.goto('/?layout=frost&scenario=unlimited&traffic-preview=nav&reset=1&reset-min=0')
         const navTraffic = page
@@ -452,7 +470,7 @@ test.describe('Frost traffic preview', () => {
     })
 })
 
-test.describe('Frost exhausted traffic reset', () => {
+test.describe('Frost traffic reset', () => {
     test.beforeEach(async ({ page }) => {
         await page.addInitScript(() => {
             window.open = (url) => {
@@ -486,7 +504,7 @@ test.describe('Frost exhausted traffic reset', () => {
             'data-opened-url',
             '/api/pay/reset?shortUuid=demo-obsidian'
         )
-        await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
+        await expect(trafficResetAction(page)).toBeVisible()
     })
 
     test('opens the SHM provider from Home in the same click', async ({ page }) => {
@@ -502,6 +520,24 @@ test.describe('Frost exhausted traffic reset', () => {
             '/api/pay/reset?shortUuid=demo-obsidian'
         )
         await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
+        await expect(page.getByRole('dialog')).toHaveCount(0)
+    })
+
+    test('opens the SHM provider from Traffic with a positive balance above the usage threshold', async ({
+        page
+    }) => {
+        await page.goto('/?layout=frost&scenario=traffic-partial&catalog=off&reset=shm&reset-min=20')
+        await page.getByRole('button', { name: 'Трафик', exact: true }).click()
+        await expect(page.getByRole('progressbar', { name: 'Остаток трафика' })).toHaveAttribute(
+            'aria-valuenow',
+            '72'
+        )
+        await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
+        await trafficResetAction(page).click()
+        await expect(page.locator('body')).toHaveAttribute(
+            'data-opened-url',
+            '/api/pay/reset?shortUuid=demo-obsidian'
+        )
         await expect(page.getByRole('dialog')).toHaveCount(0)
     })
 
@@ -547,7 +583,16 @@ test.describe('Frost exhausted traffic reset', () => {
         await expect(page.getByRole('heading', { name: 'Основной трафик' })).toBeVisible()
         await expect(page.getByRole('dialog')).toHaveCount(0)
         await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
-        await expect(page.getByRole('button', { name: /^Сброс(?:ить)? трафик/ })).toHaveCount(0)
+        const reset = trafficResetAction(page)
+        await expect(reset).toHaveAttribute('aria-haspopup', 'dialog')
+        await expect(reset).toContainText(/99\s*₽/)
+        await reset.click()
+        const dialog = page.getByRole('dialog')
+        await expect(dialog).toContainText('Сбросить трафик за 99')
+        await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
+        await dialog.getByRole('button', { name: 'Отмена', exact: true }).click()
+        await expect(dialog).not.toBeVisible()
+        await expect(page.locator('body')).not.toHaveAttribute('data-opened-url')
 
         await page
             .getByRole('navigation')
@@ -671,7 +716,7 @@ test('Frost hides the catalog for an external payment link and keeps renewal wor
     )
 })
 
-test('Frost keeps static reset confirmation and respects the Shop usage threshold', async ({
+test('Frost keeps static reset confirmation and respects the Shop and Traffic usage threshold', async ({
     page
 }) => {
     const shop = page.getByRole('navigation').getByRole('button', { name: 'Магазин', exact: true })
@@ -679,6 +724,8 @@ test('Frost keeps static reset confirmation and respects the Shop usage threshol
     await page.goto('/?layout=frost&scenario=traffic-partial&reset=1&reset-min=50')
     await shop.click()
     await expect(reset).toHaveCount(0)
+    await page.getByRole('button', { name: 'Трафик', exact: true }).click()
+    await expect(trafficResetAction(page)).toHaveCount(0)
 
     await page.goto('/?layout=frost&scenario=traffic-partial&reset=1&reset-min=20')
     await page.evaluate(() => {
